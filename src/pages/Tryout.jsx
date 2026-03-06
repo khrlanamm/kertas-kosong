@@ -1,12 +1,35 @@
 import { useEffect, useState } from "react";
 import { db } from "../firebase";
 import { collection, getDocs } from "firebase/firestore";
-import { FileText, Clock, ChevronRight } from "lucide-react";
+import { FileText, Clock, ChevronRight, Timer } from "lucide-react";
 import { Link } from "react-router-dom";
 
 export default function Tryout() {
   const [subtests, setSubtests] = useState([]);
   const [loading, setLoading] = useState(true);
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0, hours: 0, minutes: 0, seconds: 0
+  });
+
+  useEffect(() => {
+    const deadline = new Date("2026-02-09T23:59:00+07:00").getTime();
+    const interval = setInterval(() => {
+      const now = new Date().getTime();
+      const distance = deadline - now;
+      if (distance < 0) {
+        clearInterval(interval);
+        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+      } else {
+        setTimeLeft({
+          days: Math.floor(distance / (1000 * 60 * 60 * 24)),
+          hours: Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)),
+          minutes: Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60)),
+          seconds: Math.floor((distance % (1000 * 60)) / 1000)
+        });
+      }
+    }, 1000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
     const fetchTryoutData = async () => {
@@ -47,7 +70,35 @@ export default function Tryout() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
         <div className="mb-8 text-center md:text-left">
           <h1 className="text-3xl font-bold text-slate-800 mb-2">Daftar Subtes Tryout</h1>
-          <p className="text-slate-600">Pilih subtes di bawah ini untuk mulai mengerjakan.</p>
+          <p className="text-slate-600 mb-6">Pilih subtes di bawah ini untuk mulai mengerjakan. Kerjakan seluruh subtest tryout sebelum waktu berakhir.</p>
+          
+          <div className="inline-flex flex-col md:flex-row items-center gap-4 bg-white px-6 py-4 rounded-xl shadow-sm border border-orange-200">
+            <div className="flex items-center gap-2 text-orange-600 font-semibold">
+              <Timer className="w-5 h-5" />
+              <span>Sisa Waktu Pengerjaan:</span>
+            </div>
+            <div className="flex gap-2 sm:gap-3 text-center">
+              <div className="flex flex-col">
+                <span className="text-xl sm:text-2xl font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-md">{String(timeLeft.days).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-500 mt-1">Hari</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-bold text-slate-800 py-1">:</span>
+              <div className="flex flex-col">
+                <span className="text-xl sm:text-2xl font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-md">{String(timeLeft.hours).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-500 mt-1">Jam</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-bold text-slate-800 py-1">:</span>
+              <div className="flex flex-col">
+                <span className="text-xl sm:text-2xl font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-md">{String(timeLeft.minutes).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-500 mt-1">Menit</span>
+              </div>
+              <span className="text-xl sm:text-2xl font-bold text-slate-800 py-1">:</span>
+              <div className="flex flex-col">
+                <span className="text-xl sm:text-2xl font-bold text-slate-800 bg-slate-100 px-2 sm:px-3 py-1 rounded-md">{String(timeLeft.seconds).padStart(2, '0')}</span>
+                <span className="text-xs text-slate-500 mt-1">Detik</span>
+              </div>
+            </div>
+          </div>
         </div>
 
         {loading ? (
