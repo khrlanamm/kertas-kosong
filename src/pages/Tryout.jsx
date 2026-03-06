@@ -12,7 +12,7 @@ export default function Tryout() {
   });
 
   useEffect(() => {
-    const deadline = new Date("2026-02-09T23:59:00+07:00").getTime();
+    const deadline = new Date("2026-03-09T23:59:00+07:00").getTime();
     const interval = setInterval(() => {
       const now = new Date().getTime();
       const distance = deadline - now;
