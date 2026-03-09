@@ -12,6 +12,7 @@ export default function Tryout() {
   });
 
   useEffect(() => {
+    document.title = "Sistem Tryout | Kertas Kosong";
     const deadline = new Date("2026-03-09T23:59:00+07:00").getTime();
     const interval = setInterval(() => {
       const now = new Date().getTime();

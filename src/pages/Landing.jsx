@@ -1,6 +1,11 @@
+import { useEffect } from "react";
 import { Link } from "react-router-dom";
 
 export default function Landing() {
+  useEffect(() => {
+    document.title = "Komunitas Kertas Kosong";
+  }, []);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
       <div className="text-center max-w-2xl mx-auto">

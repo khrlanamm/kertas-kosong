@@ -16,6 +16,8 @@ export default function PortalBimbel() {
   const [jadwalTryout, setJadwalTryout] = useState([]);
 
   useEffect(() => {
+    document.title = "Portal Bimbel | Kertas Kosong";
+    
     const fetchPortalData = async () => {
       setLoading(true);
       try {
