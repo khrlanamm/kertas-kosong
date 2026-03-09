@@ -51,6 +51,12 @@ export default function PortalBimbel() {
             kehadiranData.presensiB.push({ id: doc.id, ...data });
           }
         });
+        
+        // Sort the data arrays based on 'subtest' names
+        kehadiranData.rekap.sort((a, b) => (a.subtest || "").localeCompare(b.subtest || ""));
+        kehadiranData.presensiA.sort((a, b) => (a.subtest || "").localeCompare(b.subtest || ""));
+        kehadiranData.presensiB.sort((a, b) => (a.subtest || "").localeCompare(b.subtest || ""));
+        
         setKehadiran(kehadiranData);
 
         // Fetch Jadwal Tryout
@@ -329,7 +335,7 @@ export default function PortalBimbel() {
                     ) : (
                       kehadiran.rekap.map(item => (
                          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-between p-4 rounded-lg border border-slate-200 hover:border-red-300 hover:bg-red-50/50 transition-all group">
-                           <span className="font-medium text-slate-700 group-hover:text-red-700">{item.nama || `Link Kelas ${item.kelas}`}</span>
+                           <span className="font-medium text-slate-700 group-hover:text-red-700">Rekap Alpha Kelas {item.kelas || "-"}</span>
                            <ExternalLink className="w-4 h-4 text-slate-400 group-hover:text-red-500" />
                          </a>
                       ))
@@ -349,11 +355,13 @@ export default function PortalBimbel() {
                         <p className="text-slate-500 text-sm p-2">Tidak ada data presensi Kelas A.</p>
                       ) : (
                         kehadiran.presensiA.map(item => (
-                          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
-                             <div className="bg-emerald-100 text-emerald-700 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 group">
+                             <div className="bg-emerald-100/50 group-hover:bg-emerald-100 text-emerald-700 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors">
                                <PenTool className="w-4 h-4" />
                              </div>
-                             <span className="font-medium text-slate-700">{item.nama || "Link Presensi"}</span>
+                             <div className="flex flex-col">
+                               <span className="font-medium text-slate-700 group-hover:text-emerald-700 text-sm transition-colors">{item.subtest || "Link Presensi"}</span>
+                             </div>
                           </a>
                         ))
                       )}
@@ -371,11 +379,13 @@ export default function PortalBimbel() {
                         <p className="text-slate-500 text-sm p-2">Tidak ada data presensi Kelas B.</p>
                       ) : (
                         kehadiran.presensiB.map(item => (
-                          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200">
-                             <div className="bg-blue-100 text-blue-700 w-8 h-8 rounded-full flex items-center justify-center shrink-0">
+                          <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-3 p-3 rounded-lg hover:bg-slate-50 transition-colors border border-transparent hover:border-slate-200 group">
+                             <div className="bg-blue-100/50 group-hover:bg-blue-100 text-blue-700 w-10 h-10 rounded-lg flex items-center justify-center shrink-0 transition-colors">
                                <PenTool className="w-4 h-4" />
                              </div>
-                             <span className="font-medium text-slate-700">{item.nama || "Link Presensi"}</span>
+                             <div className="flex flex-col">
+                               <span className="font-medium text-slate-700 group-hover:text-blue-700 text-sm transition-colors">{item.subtest || "Link Presensi"}</span>
+                             </div>
                           </a>
                         ))
                       )}
