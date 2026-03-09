@@ -215,7 +215,7 @@ export default function PortalBimbel() {
                   <div>
                     <h3 className="text-lg font-bold text-slate-800 mb-2">Instruksi Pengganti Kelas</h3>
                     <p className="text-slate-600 text-sm md:text-base">
-                      Rekaman seluruh kelas dan kegiatan lengkap diunggah di YouTube Komunitas Kertas Kosong. 
+                      Rekaman seluruh kelas dan kegiatan lengkap diunggah di YouTube Komunitas Kertas Kosong dan tersedia pada halaman ini. 
                       Bagi peserta yang tidak hadir kelas atau izin, <strong>wajib menonton video rekaman lalu mengunggah Abstrak (Catatan/Rangkuman) pada formulir berikut.</strong>
                     </p>
                   </div>
@@ -247,7 +247,6 @@ export default function PortalBimbel() {
                       {/* KEGIATAN KELAS */}
                       {Object.keys(groupedKelas).length > 0 && (
                         <div className="space-y-6">
-                          <h3 className="text-xl font-bold text-slate-800 border-b pb-2">Kegiatan Kelas</h3>
                           {Object.keys(groupedKelas).sort().map(kelas => (
                             <div key={kelas} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
                               <button 
