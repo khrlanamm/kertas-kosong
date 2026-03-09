@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { db } from "../firebase";
 import { collection, getDocs, doc, getDoc } from "firebase/firestore";
-import { BookOpen, CalendarCheck, PenTool, ExternalLink, PlayCircle, Clock } from "lucide-react";
+import { BookOpen, CalendarCheck, PenTool, ExternalLink, PlayCircle, Clock, ChevronDown } from "lucide-react";
 
 export default function PortalBimbel() {
   const [activeTab, setActiveTab] = useState("kelas");
@@ -11,9 +11,14 @@ export default function PortalBimbel() {
 
   // Data States
   const [linkAbstrak, setLinkAbstrak] = useState("");
-  const [rekaman, setRekaman] = useState({});
+  const [rekaman, setRekaman] = useState([]);
   const [kehadiran, setKehadiran] = useState({ rekap: [], presensiA: [], presensiB: [] });
   const [jadwalTryout, setJadwalTryout] = useState([]);
+  const [expandedKelas, setExpandedKelas] = useState({});
+
+  const toggleKelas = (kelas) => {
+    setExpandedKelas(prev => ({ ...prev, [kelas]: !prev[kelas] }));
+  };
 
   useEffect(() => {
     document.title = "Portal Bimbel | Kertas Kosong";
@@ -28,15 +33,9 @@ export default function PortalBimbel() {
           setLinkAbstrak(docSnap.data().url || "");
         }
 
-        // Fetch Rekaman (Grouped by minggu)
+        // Fetch Rekaman
         const rekamanSnap = await getDocs(collection(db, "rekaman"));
-        const rekamanData = {};
-        rekamanSnap.forEach((doc) => {
-          const data = doc.data();
-          const minggu = data.minggu || "Lainnya";
-          if (!rekamanData[minggu]) rekamanData[minggu] = [];
-          rekamanData[minggu].push({ id: doc.id, ...data });
-        });
+        const rekamanData = rekamanSnap.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         setRekaman(rekamanData);
 
         // Fetch Kehadiran
@@ -92,6 +91,60 @@ export default function PortalBimbel() {
       return { active: true, label: "Kerjakan Tryout" };
     }
   };
+
+  const getYoutubeId = (url) => {
+    if (!url) return null;
+    const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=)([^#\&\?]*).*/;
+    const match = url.match(regExp);
+    return (match && match[2].length === 11) ? match[2] : null;
+  };
+
+  const renderYoutubeThumbnail = (url, title) => {
+    const ytid = getYoutubeId(url);
+    if (!ytid) {
+      return (
+        <a href={url} target="_blank" rel="noopener noreferrer" className="flex items-center justify-center bg-slate-200 rounded-lg aspect-video text-slate-500 hover:bg-slate-300 transition-colors">
+          <ExternalLink className="w-8 h-8" />
+        </a>
+      );
+    }
+    return (
+      <a href={url} target="_blank" rel="noopener noreferrer" className="block relative group rounded-lg overflow-hidden border border-slate-200 aspect-video shadow-sm">
+        <img src={`https://img.youtube.com/vi/${ytid}/hqdefault.jpg`} alt={title || "Video Thumbnail"} className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105" />
+        <div className="absolute inset-0 bg-black/20 group-hover:bg-black/10 transition-colors flex items-center justify-center">
+          <div className="bg-red-600/90 text-white rounded-full p-2 lg:p-3 opacity-90 group-hover:opacity-100 group-hover:scale-110 transition-all shadow-lg backdrop-blur-sm">
+            <PlayCircle className="w-6 h-6 lg:w-8 lg:h-8" />
+          </div>
+        </div>
+      </a>
+    );
+  };
+
+  // Grouping Logic for Rekaman
+  let rekamanMinggu0 = [];
+  let groupedKelas = {};
+  
+  if (Array.isArray(rekaman)) {
+    rekamanMinggu0 = rekaman.filter(r => r.minggu === 0 || r.kelas?.toLowerCase() === "umum");
+    const rekamanKelas = rekaman.filter(r => r.minggu !== 0 && r.kelas?.toLowerCase() !== "umum");
+    
+    rekamanKelas.forEach(r => {
+      const kelasStr = r.kelas || "Lainnya";
+      const kelas = kelasStr.toUpperCase().includes("KELAS") ? kelasStr : `Kelas ${kelasStr}`;
+      const subtest = r.subtest || "Lainnya";
+      
+      if (!groupedKelas[kelas]) groupedKelas[kelas] = {};
+      if (!groupedKelas[kelas][subtest]) groupedKelas[kelas][subtest] = [];
+      groupedKelas[kelas][subtest].push(r);
+    });
+
+    // Sort weeks
+    Object.keys(groupedKelas).forEach(k => {
+      Object.keys(groupedKelas[k]).forEach(s => {
+        groupedKelas[k][s].sort((a, b) => (a.minggu || 0) - (b.minggu || 0));
+      });
+    });
+  }
 
   return (
     <div className="min-h-screen bg-slate-50">
@@ -185,37 +238,77 @@ export default function PortalBimbel() {
                     Daftar Rekaman Kelas
                   </h2>
                   
-                  {Object.keys(rekaman).length === 0 ? (
+                  {(!rekaman || rekaman.length === 0) ? (
                     <div className="text-center py-10 bg-white rounded-xl border border-dashed border-slate-300">
                       <p className="text-slate-500">Belum ada rekaman kelas yang diunggah.</p>
                     </div>
                   ) : (
-                    <div className="space-y-6">
-                      {Object.keys(rekaman).sort().map((minggu) => (
-                        <div key={minggu} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
-                          <div className="bg-slate-100 px-5 py-3 border-b border-slate-200 font-bold text-slate-700">
-                            {minggu}
-                          </div>
-                          <div className="divide-y divide-slate-100">
-                            {rekaman[minggu].map((item) => (
-                              <div key={item.id} className="p-5 flex flex-col sm:flex-row sm:items-center justify-between hover:bg-slate-50 transition-colors gap-4">
-                                <div>
-                                  <h4 className="font-semibold text-slate-800 text-lg">{item.kelas || item.judul || "Tanpa Judul"}</h4>
-                                  {item.deskripsi && <p className="text-sm text-slate-500 mt-1">{item.deskripsi}</p>}
+                    <div className="space-y-8">
+                      {/* KEGIATAN KELAS */}
+                      {Object.keys(groupedKelas).length > 0 && (
+                        <div className="space-y-6">
+                          <h3 className="text-xl font-bold text-slate-800 border-b pb-2">Kegiatan Kelas</h3>
+                          {Object.keys(groupedKelas).sort().map(kelas => (
+                            <div key={kelas} className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                              <button 
+                                onClick={() => toggleKelas(kelas)}
+                                className="w-full bg-blue-50 px-5 py-4 border-b border-blue-100 font-bold text-blue-800 text-lg flex items-center justify-between hover:bg-blue-100 transition-colors cursor-pointer text-left focus:outline-none"
+                              >
+                                <div className="flex items-center gap-2">
+                                  <BookOpen className="w-5 h-5" />
+                                  {kelas}
                                 </div>
-                                <a 
-                                  href={item.url || "#"} 
-                                  target="_blank" 
-                                  rel="noopener noreferrer"
-                                  className="inline-flex items-center gap-2 text-blue-600 hover:text-blue-800 font-medium text-sm sm:w-auto w-fit"
-                                >
-                                  Tonton Rekaman <ExternalLink className="w-4 h-4" />
-                                </a>
+                                <ChevronDown className={`w-5 h-5 transition-transform duration-300 ${expandedKelas[kelas] ? "rotate-180" : ""}`} />
+                              </button>
+                              
+                              {expandedKelas[kelas] && (
+                              <div className="p-5 space-y-8 animate-in slide-in-from-top-2 fade-in duration-200">
+                                {Object.keys(groupedKelas[kelas]).sort().map(subtest => (
+                                  <div key={subtest}>
+                                    <h4 className="font-semibold text-slate-700 mb-4 pb-2 border-b border-slate-100 flex items-center gap-2">
+                                      {subtest}
+                                    </h4>
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+                                      {groupedKelas[kelas][subtest].map(item => (
+                                        <div key={item.id} className="flex flex-col gap-3 bg-slate-50 p-4 rounded-xl border border-slate-100 hover:border-blue-200 hover:shadow-sm transition-all group">
+                                          {renderYoutubeThumbnail(item.url, item.judul || `Minggu ${item.minggu}`)}
+                                          <div>
+                                            <h5 className="font-bold text-slate-800 text-sm group-hover:text-blue-600 transition-colors">{`Minggu ${item.minggu}`}</h5>
+                                            {(item.judul || item.deskripsi) && (
+                                              <p className="text-xs text-slate-500 line-clamp-2 mt-1">{item.judul || item.deskripsi}</p>
+                                            )}
+                                          </div>
+                                        </div>
+                                      ))}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      {/* MINGGU 0 */}
+                      {rekamanMinggu0.length > 0 && (
+                        <div className="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                          <div className="bg-slate-100 px-5 py-4 border-b border-slate-200 font-bold text-slate-700 flex items-center gap-2">
+                            Kegiatan Non Kelas
+                          </div>
+                          <div className="p-5 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {rekamanMinggu0.map(item => (
+                              <div key={item.id} className="flex flex-col gap-3">
+                                {renderYoutubeThumbnail(item.url, item.subtest || item.judul)}
+                                <div>
+                                  <h4 className="font-semibold text-slate-800">{item.subtest || item.judul || item.kelas || "Tanpa Judul"}</h4>
+                                  {item.deskripsi && <p className="text-sm text-slate-500 line-clamp-2 mt-1">{item.deskripsi}</p>}
+                                </div>
                               </div>
                             ))}
                           </div>
                         </div>
-                      ))}
+                      )}
                     </div>
                   )}
                 </div>
