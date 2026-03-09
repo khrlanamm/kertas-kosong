@@ -168,9 +168,9 @@ export default function PortalBimbel() {
         </div>
       </nav>
 
-      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Navigation Tabs */}
-        <div className="flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 mb-8 overflow-x-auto">
+      <main className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-24 md:pb-8">
+        {/* Navigation Tabs - Desktop (Hidden on mobile) */}
+        <div className="hidden md:flex bg-white rounded-xl shadow-sm border border-slate-200 p-1 mb-8 overflow-x-auto">
           <button
             onClick={() => setActiveTab("kelas")}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium text-sm sm:text-base transition-all whitespace-nowrap ${
@@ -415,7 +415,7 @@ export default function PortalBimbel() {
                       return (
                         <div key={item.id} className={`bg-white rounded-xl border p-6 flex flex-col transition-all ${status.active ? 'shadow-md border-blue-200' : 'shadow-sm border-slate-200 opacity-90'}`}>
                           <div className="flex justify-between items-start mb-4">
-                            <h3 className="text-xl font-bold text-slate-800">{item.nama_tryout || item.id}</h3>
+                            <h3 className="text-xl font-bold text-slate-800">{item.nama || item.nama_tryout || item.id}</h3>
                             <span className={`text-xs font-bold px-3 py-1 rounded-full ${status.active ? 'bg-green-100 text-green-700' : 'bg-slate-100 text-slate-500'}`}>
                               {status.active ? 'Sedang Berlangsung' : (status.label === 'Belum Dibuka' ? 'Akan Datang' : 'Berakhir')}
                             </span>
@@ -460,6 +460,53 @@ export default function PortalBimbel() {
           </div>
         )}
       </main>
+
+      {/* Fixed Bottom Navigation - Mobile Only */}
+      <div className="md:hidden fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 z-50 pb-safe">
+        <div className="flex justify-around items-center p-2 px-4 shadow-[0_-4px_20px_-10px_rgba(0,0,0,0.1)]">
+          <button
+            onClick={() => setActiveTab("kelas")}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-colors flex-1 ${
+              activeTab === "kelas" 
+                ? "text-blue-600" 
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <div className={`p-1.5 rounded-lg mb-1 transition-all ${activeTab === "kelas" ? "bg-blue-50" : "bg-transparent"}`}>
+              <BookOpen className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-semibold">Kelas</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("kehadiran")}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-colors flex-1 ${
+              activeTab === "kehadiran" 
+                ? "text-blue-600" 
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <div className={`p-1.5 rounded-lg mb-1 transition-all ${activeTab === "kehadiran" ? "bg-blue-50" : "bg-transparent"}`}>
+              <CalendarCheck className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-semibold">Kehadiran</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab("tryout")}
+            className={`flex flex-col items-center justify-center p-2 rounded-xl transition-colors flex-1 ${
+              activeTab === "tryout" 
+                ? "text-blue-600" 
+                : "text-slate-400 hover:text-slate-600"
+            }`}
+          >
+            <div className={`p-1.5 rounded-lg mb-1 transition-all ${activeTab === "tryout" ? "bg-blue-50" : "bg-transparent"}`}>
+              <PenTool className="w-5 h-5" />
+            </div>
+            <span className="text-[10px] font-semibold">Tryout</span>
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
