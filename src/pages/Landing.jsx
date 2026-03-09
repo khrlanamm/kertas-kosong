@@ -12,10 +12,10 @@ export default function Landing() {
           (Coming Soon)
         </p>
         <Link
-          to="/tryout"
+          to="/portal-bimbel"
           className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-semibold py-4 px-8 rounded-lg transition-colors duration-200 shadow-md hover:shadow-lg"
         >
-          Masuk ke Portal Tryout
+          Masuk ke Portal Bimbel
         </Link>
       </div>
     </div>
