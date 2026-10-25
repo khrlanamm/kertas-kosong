@@ -43,3 +43,7 @@ npm run dev
 npm run build
 firebase deploy --only hosting
 ```
+
+## License
+
+All rights reserved. The source code is public for reference only. See [LICENSE](LICENSE).
