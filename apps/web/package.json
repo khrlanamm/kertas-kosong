@@ -7,9 +7,13 @@
   },
   "scripts": {
     "dev": "astro dev",
+    "media": "node ../../functions/scripts/media.mjs tarik",
+    "media:dorong": "node ../../functions/scripts/media.mjs dorong",
+    "prebuild": "npm run media",
     "build": "astro check && astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "predev": "npm run media"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.12",

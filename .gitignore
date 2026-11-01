@@ -10,10 +10,17 @@ dist
 .firebase
 .emulator-data
 
+# Media website ada di Firebase Storage (lihat functions/scripts/media.mjs)
+apps/web/src/assets/
+apps/web/public/og.jpg
+
 # Env and secrets
 .env
 .env.*
 *.local
+secrets/
+*firebase-adminsdk*.json
+*service-account*.json
 
 # Editors and OS
 .vscode/*
