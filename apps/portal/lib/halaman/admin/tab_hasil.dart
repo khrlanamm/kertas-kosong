@@ -5,6 +5,7 @@ import '../../data/model.dart';
 import '../../data/providers.dart';
 import '../../layanan/fungsi.dart';
 import '../../tema.dart';
+import '../../util/pengawas.dart';
 import '../../util/unduh.dart';
 import '../../util/waktu.dart';
 import '../../widget/umum.dart';
@@ -68,6 +69,7 @@ class _TabHasilState extends ConsumerState<TabHasil> {
       ],
       'Total benar',
       'Skor rata-rata',
+      'Pelanggaran',
     ];
     final baris = <List<Object?>>[];
     for (var i = 0; i < sesi.length; i++) {
@@ -80,6 +82,7 @@ class _TabHasilState extends ConsumerState<TabHasil> {
         for (final s in u.subtes) ...[x.hasil[s.id]?.benar, x.hasil[s.id]?.skor?.toStringAsFixed(2)],
         x.totalBenar,
         x.skorRata?.toStringAsFixed(2),
+        x.pelanggaran,
       ]);
     }
     return [kepala, ...baris].map((r) => r.map(sel).join(';')).join('\n');
@@ -156,6 +159,7 @@ class _TabHasilState extends ConsumerState<TabHasil> {
                       for (final s in u.subtes) DataColumn(label: Text(s.singkatan.isEmpty ? s.nama : s.singkatan), numeric: true),
                       const DataColumn(label: Text('Benar'), numeric: true),
                       const DataColumn(label: Text('Skor'), numeric: true),
+                      const DataColumn(label: Text('Pelanggaran'), numeric: true),
                     ],
                     rows: [
                       for (var i = 0; i < terurut.length; i++)
@@ -178,6 +182,15 @@ class _TabHasilState extends ConsumerState<TabHasil> {
                             for (final s in u.subtes) DataCell(Text(_sel(terurut[i].hasil[s.id]))),
                             DataCell(Text('${terurut[i].totalBenar}')),
                             DataCell(Text(terurut[i].skorRata == null ? '-' : formatAngka(terurut[i].skorRata!, desimal: 2))),
+                            DataCell(
+                              terurut[i].pelanggaran == 0
+                                  ? const Text('0')
+                                  : TextButton(
+                                      onPressed: () => _rincian(terurut[i]),
+                                      style: TextButton.styleFrom(foregroundColor: Warna.salah),
+                                      child: Text('${terurut[i].pelanggaran}'),
+                                    ),
+                            ),
                           ],
                         ),
                     ],
@@ -187,6 +200,41 @@ class _TabHasilState extends ConsumerState<TabHasil> {
           ],
         );
       },
+    );
+  }
+
+  Future<void> _rincian(Sesi sesi) async {
+    final u = widget.ujian;
+    final namaSubtes = {for (final s in u.subtes) s.id: s.singkatan.isEmpty ? s.nama : s.singkatan};
+    await showDialog<void>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Catatan pengawasan: ${sesi.nama}'),
+        content: SizedBox(
+          width: 520,
+          child: FutureBuilder(
+            future: ref.read(repoProvider).ambilJejak(sesi.id),
+            builder: (context, snap) {
+              if (!snap.hasData) return const SizedBox(height: 120, child: Memuat());
+              final jejak = snap.data!;
+              if (jejak.isEmpty) return const Text('Tidak ada catatan.');
+              return ListView(
+                shrinkWrap: true,
+                children: [
+                  for (final j in jejak)
+                    ListTile(
+                      dense: true,
+                      leading: const Icon(Icons.warning_amber, color: Warna.ragu),
+                      title: Text(labelPelanggaran[j.jenis] ?? j.jenis),
+                      subtitle: Text('${namaSubtes[j.subtesId] ?? j.subtesId} · ${formatTanggalJam(j.waktu)}'),
+                    ),
+                ],
+              );
+            },
+          ),
+        ),
+        actions: [FilledButton(onPressed: () => Navigator.pop(context), child: const Text('Tutup'))],
+      ),
     );
   }
 

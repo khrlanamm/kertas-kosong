@@ -19,6 +19,8 @@ class MenuAkun extends ConsumerWidget {
         switch (v) {
           case 'profil':
             context.push('/profil');
+          case 'jadwal':
+            context.push('/jadwal');
           case 'ujian':
             context.go('/ujian');
           case 'admin':
@@ -33,6 +35,10 @@ class MenuAkun extends ConsumerWidget {
         const PopupMenuItem(
           value: 'profil',
           child: ListTile(leading: Icon(Icons.person_outline), title: Text('Profil')),
+        ),
+        const PopupMenuItem(
+          value: 'jadwal',
+          child: ListTile(leading: Icon(Icons.calendar_month), title: Text('Jadwal bimbel')),
         ),
         if (pengguna?.admin ?? false) ...[
           const PopupMenuItem(

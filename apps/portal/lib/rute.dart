@@ -7,10 +7,14 @@ import 'halaman/admin/admin_shell.dart';
 import 'halaman/admin/editor_soal.dart';
 import 'halaman/admin/editor_ujian.dart';
 import 'halaman/admin/daftar_pengguna.dart';
+import 'halaman/admin/daftar_program.dart';
 import 'halaman/admin/daftar_ujian.dart';
+import 'halaman/admin/editor_program.dart';
 import 'halaman/auth/lengkapi_profil.dart';
 import 'halaman/auth/masuk.dart';
 import 'halaman/memuat.dart';
+import 'halaman/program/detail_program.dart';
+import 'halaman/program/jadwal.dart';
 import 'halaman/siswa/beranda.dart';
 import 'halaman/siswa/detail_ujian.dart';
 import 'halaman/siswa/pembahasan.dart';
@@ -67,6 +71,11 @@ final ruteProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/masuk', builder: (context, state) => const HalamanMasuk()),
       GoRoute(path: '/lengkapi-profil', builder: (context, state) => const HalamanLengkapiProfil()),
       GoRoute(path: '/profil', builder: (context, state) => const HalamanProfil()),
+      GoRoute(path: '/jadwal', builder: (context, state) => const HalamanJadwal()),
+      GoRoute(
+        path: '/program/:id',
+        builder: (context, state) => HalamanDetailProgram(programId: state.pathParameters['id']!),
+      ),
       GoRoute(
         path: '/ujian',
         builder: (context, state) => const HalamanBeranda(),
@@ -114,6 +123,17 @@ final ruteProvider = Provider<GoRouter>((ref) {
                     ),
                   ),
                 ],
+              ),
+            ],
+          ),
+          GoRoute(
+            path: '/admin/program',
+            builder: (context, state) => const HalamanDaftarProgram(),
+            routes: [
+              GoRoute(
+                path: ':id',
+                builder: (context, state) =>
+                    HalamanEditorProgram(programId: state.pathParameters['id']!, tab: state.uri.queryParameters['tab']),
               ),
             ],
           ),

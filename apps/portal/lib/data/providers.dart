@@ -48,3 +48,16 @@ final detakProvider = StreamProvider<DateTime>((ref) async* {
   yield DateTime.now();
   yield* Stream.periodic(const Duration(seconds: 30), (_) => DateTime.now());
 });
+
+final programTerbitProvider = StreamProvider<List<Program>>((ref) => ref.watch(repoProvider).pantauProgramTerbit());
+final semuaProgramProvider = StreamProvider<List<Program>>((ref) => ref.watch(repoProvider).pantauSemuaProgram());
+final programProvider = StreamProvider.family<Program?, String>((ref, id) => ref.watch(repoProvider).pantauProgram(id));
+final pendaftarProvider = StreamProvider.family<List<Pendaftar>, String>((ref, id) => ref.watch(repoProvider).pantauPendaftar(id));
+final jadwalProvider = StreamProvider.family<List<Jadwal>, String>((ref, id) => ref.watch(repoProvider).pantauJadwal(id));
+
+/// Semua pendaftaran milik pengguna yang sedang masuk.
+final pendaftaranSayaProvider = StreamProvider<List<Pendaftar>>((ref) {
+  final user = ref.watch(authProvider).value;
+  if (user == null) return Stream.value(const []);
+  return ref.watch(repoProvider).pantauPendaftaranSaya(user.uid);
+});

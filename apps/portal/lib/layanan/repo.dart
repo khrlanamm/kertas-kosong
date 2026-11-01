@@ -200,6 +200,120 @@ class Repo {
         FieldPath(['ragu', soalId]): ragu ? true : FieldValue.delete(),
       });
 
+  /// Catat satu kejadian pengawasan (pindah tab, salin, ...). Hanya bisa bertambah (lihat rules).
+  Future<void> catatPelanggaran(String ujianId, String uid, String subtesId, String jenis) => _pengerjaan(ujianId, uid, subtesId).update({
+    'pelanggaran': FieldValue.increment(1),
+    'jejak': FieldValue.arrayUnion(['$jenis@${DateTime.now().millisecondsSinceEpoch}']),
+  });
+
+  /// Rincian catatan pengawasan satu peserta, untuk admin.
+  Future<List<({String subtesId, String jenis, DateTime waktu})>> ambilJejak(String sesiId) async {
+    final snap = await _db.collection('sesi/$sesiId/pengerjaan').get();
+    final hasil = <({String subtesId, String jenis, DateTime waktu})>[];
+    for (final d in snap.docs) {
+      for (final j in (d.data()['jejak'] as List? ?? const [])) {
+        final bagian = '$j'.split('@');
+        if (bagian.length != 2) continue;
+        hasil.add((subtesId: d.id, jenis: bagian[0], waktu: DateTime.fromMillisecondsSinceEpoch(int.tryParse(bagian[1]) ?? 0)));
+      }
+    }
+    return hasil..sort((a, b) => a.waktu.compareTo(b.waktu));
+  }
+
+  // Program, pendaftar, dan jadwal
+
+  CollectionReference<Json> get _program => _db.collection('program');
+
+  Stream<List<Program>> pantauProgramTerbit() => _program
+      .where('status', isEqualTo: 'terbit')
+      .snapshots()
+      .map((s) => s.docs.map(Program.dariDok).toList()..sort((a, b) => b.buka.compareTo(a.buka)));
+
+  Stream<List<Program>> pantauSemuaProgram() =>
+      _program.snapshots().map((s) => s.docs.map(Program.dariDok).toList()..sort((a, b) => b.buka.compareTo(a.buka)));
+
+  Stream<Program?> pantauProgram(String id) => _program.doc(id).snapshots().map((d) => d.exists ? Program.dariDok(d) : null);
+
+  Future<String> buatProgram({required JenisProgram jenis, required String judul, required String uid}) async {
+    final buka = DateTime.now();
+    final ref = await _program.add({
+      'jenis': jenis.name,
+      'judul': judul,
+      'deskripsi': '',
+      'status': 'draf',
+      'buka': Timestamp.fromDate(buka),
+      'tutup': Timestamp.fromDate(buka.add(const Duration(days: 14))),
+      'kuota': 0,
+      'seleksi': jenis == JenisProgram.bimbel ? 'manual' : 'otomatis',
+      'kelas': jenis == JenisProgram.bimbel ? ['A', 'B'] : <String>[],
+      'jumlahPendaftar': 0,
+      'waktuAcara': '',
+      'tempat': '',
+      'dibuatOleh': uid,
+      'dibuat': FieldValue.serverTimestamp(),
+    });
+    return ref.id;
+  }
+
+  Future<void> perbaruiProgram(String id, Json data) => _program.doc(id).update({...data, 'diperbarui': FieldValue.serverTimestamp()});
+
+  Future<void> hapusProgram(String id) async {
+    final jadwal = await _program.doc(id).collection('jadwal').get();
+    final batch = _db.batch();
+    for (final d in jadwal.docs) {
+      batch.delete(d.reference);
+    }
+    batch.delete(_program.doc(id));
+    await batch.commit();
+  }
+
+  Stream<List<Pendaftar>> pantauPendaftar(String programId) =>
+      _program.doc(programId).collection('pendaftar').snapshots().map((s) => s.docs.map(Pendaftar.dariDok).toList());
+
+  Future<void> aturPendaftar(String programId, String uid, {required StatusPendaftar status, String? kelas, String? catatanAdmin}) =>
+      _program.doc(programId).collection('pendaftar').doc(uid).update({
+        'status': status.name,
+        'kelas': kelas,
+        'catatanAdmin': ?catatanAdmin,
+        'diperbarui': FieldValue.serverTimestamp(),
+      });
+
+  /// Atur banyak pendaftar sekaligus (mis. bagi kelas). Maksimal 500 per batch.
+  Future<void> aturBanyakPendaftar(String programId, Map<String, ({StatusPendaftar status, String? kelas})> perubahan) async {
+    final entri = perubahan.entries.toList();
+    for (var i = 0; i < entri.length; i += 450) {
+      final batch = _db.batch();
+      for (final e in entri.skip(i).take(450)) {
+        batch.update(_program.doc(programId).collection('pendaftar').doc(e.key), {
+          'status': e.value.status.name,
+          'kelas': e.value.kelas,
+          'diperbarui': FieldValue.serverTimestamp(),
+        });
+      }
+      await batch.commit();
+    }
+  }
+
+  Stream<List<Pendaftar>> pantauPendaftaranSaya(String uid) =>
+      _db.collectionGroup('pendaftar').where('uid', isEqualTo: uid).snapshots().map((s) => s.docs.map(Pendaftar.dariDok).toList());
+
+  Stream<List<Jadwal>> pantauJadwal(String programId) => _program
+      .doc(programId)
+      .collection('jadwal')
+      .snapshots()
+      .map((s) => s.docs.map(Jadwal.dariDok).toList()..sort((a, b) => a.mulai.compareTo(b.mulai)));
+
+  Future<void> simpanJadwal(String programId, Jadwal j) async {
+    final koleksi = _program.doc(programId).collection('jadwal');
+    if (j.id.isEmpty) {
+      await koleksi.add(j.keMap());
+    } else {
+      await koleksi.doc(j.id).set(j.keMap());
+    }
+  }
+
+  Future<void> hapusJadwal(String programId, String id) => _program.doc(programId).collection('jadwal').doc(id).delete();
+
   // Gambar soal
 
   Future<String> unggahGambar(String ujianId, Uint8List data, String namaBerkas, String tipeMime) async {

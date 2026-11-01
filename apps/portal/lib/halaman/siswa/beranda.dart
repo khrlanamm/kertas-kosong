@@ -8,6 +8,7 @@ import '../../tema.dart';
 import '../../util/waktu.dart';
 import '../../widget/bilah_atas.dart';
 import '../../widget/umum.dart';
+import '../program/jadwal.dart';
 
 class HalamanBeranda extends ConsumerWidget {
   const HalamanBeranda({super.key});
@@ -17,8 +18,18 @@ class HalamanBeranda extends ConsumerWidget {
     final pengguna = ref.watch(penggunaProvider).value;
     final ujian = ref.watch(ujianTerbitProvider);
     final sesi = ref.watch(sesiSayaProvider).value ?? const [];
+    final program = ref.watch(programTerbitProvider).value ?? const <Program>[];
+    final pendaftaran = ref.watch(pendaftaranSayaProvider).value ?? const <Pendaftar>[];
+    final jadwal = ref.watch(jadwalSayaProvider).value ?? const <PertemuanSaya>[];
     final sekarang = ref.watch(detakProvider).value ?? DateTime.now();
     final tema = Theme.of(context);
+    final judulBagian = tema.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700);
+
+    final diterima = pendaftaran.where((p) => p.status == StatusPendaftar.diterima).map((p) => p.programId).toSet();
+    final programTampil = program
+        .where((p) => p.sedangDibuka(sekarang) || pendaftaran.any((d) => d.programId == p.id) || sekarang.isBefore(p.buka))
+        .toList();
+    final berikutnya = jadwal.where((j) => j.jadwal.selesai.isAfter(sekarang)).take(3).toList();
 
     return Scaffold(
       appBar: AppBar(
@@ -36,33 +47,120 @@ class HalamanBeranda extends ConsumerWidget {
                   style: tema.textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.w800),
                 ),
                 const SizedBox(height: 4),
-                const Text('Semangat, adik pejuang. Berikut tryout yang bisa kamu ikuti.'),
+                const Text('Semangat, adik pejuang. Daftar program, cek jadwal kelas, dan kerjakan tryout di sini.'),
+                if (berikutnya.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  Row(
+                    children: [
+                      Expanded(child: Text('Jadwal terdekat', style: judulBagian)),
+                      TextButton(onPressed: () => context.push('/jadwal'), child: const Text('Semua jadwal')),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  for (final j in berikutnya) KartuPertemuan(data: j, sekarang: sekarang),
+                ],
+                if (programTampil.isNotEmpty) ...[
+                  const SizedBox(height: 24),
+                  Text('Pendaftaran', style: judulBagian),
+                  const SizedBox(height: 12),
+                  for (final p in programTampil)
+                    Padding(
+                      padding: const EdgeInsets.only(bottom: 12),
+                      child: _KartuProgram(program: p, saya: pendaftaran.where((d) => d.programId == p.id).firstOrNull, sekarang: sekarang),
+                    ),
+                ],
                 const SizedBox(height: 24),
-                Text('Tryout', style: tema.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w700)),
+                Text('Tryout', style: judulBagian),
                 const SizedBox(height: 12),
                 ujian.when(
                   loading: () => const Padding(padding: EdgeInsets.all(40), child: Memuat()),
                   error: (e, _) => PesanGalat('Gagal memuat daftar tryout: $e'),
-                  data: (daftar) => daftar.isEmpty
-                      ? const Kosong(
-                          ikon: Icons.event_note_outlined,
-                          judul: 'Belum ada tryout',
-                          pesan: 'Tryout akan muncul di sini setelah diumumkan panitia.',
-                        )
-                      : Column(
-                          children: [
-                            for (final u in daftar)
-                              Padding(
-                                padding: const EdgeInsets.only(bottom: 12),
-                                child: _KartuUjian(ujian: u, sesi: sesi.where((s) => s.ujianId == u.id).firstOrNull, sekarang: sekarang),
-                              ),
-                          ],
-                        ),
+                  data: (semua) {
+                    final daftar = semua.where((u) => u.programId == null || diterima.contains(u.programId)).toList();
+                    return daftar.isEmpty
+                        ? const Kosong(
+                            ikon: Icons.event_note_outlined,
+                            judul: 'Belum ada tryout',
+                            pesan: 'Tryout akan muncul di sini setelah diumumkan panitia. Tryout bimbel hanya untuk peserta yang diterima.',
+                          )
+                        : Column(
+                            children: [
+                              for (final u in daftar)
+                                Padding(
+                                  padding: const EdgeInsets.only(bottom: 12),
+                                  child: _KartuUjian(ujian: u, sesi: sesi.where((s) => s.ujianId == u.id).firstOrNull, sekarang: sekarang),
+                                ),
+                            ],
+                          );
+                  },
                 ),
               ],
             ),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _KartuProgram extends StatelessWidget {
+  const _KartuProgram({required this.program, required this.saya, required this.sekarang});
+
+  final Program program;
+  final Pendaftar? saya;
+  final DateTime sekarang;
+
+  @override
+  Widget build(BuildContext context) {
+    final p = program;
+    final (label, warna) = switch (saya?.status) {
+      StatusPendaftar.diterima => (saya!.kelas == null ? 'Diterima' : 'Diterima · Kelas ${saya!.kelas}', Warna.benar),
+      StatusPendaftar.menunggu => ('Menunggu verifikasi', Warna.ragu),
+      StatusPendaftar.ditolak => ('Tidak diterima', Warna.salah),
+      null =>
+        sekarang.isBefore(p.buka)
+            ? ('Dibuka ${formatTanggalSingkat(p.buka)}', Colors.blueGrey)
+            : p.penuh
+            ? ('Kuota penuh', Colors.blueGrey)
+            : ('Pendaftaran dibuka sampai ${formatTanggalSingkat(p.tutup)}', Warna.tinta),
+    };
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/program/${p.id}'),
+        child: Padding(
+          padding: const EdgeInsets.all(18),
+          child: Row(
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(color: Warna.stabilo.withValues(alpha: 0.5), borderRadius: BorderRadius.circular(12)),
+                child: Icon(p.jenis == JenisProgram.bimbel ? Icons.school_outlined : Icons.campaign_outlined, color: Warna.tintaTua),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(p.judul, style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+                    if (p.waktuAcara.isNotEmpty) Text(p.waktuAcara, style: Theme.of(context).textTheme.bodySmall),
+                    const SizedBox(height: 8),
+                    Wrap(
+                      spacing: 6,
+                      runSpacing: 6,
+                      children: [
+                        Label(p.jenis.label, warna: Warna.tintaTua),
+                        Label(label, warna: warna),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              Icon(saya == null && p.sedangDibuka(sekarang) && !p.penuh ? Icons.app_registration : Icons.chevron_right),
+            ],
+          ),
+        ),
       ),
     );
   }

@@ -17,6 +17,11 @@ class Pengguna {
     this.kelas = '',
     this.kota = '',
     this.noHp = '',
+    this.alamat = '',
+    this.minat = const [],
+    this.tanggalLahir = '',
+    this.eligibleSnbp = '',
+    this.nomorSnbp = '',
   });
 
   final String uid;
@@ -27,6 +32,15 @@ class Pengguna {
   final String kelas;
   final String kota;
   final String noHp;
+  final String alamat;
+  final List<Minat> minat;
+
+  /// Format YYYY-MM-DD.
+  final String tanggalLahir;
+
+  /// "ya", "tidak", "belumTahu", atau kosong.
+  final String eligibleSnbp;
+  final String nomorSnbp;
 
   bool get admin => peran == Peran.admin;
 
@@ -41,8 +55,30 @@ class Pengguna {
       kelas: m['kelas'] as String? ?? '',
       kota: m['kota'] as String? ?? '',
       noHp: m['noHp'] as String? ?? '',
+      alamat: m['alamat'] as String? ?? '',
+      minat: _daftar(m['minat'], Minat.dariMap),
+      tanggalLahir: m['tanggalLahir'] as String? ?? '',
+      eligibleSnbp: m['eligibleSnbp'] as String? ?? '',
+      nomorSnbp: m['nomorSnbp'] as String? ?? '',
     );
   }
+}
+
+class Minat {
+  const Minat(this.kampus, this.jurusan);
+
+  final String kampus;
+  final String jurusan;
+
+  factory Minat.dariMap(Object? v) {
+    final m = v is Map ? v : const {};
+    return Minat(m['kampus'] as String? ?? '', m['jurusan'] as String? ?? '');
+  }
+
+  Json keMap() => {'kampus': kampus, 'jurusan': jurusan};
+
+  @override
+  String toString() => '$jurusan - $kampus';
 }
 
 class Subtes {
@@ -87,6 +123,9 @@ class PengaturanUjian {
     this.urutanBebas = false,
     this.hasilSegera = false,
     this.tampilkanPembahasan = true,
+    this.pengawasan = true,
+    this.batasPelanggaran = 0,
+    this.layarPenuh = false,
   });
 
   /// Acak urutan soal per peserta. Soal satu bacaan tetap berdampingan.
@@ -104,9 +143,22 @@ class PengaturanUjian {
   /// Pembahasan dibuka untuk peserta setelah ujian ditutup.
   final bool tampilkanPembahasan;
 
+  /// Pengawasan: tanda air, blokir salin/klik kanan/cetak, dan catat keluar dari halaman.
+  final bool pengawasan;
+
+  /// Subtes dikumpulkan otomatis setelah sekian pelanggaran. 0 = hanya dicatat.
+  final int batasPelanggaran;
+
+  /// Peserta diminta mengerjakan dalam layar penuh; keluar dari layar penuh dicatat.
+  final bool layarPenuh;
+
   factory PengaturanUjian.dariMap(Object? v) {
     final m = v is Map ? v : const {};
+    final awas = m['pengawasan'] is Map ? m['pengawasan'] as Map : const {};
     return PengaturanUjian(
+      pengawasan: awas['aktif'] != false,
+      batasPelanggaran: (awas['batasPelanggaran'] as num?)?.round() ?? 0,
+      layarPenuh: awas['layarPenuh'] == true,
       acakSoal: m['acakSoal'] == true,
       acakOpsi: m['acakOpsi'] == true,
       urutanBebas: m['urutanBebas'] == true,
@@ -121,16 +173,28 @@ class PengaturanUjian {
     'urutanBebas': urutanBebas,
     'tampilkanHasil': hasilSegera ? 'segera' : 'setelahTutup',
     'tampilkanPembahasan': tampilkanPembahasan,
+    'pengawasan': {'aktif': pengawasan, 'batasPelanggaran': batasPelanggaran, 'layarPenuh': layarPenuh},
   };
 
-  PengaturanUjian salin({bool? acakSoal, bool? acakOpsi, bool? urutanBebas, bool? hasilSegera, bool? tampilkanPembahasan}) =>
-      PengaturanUjian(
-        acakSoal: acakSoal ?? this.acakSoal,
-        acakOpsi: acakOpsi ?? this.acakOpsi,
-        urutanBebas: urutanBebas ?? this.urutanBebas,
-        hasilSegera: hasilSegera ?? this.hasilSegera,
-        tampilkanPembahasan: tampilkanPembahasan ?? this.tampilkanPembahasan,
-      );
+  PengaturanUjian salin({
+    bool? acakSoal,
+    bool? acakOpsi,
+    bool? urutanBebas,
+    bool? hasilSegera,
+    bool? tampilkanPembahasan,
+    bool? pengawasan,
+    int? batasPelanggaran,
+    bool? layarPenuh,
+  }) => PengaturanUjian(
+    pengawasan: pengawasan ?? this.pengawasan,
+    batasPelanggaran: batasPelanggaran ?? this.batasPelanggaran,
+    layarPenuh: layarPenuh ?? this.layarPenuh,
+    acakSoal: acakSoal ?? this.acakSoal,
+    acakOpsi: acakOpsi ?? this.acakOpsi,
+    urutanBebas: urutanBebas ?? this.urutanBebas,
+    hasilSegera: hasilSegera ?? this.hasilSegera,
+    tampilkanPembahasan: tampilkanPembahasan ?? this.tampilkanPembahasan,
+  );
 }
 
 class Ujian {
@@ -145,6 +209,7 @@ class Ujian {
     this.pengaturan = const PengaturanUjian(),
     this.jumlahSoal = const {},
     this.skorDihitung,
+    this.programId,
   });
 
   final String id;
@@ -157,6 +222,9 @@ class Ujian {
   final PengaturanUjian pengaturan;
   final Map<String, int> jumlahSoal;
   final DateTime? skorDihitung;
+
+  /// Jika diisi, tryout hanya untuk peserta yang diterima di program (bimbel) ini.
+  final String? programId;
 
   int get totalSoal => subtes.fold(0, (s, t) => s + (jumlahSoal[t.id] ?? 0));
   int get totalDetik => subtes.fold(0, (s, t) => s + t.durasiDetik);
@@ -179,6 +247,7 @@ class Ujian {
       pengaturan: PengaturanUjian.dariMap(m['pengaturan']),
       jumlahSoal: jumlah is Map ? jumlah.map((k, v) => MapEntry(k as String, (v as num).round())) : const {},
       skorDihitung: _waktu(m['skorDihitung']),
+      programId: (m['programId'] as String?)?.isEmpty ?? true ? null : m['programId'] as String,
     );
   }
 }
@@ -359,11 +428,12 @@ class Stimulus {
 }
 
 class HasilSubtes {
-  const HasilSubtes({required this.benar, required this.jumlah, this.skor});
+  const HasilSubtes({required this.benar, required this.jumlah, this.skor, this.pelanggaran = 0});
 
   final int benar;
   final int jumlah;
   final double? skor;
+  final int pelanggaran;
 
   factory HasilSubtes.dariMap(Object? v) {
     final m = v is Map ? v : const {};
@@ -371,6 +441,7 @@ class HasilSubtes {
       benar: (m['benar'] as num?)?.round() ?? 0,
       jumlah: (m['jumlah'] as num?)?.round() ?? 0,
       skor: (m['skor'] as num?)?.toDouble(),
+      pelanggaran: (m['pelanggaran'] as num?)?.round() ?? 0,
     );
   }
 }
@@ -389,6 +460,7 @@ class Sesi {
     this.totalBenar = 0,
     this.skorRata,
     this.uji = false,
+    this.pelanggaran = 0,
   });
 
   final String id;
@@ -406,6 +478,9 @@ class Sesi {
   /// Percobaan oleh admin; tidak ikut dinilai.
   final bool uji;
 
+  /// Jumlah catatan pengawasan (keluar tab, salin, tangkap layar, ...) di semua subtes.
+  final int pelanggaran;
+
   factory Sesi.dariDok(DocumentSnapshot<Json> d) {
     final m = d.data() ?? const {};
     final hasil = m['hasil'];
@@ -422,6 +497,7 @@ class Sesi {
       totalBenar: (m['totalBenar'] as num?)?.round() ?? 0,
       skorRata: (m['skorRata'] as num?)?.toDouble(),
       uji: m['uji'] == true,
+      pelanggaran: (m['pelanggaran'] as num?)?.round() ?? 0,
     );
   }
 }
@@ -482,6 +558,10 @@ class DataPengerjaan {
     required this.stimulus,
     required this.jawaban,
     required this.ragu,
+    this.pelanggaran = 0,
+    this.pengawasan = true,
+    this.batasPelanggaran = 0,
+    this.layarPenuh = false,
   });
 
   /// "baru", "lanjut", atau "waktuHabis".
@@ -493,6 +573,10 @@ class DataPengerjaan {
   final Map<String, StimulusPeserta> stimulus;
   final Map<String, Object?> jawaban;
   final Map<String, bool> ragu;
+  final int pelanggaran;
+  final bool pengawasan;
+  final int batasPelanggaran;
+  final bool layarPenuh;
 
   factory DataPengerjaan.dariMap(Map<Object?, Object?> m) {
     DateTime waktu(Object? v) => DateTime.fromMillisecondsSinceEpoch((v as num?)?.round() ?? 0);
@@ -511,6 +595,10 @@ class DataPengerjaan {
           : const {},
       jawaban: jawaban is Map ? jawaban.map((k, v) => MapEntry('$k', v)) : {},
       ragu: ragu is Map ? ragu.map((k, v) => MapEntry('$k', v == true)) : {},
+      pelanggaran: (m['pelanggaran'] as num?)?.round() ?? 0,
+      pengawasan: (m['pengawasan'] as Map?)?['aktif'] != false,
+      batasPelanggaran: ((m['pengawasan'] as Map?)?['batasPelanggaran'] as num?)?.round() ?? 0,
+      layarPenuh: (m['pengawasan'] as Map?)?['layarPenuh'] == true,
     );
   }
 }
@@ -553,3 +641,190 @@ bool jawabanTerisi(TipeSoal tipe, Object? jawaban, {int jumlahPernyataan = 0}) =
   TipeSoal.bs => jawaban is Map && jawaban.length >= jumlahPernyataan && jumlahPernyataan > 0,
   TipeSoal.isian => jawaban is String && jawaban.trim().isNotEmpty,
 };
+
+enum JenisProgram {
+  seminar('Seminar'),
+  bimbel('Bimbel');
+
+  const JenisProgram(this.label);
+
+  final String label;
+
+  static JenisProgram dari(Object? v) => v == 'bimbel' ? JenisProgram.bimbel : JenisProgram.seminar;
+}
+
+/// Program yang dibuka pendaftarannya di portal, mis. Seminar Ayo Kuliah atau Bimbel Ayo Kuliah.
+class Program {
+  const Program({
+    required this.id,
+    required this.jenis,
+    required this.judul,
+    this.deskripsi = '',
+    required this.terbit,
+    required this.buka,
+    required this.tutup,
+    this.kuota = 0,
+    this.seleksiManual = false,
+    this.kelas = const [],
+    this.jumlahPendaftar = 0,
+    this.waktuAcara = '',
+    this.tempat = '',
+  });
+
+  final String id;
+  final JenisProgram jenis;
+  final String judul;
+  final String deskripsi;
+  final bool terbit;
+
+  /// Periode pendaftaran.
+  final DateTime buka;
+  final DateTime tutup;
+
+  /// 0 = tanpa batas.
+  final int kuota;
+
+  /// Jika true, pendaftar menunggu keputusan admin. Jika false, langsung diterima.
+  final bool seleksiManual;
+
+  /// Nama kelas untuk bimbel, mis. ["A", "B"].
+  final List<String> kelas;
+  final int jumlahPendaftar;
+
+  /// Keterangan bebas, mis. "Sabtu, 23 Januari 2027, 08.00-12.00 WIB".
+  final String waktuAcara;
+  final String tempat;
+
+  bool sedangDibuka(DateTime t) => !t.isBefore(buka) && t.isBefore(tutup);
+  bool get penuh => kuota > 0 && jumlahPendaftar >= kuota;
+
+  factory Program.dariDok(DocumentSnapshot<Json> d) {
+    final m = d.data() ?? const {};
+    return Program(
+      id: d.id,
+      jenis: JenisProgram.dari(m['jenis']),
+      judul: m['judul'] as String? ?? '',
+      deskripsi: m['deskripsi'] as String? ?? '',
+      terbit: m['status'] == 'terbit',
+      buka: _waktu(m['buka']) ?? DateTime.now(),
+      tutup: _waktu(m['tutup']) ?? DateTime.now(),
+      kuota: (m['kuota'] as num?)?.round() ?? 0,
+      seleksiManual: m['seleksi'] == 'manual',
+      kelas: _daftar(m['kelas'], (e) => '$e'),
+      jumlahPendaftar: (m['jumlahPendaftar'] as num?)?.round() ?? 0,
+      waktuAcara: m['waktuAcara'] as String? ?? '',
+      tempat: m['tempat'] as String? ?? '',
+    );
+  }
+}
+
+enum StatusPendaftar {
+  menunggu('Menunggu verifikasi'),
+  diterima('Diterima'),
+  ditolak('Tidak diterima');
+
+  const StatusPendaftar(this.label);
+
+  final String label;
+
+  static StatusPendaftar dari(Object? v) => StatusPendaftar.values.firstWhere((s) => s.name == v, orElse: () => StatusPendaftar.menunggu);
+}
+
+class Pendaftar {
+  const Pendaftar({
+    required this.uid,
+    required this.programId,
+    required this.email,
+    required this.status,
+    this.kelas,
+    required this.data,
+    this.dibuat,
+    this.catatanAdmin = '',
+  });
+
+  final String uid;
+  final String programId;
+  final String email;
+  final StatusPendaftar status;
+  final String? kelas;
+  final Pengguna data;
+  final DateTime? dibuat;
+  final String catatanAdmin;
+
+  factory Pendaftar.dariDok(DocumentSnapshot<Json> d) {
+    final m = d.data() ?? const {};
+    final data = m['data'] is Map ? Map<String, dynamic>.from(m['data'] as Map) : <String, dynamic>{};
+    final kelas = m['kelas'] as String?;
+    return Pendaftar(
+      uid: d.id,
+      programId: m['programId'] as String? ?? d.reference.parent.parent?.id ?? '',
+      email: m['email'] as String? ?? '',
+      status: StatusPendaftar.dari(m['status']),
+      kelas: kelas == null || kelas.isEmpty ? null : kelas,
+      data: Pengguna(
+        uid: d.id,
+        nama: data['nama'] as String? ?? '',
+        email: m['email'] as String? ?? '',
+        peran: Peran.siswa,
+        sekolah: data['sekolah'] as String? ?? '',
+        kelas: data['kelas'] as String? ?? '',
+        kota: data['kota'] as String? ?? '',
+        noHp: data['noHp'] as String? ?? '',
+        alamat: data['alamat'] as String? ?? '',
+        minat: _daftar(data['minat'], Minat.dariMap),
+        tanggalLahir: data['tanggalLahir'] as String? ?? '',
+        eligibleSnbp: data['eligibleSnbp'] as String? ?? '',
+        nomorSnbp: data['nomorSnbp'] as String? ?? '',
+      ),
+      dibuat: _waktu(m['dibuat']),
+      catatanAdmin: m['catatanAdmin'] as String? ?? '',
+    );
+  }
+}
+
+/// Satu pertemuan bimbel.
+class Jadwal {
+  const Jadwal({
+    required this.id,
+    required this.judul,
+    required this.mulai,
+    required this.selesai,
+    this.kelas = const [],
+    this.tautan = '',
+    this.catatan = '',
+  });
+
+  final String id;
+  final String judul;
+  final DateTime mulai;
+  final DateTime selesai;
+
+  /// Kelas yang mengikuti pertemuan ini. Kosong = semua kelas.
+  final List<String> kelas;
+  final String tautan;
+  final String catatan;
+
+  bool untukKelas(String? k) => kelas.isEmpty || (k != null && kelas.contains(k));
+
+  factory Jadwal.dariDok(DocumentSnapshot<Json> d) {
+    final m = d.data() ?? const {};
+    return Jadwal(
+      id: d.id,
+      judul: m['judul'] as String? ?? '',
+      mulai: _waktu(m['mulai']) ?? DateTime.now(),
+      selesai: _waktu(m['selesai']) ?? DateTime.now(),
+      kelas: _daftar(m['kelas'], (e) => '$e'),
+      tautan: m['tautan'] as String? ?? '',
+      catatan: m['catatan'] as String? ?? '',
+    );
+  }
+
+  Json keMap() => {
+    'judul': judul,
+    'mulai': Timestamp.fromDate(mulai),
+    'selesai': Timestamp.fromDate(selesai),
+    'kelas': kelas,
+    'tautan': tautan,
+    'catatan': catatan,
+  };
+}

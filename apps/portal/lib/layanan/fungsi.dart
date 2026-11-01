@@ -34,6 +34,14 @@ class LayananFungsi {
     );
   }
 
+  /// Daftar atau perbarui pendaftaran. Mengembalikan status: menunggu atau diterima.
+  Future<StatusPendaftar> daftarProgram(String programId, Map<String, Object?> data) async {
+    final d = await _panggil('daftarProgram', {'programId': programId, 'data': data});
+    return StatusPendaftar.dari(d['status']);
+  }
+
+  Future<void> batalDaftarProgram(String programId) => _panggil('batalDaftarProgram', {'programId': programId});
+
   Future<int> hitungSkor(String ujianId) async {
     final d = await _panggil('hitungSkor', {'ujianId': ujianId});
     return (d['peserta'] as num?)?.round() ?? 0;

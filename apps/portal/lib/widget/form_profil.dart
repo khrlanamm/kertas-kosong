@@ -2,7 +2,7 @@ import 'package:material_ui/material_ui.dart';
 
 typedef DataProfil = ({String nama, String sekolah, String kelas, String kota, String noHp});
 
-const pilihanKelas = ['Kelas XII', 'Alumni (lulus 1 tahun lalu)', 'Alumni (lulus 2 tahun lalu)', 'Kelas XI', 'Lainnya'];
+const pilihanKelas = ['Kelas XII', 'Kelas XI', 'Kelas X', 'Alumni (lulus 1 tahun lalu)', 'Alumni (lulus 2 tahun lalu)', 'Lainnya'];
 
 class FormProfil extends StatefulWidget {
   const FormProfil({

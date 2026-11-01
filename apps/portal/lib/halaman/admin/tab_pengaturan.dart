@@ -24,6 +24,7 @@ class _TabPengaturanState extends ConsumerState<TabPengaturan> {
   late DateTime _buka = widget.ujian.buka;
   late DateTime _tutup = widget.ujian.tutup;
   late PengaturanUjian _atur = widget.ujian.pengaturan;
+  late String? _programId = widget.ujian.programId;
   bool _sibuk = false;
   bool _berubah = false;
 
@@ -73,6 +74,7 @@ class _TabPengaturanState extends ConsumerState<TabPengaturan> {
         'buka': Timestamp.fromDate(_buka),
         'tutup': Timestamp.fromDate(_tutup),
         'pengaturan': _atur.keMap(),
+        'programId': _programId,
       });
       if (mounted) {
         setState(() => _berubah = false);
@@ -305,6 +307,72 @@ class _TabPengaturanState extends ConsumerState<TabPengaturan> {
                 ),
               ),
               const SizedBox(height: 20),
+              Text('Peserta', style: tema.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              _PilihProgram(
+                nilai: _programId,
+                onUbah: (v) => setState(() {
+                  _programId = v;
+                  _berubah = true;
+                }),
+              ),
+              const SizedBox(height: 20),
+              Text('Pengawasan', style: tema.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w700)),
+              const SizedBox(height: 8),
+              Card(
+                child: Column(
+                  children: [
+                    SwitchListTile(
+                      title: const Text('Aktifkan pengawasan'),
+                      subtitle: const Text(
+                        'Tanda air berisi nama dan email peserta, teks tidak bisa disalin, klik kanan dan cetak diblokir, '
+                        'soal ditutup saat peserta meninggalkan halaman, dan setiap pelanggaran dicatat.',
+                      ),
+                      value: _atur.pengawasan,
+                      onChanged: (v) => setState(() {
+                        _atur = _atur.salin(pengawasan: v);
+                        _berubah = true;
+                      }),
+                    ),
+                    if (_atur.pengawasan) ...[
+                      SwitchListTile(
+                        title: const Text('Wajib layar penuh'),
+                        subtitle: const Text('Peserta diminta masuk layar penuh. Keluar dari layar penuh dicatat sebagai pelanggaran.'),
+                        value: _atur.layarPenuh,
+                        onChanged: (v) => setState(() {
+                          _atur = _atur.salin(layarPenuh: v);
+                          _berubah = true;
+                        }),
+                      ),
+                      ListTile(
+                        title: const Text('Kumpulkan otomatis setelah'),
+                        subtitle: const Text('Subtes dikumpulkan otomatis jika pelanggaran mencapai batas ini.'),
+                        trailing: DropdownButton<int>(
+                          value: [0, 3, 5, 10].contains(_atur.batasPelanggaran) ? _atur.batasPelanggaran : 0,
+                          items: const [
+                            DropdownMenuItem(value: 0, child: Text('Hanya dicatat')),
+                            DropdownMenuItem(value: 3, child: Text('3 pelanggaran')),
+                            DropdownMenuItem(value: 5, child: Text('5 pelanggaran')),
+                            DropdownMenuItem(value: 10, child: Text('10 pelanggaran')),
+                          ],
+                          onChanged: (v) => setState(() {
+                            _atur = _atur.salin(batasPelanggaran: v ?? 0);
+                            _berubah = true;
+                          }),
+                        ),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Di browser, tangkapan layar tidak bisa diblokir sepenuhnya karena itu fitur sistem operasi. Pengawasan '
+                'menyulitkan dan mencatat kecurangan, dan tanda air membuat bocoran soal bisa dilacak. Pemblokiran '
+                'screenshot penuh tersedia di aplikasi Android nanti.',
+                style: tema.textTheme.bodySmall,
+              ),
+              const SizedBox(height: 20),
               FilledButton(
                 onPressed: _sibuk || !_berubah ? null : _simpan,
                 child: _sibuk
@@ -325,6 +393,29 @@ class _TabPengaturanState extends ConsumerState<TabPengaturan> {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// Pilihan peserta tryout: semua siswa, atau hanya peserta yang diterima di salah satu program.
+class _PilihProgram extends ConsumerWidget {
+  const _PilihProgram({required this.nilai, required this.onUbah});
+
+  final String? nilai;
+  final ValueChanged<String?> onUbah;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final program = ref.watch(semuaProgramProvider).value ?? const <Program>[];
+    final ada = nilai == null || program.any((p) => p.id == nilai);
+    return DropdownButtonFormField<String?>(
+      initialValue: ada ? nilai : null,
+      decoration: const InputDecoration(labelText: 'Siapa yang boleh mengerjakan'),
+      items: [
+        const DropdownMenuItem<String?>(value: null, child: Text('Semua siswa yang punya akun')),
+        for (final p in program) DropdownMenuItem<String?>(value: p.id, child: Text('Hanya peserta diterima: ${p.judul}')),
+      ],
+      onChanged: onUbah,
     );
   }
 }

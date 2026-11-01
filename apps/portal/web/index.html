@@ -31,6 +31,11 @@
 
   <title>Portal Bimbel Ayo Kuliah</title>
   <link rel="manifest" href="manifest.json">
+  <style>
+    /* Saat tryout berlangsung: teks tidak bisa diblok dan halaman tidak bisa dicetak. */
+    body.sedang-ujian { -webkit-user-select: none; user-select: none; }
+    @media print { body.sedang-ujian { display: none !important; } }
+  </style>
 </head>
 <body>
   <!--

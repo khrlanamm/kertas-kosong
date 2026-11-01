@@ -11,6 +11,7 @@ class AdminShell extends StatelessWidget {
 
   static const _menu = [
     (ikon: Icons.edit_note, label: 'Tryout', rute: '/admin/ujian'),
+    (ikon: Icons.app_registration, label: 'Program', rute: '/admin/program'),
     (ikon: Icons.people_outline, label: 'Pengguna', rute: '/admin/pengguna'),
   ];
 

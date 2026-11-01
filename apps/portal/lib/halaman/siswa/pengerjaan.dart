@@ -8,6 +8,7 @@ import '../../data/model.dart';
 import '../../data/providers.dart';
 import '../../layanan/fungsi.dart';
 import '../../tema.dart';
+import '../../util/pengawas.dart';
 import '../../util/waktu.dart';
 import '../../widget/jawaban.dart';
 import '../../widget/konten.dart';
@@ -42,6 +43,16 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
   _StatusSimpan _simpan = _StatusSimpan.tersimpan;
   bool _mengumpulkan = false;
 
+  // Pengawasan
+  Pengawas? _pengawas;
+  int _pelanggaran = 0;
+
+  /// Soal ditutup setelah peserta meninggalkan halaman, sampai ia kembali dan menekan Lanjutkan.
+  bool _tertutup = false;
+
+  /// Menunggu peserta masuk layar penuh (jika diwajibkan).
+  bool _menungguLayarPenuh = false;
+
   @override
   void initState() {
     super.initState();
@@ -54,7 +65,63 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
     for (final t in _tunda.values) {
       t.cancel();
     }
+    _hentikanPengawasan();
     super.dispose();
+  }
+
+  void _hentikanPengawasan() {
+    _pengawas?.berhenti();
+    _pengawas?.keluarLayarPenuh();
+    _pengawas = null;
+  }
+
+  void _mulaiPengawasan(DataPengerjaan data) {
+    if (!data.pengawasan) return;
+    final p = Pengawas(onPelanggaran: _catatPelanggaran, onFokus: _ubahFokus)..mulai(wajibLayarPenuh: data.layarPenuh);
+    _pengawas = p;
+    _pelanggaran = data.pelanggaran;
+    _menungguLayarPenuh = data.layarPenuh && p.didukungLayarPenuh && !p.layarPenuh;
+  }
+
+  void _ubahFokus(bool fokus) {
+    if (!fokus && mounted && !_mengumpulkan) setState(() => _tertutup = true);
+  }
+
+  void _catatPelanggaran(String jenis) {
+    final data = _data;
+    if (data == null || _mengumpulkan || !mounted) return;
+    setState(() => _pelanggaran++);
+    ref.read(repoProvider).catatPelanggaran(widget.ujianId, _uid, widget.subtesId, jenis).catchError((_) {});
+    final batas = data.batasPelanggaran;
+    final label = labelPelanggaran[jenis] ?? jenis;
+    if (batas > 0 && _pelanggaran >= batas) {
+      _kumpulkan(otomatis: true, sebab: 'pelanggaran');
+      return;
+    }
+    tampilkanPesan(
+      context,
+      'Tercatat: $label${batas > 0 ? ' ($_pelanggaran dari $batas, subtes dikumpulkan otomatis jika mencapai batas)' : ''}.',
+      galat: true,
+    );
+  }
+
+  Future<void> _lanjutkan() async {
+    if (_data?.layarPenuh ?? false) await _pengawas?.masukLayarPenuh();
+    if (mounted) setState(() => _tertutup = false);
+  }
+
+  Future<void> _masukLayarPenuh() async {
+    final ok = await _pengawas?.masukLayarPenuh() ?? false;
+    if (!mounted) return;
+    if (ok) {
+      setState(() => _menungguLayarPenuh = false);
+    } else {
+      tampilkanPesan(
+        context,
+        'Browser ini tidak mengizinkan layar penuh. Kamu tetap bisa mengerjakan, tetapi jangan meninggalkan halaman.',
+      );
+      setState(() => _menungguLayarPenuh = false);
+    }
   }
 
   String get _uid => ref.read(authProvider).value?.uid ?? '';
@@ -69,6 +136,7 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
         return;
       }
       _selisih = data.sekarang.difference(DateTime.now());
+      _mulaiPengawasan(data);
       setState(() {
         _data = data;
         _jawaban
@@ -144,7 +212,7 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
 
   bool _terisi(SoalPeserta s) => jawabanTerisi(s.tipe, _jawaban[s.id], jumlahPernyataan: s.pernyataan.length);
 
-  Future<void> _kumpulkan({bool otomatis = false}) async {
+  Future<void> _kumpulkan({bool otomatis = false, String sebab = 'waktu'}) async {
     final data = _data;
     if (data == null || _mengumpulkan) return;
     if (!otomatis) {
@@ -173,14 +241,19 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
     try {
       final hasil = await ref.read(fungsiProvider).kumpulkanSubtes(widget.ujianId, widget.subtesId);
       final teksHasil = hasil.benar != null ? ' Hasil: ${hasil.benar} dari ${hasil.jumlah} benar.' : '';
-      await _selesai(pesan: otomatis ? 'Waktu habis. Jawabanmu sudah dikumpulkan otomatis.$teksHasil' : 'Subtes dikumpulkan.$teksHasil');
+      final pesan = !otomatis
+          ? 'Subtes dikumpulkan.'
+          : sebab == 'pelanggaran'
+          ? 'Subtes dikumpulkan otomatis karena catatan pelanggaran mencapai batas.'
+          : 'Waktu habis. Jawabanmu sudah dikumpulkan otomatis.';
+      await _selesai(pesan: '$pesan$teksHasil');
     } catch (e) {
       if (!mounted) return;
       setState(() => _mengumpulkan = false);
       tampilkanPesan(context, '${pesanGalat(e)}${otomatis ? ' Mencoba lagi...' : ''}', galat: true);
       if (otomatis) {
         // Waktu sudah habis: terus coba kumpulkan sampai berhasil.
-        Timer(const Duration(seconds: 3), () => _kumpulkan(otomatis: true));
+        Timer(const Duration(seconds: 3), () => _kumpulkan(otomatis: true, sebab: sebab));
       } else {
         _detik = Timer.periodic(const Duration(seconds: 1), (_) => _perbaruiSisa());
       }
@@ -188,9 +261,15 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
   }
 
   Future<void> _selesai({required String pesan}) async {
+    _hentikanPengawasan();
     if (!mounted) return;
     tampilkanPesan(context, pesan);
     context.go('/ujian/${widget.ujianId}');
+  }
+
+  String _tandaAir() {
+    final p = ref.read(penggunaProvider).value;
+    return '${p?.nama ?? ''} · ${p?.email ?? ''} · ${formatTanggalSingkat(DateTime.now())}';
   }
 
   @override
@@ -229,6 +308,12 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
           titleSpacing: 16,
           title: Text(data.namaSubtes, overflow: TextOverflow.ellipsis),
           actions: [
+            if (data.pengawasan && _pelanggaran > 0)
+              Tooltip(
+                message: 'Catatan pengawasan: $_pelanggaran${data.batasPelanggaran > 0 ? ' dari batas ${data.batasPelanggaran}' : ''}',
+                child: Label('$_pelanggaran pelanggaran', warna: Warna.salah),
+              ),
+            const SizedBox(width: 8),
             _IndikatorSimpan(status: _simpan, ulangi: () => Future.wait(_antrean.toList().map(_simpanSatu))),
             const SizedBox(width: 8),
             _Pewaktu(sisa: _sisa),
@@ -247,27 +332,35 @@ class _HalamanPengerjaanState extends ConsumerState<HalamanPengerjaan> {
         endDrawer: lebar ? null : Drawer(child: SafeArea(child: navigasi)),
         body: _mengumpulkan
             ? const Memuat(pesan: 'Mengumpulkan jawaban...')
-            : Row(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  Expanded(
-                    child: _TampilanSoal(
-                      key: ValueKey(soal.id),
-                      nomor: _indeks + 1,
-                      jumlah: data.soal.length,
-                      soal: soal,
-                      stimulus: soal.stimulusId == null ? null : data.stimulus[soal.stimulusId],
-                      jawaban: _jawaban[soal.id],
-                      lebar: lebar,
-                      onUbah: (v) => _ubahJawaban(soal, v),
+            : _BingkaiPengawasan(
+                aktif: data.pengawasan,
+                tandaAir: _tandaAir(),
+                tertutup: _tertutup,
+                menungguLayarPenuh: _menungguLayarPenuh,
+                onLanjutkan: _lanjutkan,
+                onLayarPenuh: _masukLayarPenuh,
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    Expanded(
+                      child: _TampilanSoal(
+                        key: ValueKey(soal.id),
+                        nomor: _indeks + 1,
+                        jumlah: data.soal.length,
+                        soal: soal,
+                        stimulus: soal.stimulusId == null ? null : data.stimulus[soal.stimulusId],
+                        jawaban: _jawaban[soal.id],
+                        lebar: lebar,
+                        onUbah: (v) => _ubahJawaban(soal, v),
+                      ),
                     ),
-                  ),
-                  if (lebar)
-                    SizedBox(
-                      width: 300,
-                      child: Material(color: Colors.white, child: navigasi),
-                    ),
-                ],
+                    if (lebar)
+                      SizedBox(
+                        width: 300,
+                        child: Material(color: Colors.white, child: navigasi),
+                      ),
+                  ],
+                ),
               ),
         bottomNavigationBar: _mengumpulkan
             ? null
@@ -569,4 +662,123 @@ class _IndikatorSimpan extends StatelessWidget {
       label: const Text('Gagal menyimpan. Coba lagi', style: TextStyle(color: Warna.salah)),
     ),
   };
+}
+
+/// Lapisan pengawasan di atas soal: tanda air berisi identitas peserta, penutup saat peserta
+/// meninggalkan halaman, dan ajakan masuk layar penuh.
+class _BingkaiPengawasan extends StatelessWidget {
+  const _BingkaiPengawasan({
+    required this.aktif,
+    required this.tandaAir,
+    required this.tertutup,
+    required this.menungguLayarPenuh,
+    required this.onLanjutkan,
+    required this.onLayarPenuh,
+    required this.child,
+  });
+
+  final bool aktif;
+  final String tandaAir;
+  final bool tertutup;
+  final bool menungguLayarPenuh;
+  final VoidCallback onLanjutkan;
+  final VoidCallback onLayarPenuh;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    if (!aktif) return child;
+    final tema = Theme.of(context);
+    Widget penutup({
+      required IconData ikon,
+      required String judul,
+      required String isi,
+      required String tombol,
+      required VoidCallback aksi,
+    }) => Positioned.fill(
+      child: ColoredBox(
+        color: Warna.kertas,
+        child: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 460),
+            child: Padding(
+              padding: const EdgeInsets.all(24),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Icon(ikon, size: 48, color: Warna.tinta),
+                  const SizedBox(height: 12),
+                  Text(
+                    judul,
+                    textAlign: TextAlign.center,
+                    style: tema.textTheme.titleLarge?.copyWith(fontWeight: FontWeight.w800),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(isi, textAlign: TextAlign.center),
+                  const SizedBox(height: 20),
+                  FilledButton(onPressed: aksi, child: Text(tombol)),
+                ],
+              ),
+            ),
+          ),
+        ),
+      ),
+    );
+
+    return Stack(
+      children: [
+        Positioned.fill(child: child),
+        Positioned.fill(
+          child: IgnorePointer(child: CustomPaint(painter: _PelukisTandaAir(tandaAir))),
+        ),
+        if (menungguLayarPenuh)
+          penutup(
+            ikon: Icons.fullscreen,
+            judul: 'Kerjakan dalam layar penuh',
+            isi: 'Tryout ini wajib dikerjakan dalam layar penuh. Keluar dari layar penuh atau pindah tab akan tercatat.',
+            tombol: 'Masuk layar penuh',
+            aksi: onLayarPenuh,
+          )
+        else if (tertutup)
+          penutup(
+            ikon: Icons.visibility_off_outlined,
+            judul: 'Soal disembunyikan',
+            isi: 'Kamu meninggalkan halaman tryout, dan ini sudah tercatat. Waktu tetap berjalan.',
+            tombol: 'Lanjutkan mengerjakan',
+            aksi: onLanjutkan,
+          ),
+      ],
+    );
+  }
+}
+
+class _PelukisTandaAir extends CustomPainter {
+  _PelukisTandaAir(this.teks);
+
+  final String teks;
+
+  @override
+  void paint(Canvas canvas, Size size) {
+    final tp = TextPainter(
+      text: TextSpan(
+        text: teks,
+        style: const TextStyle(color: Color(0x14000000), fontSize: 14, fontWeight: FontWeight.w600),
+      ),
+      textDirection: TextDirection.ltr,
+    )..layout();
+    canvas.save();
+    canvas.rotate(-0.35);
+    final langkahX = tp.width + 80;
+    const langkahY = 110.0;
+    for (var y = -size.width; y < size.height + size.width; y += langkahY) {
+      final geser = ((y / langkahY).round() % 2) * langkahX / 2;
+      for (var x = -size.width; x < size.width * 2; x += langkahX) {
+        tp.paint(canvas, Offset(x + geser, y));
+      }
+    }
+    canvas.restore();
+  }
+
+  @override
+  bool shouldRepaint(_PelukisTandaAir lama) => lama.teks != teks;
 }
