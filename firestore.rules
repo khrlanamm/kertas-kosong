@@ -1,12 +1,99 @@
 rules_version = '2';
 
-// Aturan baru untuk website dan Portal Bimbel.
+// Aturan akses Firestore untuk Portal Bimbel.
 //
-// Website komunitas tidak membaca Firestore, jadi semua akses ditutup dulu.
-// Buka akses per koleksi saat fitur portal dibuat (lihat docs/architecture.md),
-// dan uji di emulator sebelum deploy.
+// Peran disimpan di pengguna/{uid}.peran ("siswa" atau "admin"). Pengguna baru selalu
+// terdaftar sebagai siswa. Admin pertama ditetapkan lewat Firebase Console dengan mengubah
+// field peran menjadi "admin"; setelah itu admin bisa mengatur peran pengguna lain dari portal.
+//
+// Soal, kunci jawaban, dan bacaan hanya bisa dibaca admin. Peserta menerima soal tanpa kunci
+// lewat Cloud Function mulaiSubtes, dan nilai dihitung di server.
 service cloud.firestore {
   match /databases/{database}/documents {
+    function masuk() {
+      return request.auth != null;
+    }
+
+    function dokPengguna() {
+      return /databases/$(database)/documents/pengguna/$(request.auth.uid);
+    }
+
+    function admin() {
+      return masuk() && exists(dokPengguna()) && get(dokPengguna()).data.peran == 'admin';
+    }
+
+    function teks(nilai, maks) {
+      return nilai is string && nilai.size() <= maks;
+    }
+
+    function profilValid(d) {
+      return d.keys().hasOnly(['nama', 'email', 'peran', 'sekolah', 'kelas', 'kota', 'noHp', 'setujuData', 'dibuat', 'diperbarui'])
+        && teks(d.nama, 100) && d.nama.size() > 0
+        && teks(d.sekolah, 150)
+        && teks(d.kelas, 50)
+        && teks(d.kota, 100)
+        && (!('noHp' in d) || teks(d.noHp, 20))
+        && d.setujuData == true;
+    }
+
+    match /pengguna/{uid} {
+      allow read: if masuk() && (request.auth.uid == uid || admin());
+
+      allow create: if masuk() && request.auth.uid == uid
+        && request.resource.data.peran == 'siswa'
+        && request.resource.data.email == request.auth.token.email
+        && profilValid(request.resource.data);
+
+      // Pengguna mengubah profilnya sendiri (bukan peran/email), atau admin mengubah peran.
+      allow update: if masuk() && (
+        (request.auth.uid == uid
+          && !request.resource.data.diff(resource.data).affectedKeys().hasAny(['peran', 'email', 'dibuat'])
+          && profilValid(request.resource.data))
+        || (admin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['peran', 'diperbarui'])
+          && request.resource.data.peran in ['siswa', 'admin'])
+      );
+
+      allow delete: if false;
+    }
+
+    match /ujian/{ujianId} {
+      allow read: if admin() || (masuk() && resource.data.status == 'terbit');
+      allow write: if admin();
+
+      match /soal/{soalId} {
+        allow read, write: if admin();
+      }
+
+      match /stimulus/{stimulusId} {
+        allow read, write: if admin();
+      }
+    }
+
+    // Sesi ujian ditulis oleh Cloud Functions. Peserta hanya membaca miliknya sendiri.
+    match /sesi/{sesiId} {
+      allow read: if admin() || (masuk() && resource.data.uid == request.auth.uid);
+      allow write: if false;
+
+      match /pengerjaan/{subtesId} {
+        allow read: if admin() || (masuk() && resource.data.uid == request.auth.uid);
+
+        // Peserta hanya boleh menyimpan jawaban dan tanda ragu-ragu, untuk soal miliknya,
+        // selama waktu subtes belum habis (dengan tenggang 5 detik untuk jaringan lambat).
+        allow update: if masuk()
+          && resource.data.uid == request.auth.uid
+          && resource.data.selesai == false
+          && request.time < resource.data.batas + duration.value(5, 's')
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['jawaban', 'ragu'])
+          && request.resource.data.jawaban is map
+          && request.resource.data.ragu is map
+          && request.resource.data.jawaban.keys().hasOnly(resource.data.soalIds)
+          && request.resource.data.ragu.keys().hasOnly(resource.data.soalIds);
+
+        allow create, delete: if false;
+      }
+    }
+
     match /{document=**} {
       allow read, write: if false;
     }

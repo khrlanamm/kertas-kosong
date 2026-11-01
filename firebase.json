@@ -3,19 +3,102 @@
     {
       "site": "kertas-kosong",
       "public": "apps/web/dist",
-      "predeploy": ["npm --prefix \"$PROJECT_DIR/apps/web\" run build"],
-      "ignore": ["firebase.json", "**/.*", "**/node_modules/**"],
+      "predeploy": [
+        "npm --prefix \"$PROJECT_DIR/apps/web\" run build"
+      ],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
       "cleanUrls": true,
       "trailingSlash": false,
       "redirects": [
-        { "source": "/portal-bimbel", "destination": "/bimbel", "type": 301 },
-        { "source": "/tryout", "destination": "/bimbel", "type": 301 }
+        {
+          "source": "/portal-bimbel",
+          "destination": "/bimbel",
+          "type": 301
+        },
+        {
+          "source": "/tryout",
+          "destination": "/bimbel",
+          "type": 301
+        }
       ],
       "headers": [
         {
           "source": "/_astro/**",
-          "headers": [{ "key": "Cache-Control", "value": "public, max-age=31536000, immutable" }]
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "public, max-age=31536000, immutable"
+            }
+          ]
         }
+      ]
+    },
+    {
+      "site": "kertas-kosong-portal",
+      "public": "apps/portal/build/web",
+      "predeploy": [
+        "cd \"$PROJECT_DIR/apps/portal\" && flutter build web --release --dart-define-from-file=env/produksi.json"
+      ],
+      "ignore": [
+        "firebase.json",
+        "**/.*",
+        "**/node_modules/**"
+      ],
+      "rewrites": [
+        {
+          "source": "**",
+          "destination": "/index.html"
+        }
+      ],
+      "headers": [
+        {
+          "source": "/index.html",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/flutter_bootstrap.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        },
+        {
+          "source": "/main.dart.js",
+          "headers": [
+            {
+              "key": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "runtime": "nodejs22",
+      "ignore": [
+        "node_modules",
+        "test",
+        ".git",
+        "*.local",
+        "firebase-debug.log"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
       ]
     }
   ],
@@ -28,10 +111,24 @@
   },
   "emulators": {
     "singleProjectMode": true,
-    "auth": { "port": 9099 },
-    "firestore": { "port": 8080 },
-    "storage": { "port": 9199 },
-    "hosting": { "port": 5002 },
-    "ui": { "enabled": true, "port": 4000 }
+    "auth": {
+      "port": 9099
+    },
+    "functions": {
+      "port": 5001
+    },
+    "firestore": {
+      "port": 8080
+    },
+    "storage": {
+      "port": 9199
+    },
+    "hosting": {
+      "port": 5002
+    },
+    "ui": {
+      "enabled": true,
+      "port": 4000
+    }
   }
 }

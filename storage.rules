@@ -1,8 +1,22 @@
 rules_version = '2';
 
-// Belum ada fitur yang memakai Cloud Storage, jadi semua akses ditutup.
+// Gambar soal (grafik, tabel, ilustrasi) diunggah admin ke soal/{ujianId}/.
+// Peserta melihatnya lewat URL unduhan yang tertanam di teks soal.
 service firebase.storage {
   match /b/{bucket}/o {
+    function admin() {
+      return request.auth != null
+        && firestore.get(/databases/(default)/documents/pengguna/$(request.auth.uid)).data.peran == 'admin';
+    }
+
+    match /soal/{ujianId}/{namaBerkas} {
+      allow read: if request.auth != null;
+      allow create, update: if admin()
+        && request.resource.size < 2 * 1024 * 1024
+        && request.resource.contentType.matches('image/.*');
+      allow delete: if admin();
+    }
+
     match /{allPaths=**} {
       allow read, write: if false;
     }
