@@ -2,7 +2,8 @@
 
 Monorepo untuk website Komunitas Kertas Kosong dan Portal Bimbel #AyoKuliah. Semuanya memakai satu project Firebase: `kertas-kosong`.
 
-Website: [kertas-kosong.web.app](https://kertas-kosong.web.app).
+- Website: [kertas-kosong.web.app](https://kertas-kosong.web.app)
+- Portal Bimbel: [kertas-kosong-portal.web.app](https://kertas-kosong-portal.web.app)
 
 Portal lama, yang hanya berisi tautan, diarsipkan di branch [`arsip/portal-lama`](https://github.com/khrlanamm/kertas-kosong/tree/arsip/portal-lama).
 
@@ -13,6 +14,8 @@ apps/
   web/                  website komunitas (Astro + Tailwind CSS, statis)
   portal/               Portal Bimbel (Flutter; web dulu, Android menyusul)
 functions/              Cloud Functions untuk tryout dan pendaftaran (TypeScript, region asia-southeast2)
+functions/scripts/      skrip admin: sinkron media dan penetapan admin
+secrets/                kredensial lokal, tidak masuk git
 firebase.json           dua situs hosting, functions, rules, dan emulator
 firestore.rules         aturan akses Firestore (peran siswa/admin, soal hanya untuk admin)
 firestore.indexes.json
@@ -36,6 +39,17 @@ npm run build      # cek tipe, lalu build ke apps/web/dist
 
 Website tidak membaca Firestore dan tidak butuh file `.env`.
 
+### Media
+
+Repo ini publik, jadi foto dan gambar website tidak disimpan di git. Semuanya ada di Firebase Storage (`website/`, tertutup untuk klien). `npm run dev` dan `npm run build` mengunduhnya otomatis ke `apps/web/src/assets/` dan `apps/web/public/og.jpg`, dan Astro menyajikannya lewat Firebase Hosting.
+
+Syaratnya:
+
+1. `secrets/firebase-adminsdk.json` ada. Unduh dari Firebase Console → Project settings → Service accounts. Folder `secrets/` tidak masuk git.
+2. Dependensi Functions terpasang: `npm --prefix functions install`.
+
+Setelah menambah atau mengganti foto, unggah dengan `npm run media:dorong` di `apps/web`.
+
 ### Mengubah isi
 
 | Yang diubah | Tempatnya |
@@ -54,7 +68,7 @@ Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan, misalnya WhatsApp, 
 
 **Kegiatan baru:** salin `contoh-seminar.md`, ganti isinya, lalu hapus `draft: true`. Nama file menjadi alamat halaman, misalnya `seminar-ayo-kuliah-2027.md` menjadi `/kegiatan/seminar-ayo-kuliah-2027`. Kegiatan dengan `draft: true` hanya muncul saat `npm run dev`.
 
-**Foto:** simpan di `apps/web/src/assets/foto/<album>/`, kecilkan dulu ke sisi terpanjang sekitar 1600 px, lalu sebutkan path-nya di file data, misalnya `"seminar/nama-foto.jpg"`. Website membuat ukuran kecil dan format WebP secara otomatis. Build gagal kalau path-nya salah, jadi gambar rusak tidak akan sampai tayang. Jangan memasang foto wajah anak penerima bantuan atau peserta kelas daring tanpa izin wali atau peserta.
+**Foto:** simpan di `apps/web/src/assets/foto/<album>/`, kecilkan dulu ke sisi terpanjang sekitar 1600 px, lalu sebutkan path-nya di file data, misalnya `"seminar/nama-foto.jpg"`. Unggah dengan `npm run media:dorong`. Website membuat ukuran kecil dan format WebP secara otomatis. Build gagal kalau path-nya salah, jadi gambar rusak tidak akan sampai tayang. Jangan memasang foto wajah anak penerima bantuan atau peserta kelas daring tanpa izin wali atau peserta.
 
 ### Halaman
 
@@ -99,6 +113,8 @@ firebase deploy --only hosting:kertas-kosong           # website
 firebase deploy --only hosting:kertas-kosong-portal    # portal (butuh apps/portal/env/produksi.json)
 firebase deploy --only functions,firestore,storage     # backend portal
 ```
+
+Deploy memakai `firebase login` dengan akun pemilik project. Service account di `secrets/` hanya untuk media dan data, karena perannya tidak mencakup deploy.
 
 Deploy website menjalankan `npm run build` di `apps/web` secara otomatis, dan deploy portal menjalankan `flutter build web`. Langkah persiapan portal (Blaze, Authentication, Storage, situs hosting kedua, admin pertama) ada di [docs/portal.md](docs/portal.md#menayangkan).
 

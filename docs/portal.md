@@ -175,28 +175,41 @@ Untuk mencoba sebagai admin:
 
 ## Menayangkan
 
-1. Pastikan project sudah Blaze. Cloud Functions membutuhkannya.
-2. Authentication → Sign-in method → aktifkan **Google** dan **Email/Password**.
-3. Storage → Get started. Ini untuk gambar soal.
-4. Buat situs hosting kedua untuk portal:
-   ```sh
-   firebase hosting:sites:create kertas-kosong-portal
-   ```
-   Jika nama situs ini sudah dipakai orang lain, ganti `site` di `firebase.json`.
-5. Authentication → Settings → Authorized domains → tambahkan `kertas-kosong-portal.web.app`, juga domain sendiri jika ada.
-6. Salin konfigurasi web app:
-   - salin `apps/portal/env/produksi.contoh.json` menjadi `apps/portal/env/produksi.json`;
-   - isi nilainya dari Project settings → Your apps → Web app (nilainya sama dengan `VITE_FIREBASE_*` di `.env` portal lama).
-   - Berkas ini tidak masuk git.
-7. Deploy:
-   ```sh
-   firebase deploy --only functions,firestore,storage,hosting:kertas-kosong-portal
-   ```
-   `firestore` ikut men-deploy index untuk daftar pendaftaran siswa (`firestore.indexes.json`). Index ini perlu beberapa menit sampai aktif.
-8. Masuk ke portal dengan akunmu.
-9. Di Firebase Console → Firestore → `pengguna/<uid kamu>`, ubah `peran` menjadi `admin`. Setelah itu admin lain bisa diatur dari menu Pengguna di portal.
+Portal sudah tayang di [kertas-kosong-portal.web.app](https://kertas-kosong-portal.web.app). Konfigurasi Firebase yang sudah diterapkan:
 
-Jika gambar soal tidak tampil, portal sudah memuatnya lewat elemen `<img>` sebagai cadangan. Untuk performa terbaik, atur CORS bucket Storage seperti dijelaskan di [dokumentasi Firebase](https://firebase.google.com/docs/storage/web/download-files#cors_configuration).
+| Layanan | Pengaturan |
+|---|---|
+| Paket | Blaze |
+| Authentication | Google dan Email/Password, domain portal sudah diizinkan |
+| Firestore | `asia-southeast2` |
+| Storage | `kertas-kosong.firebasestorage.app`, `asia-southeast2` |
+| Hosting | situs `kertas-kosong` (website) dan `kertas-kosong-portal` (portal) |
+| Functions | `asia-southeast2`, Node.js 22 |
+
+Untuk deploy dari komputer baru:
+
+1. Masuk dengan akun pemilik project: `firebase login`.
+2. Salin `apps/portal/env/produksi.contoh.json` menjadi `apps/portal/env/produksi.json`, lalu isi dari Project settings → Your apps → Web app. Berkas ini tidak masuk git.
+3. Taruh `secrets/firebase-adminsdk.json` untuk media website.
+4. Pasang dependensi: `npm --prefix functions install` dan `npm --prefix apps/web install`.
+5. Bangun portal sekali, karena Firebase memeriksa foldernya sebelum deploy:
+   ```sh
+   cd apps/portal && flutter build web --release --dart-define-from-file=env/produksi.json && cd ../..
+   ```
+6. Deploy:
+   ```sh
+   firebase deploy --only functions,firestore,storage,hosting
+   ```
+
+Admin pertama: masuk ke portal, lengkapi profil, lalu jalankan:
+
+```sh
+node functions/scripts/jadikan-admin.mjs email@contoh.id
+```
+
+Setelah itu admin lain bisa diatur dari menu Pengguna di portal.
+
+Jika gambar soal tidak tampil, portal memuatnya lewat elemen `<img>` sebagai cadangan. Untuk performa terbaik, atur CORS bucket Storage seperti dijelaskan di [dokumentasi Firebase](https://firebase.google.com/docs/storage/web/download-files#cors_configuration).
 
 ## Pendaftaran: keputusan yang diambil
 

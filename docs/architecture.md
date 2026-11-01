@@ -103,21 +103,15 @@ Koleksi lama (`rekaman`, `kehadiran`, `jadwal_tryout`, `tryout`, `tautan_penting
 4. **Android.** Rilis ke Play Store, notifikasi FCM, dan `FLAG_SECURE` di layar tryout.
 5. **Rekaman dan kehadiran** pindah ke portal, menggantikan tautan di portal lama.
 
-## Yang disiapkan di Firebase Console
+## Firebase Console
 
-Bisa dilakukan sekarang:
+Blaze, Authentication, Firestore, Storage, dan kedua situs hosting sudah aktif. Detailnya ada di [portal.md](portal.md#menayangkan).
 
-- [ ] Upgrade ke Blaze dan pasang budget alert di Google Cloud Billing.
-- [ ] Authentication → Get started → aktifkan Google dan Email/Password.
-- [ ] Pastikan lokasi Firestore adalah `asia-southeast2`.
-- [ ] Tambahkan rekan pengurus sebagai anggota project, jika ada.
+Yang masih perlu disiapkan nanti:
 
-Saat portal dikerjakan:
-
-- [ ] Buat site hosting kedua: `firebase hosting:sites:create <nama-site>`.
-- [ ] Jalankan `flutterfire configure` untuk mendaftarkan app Web dan Android.
-- [ ] Tambahkan SHA-1 dan SHA-256 kunci signing Android (debug, release, dan Play App Signing) di Project settings. Ini wajib untuk login Google di Android.
-- [ ] Storage → Get started.
+- [ ] Pasang budget alert di Google Cloud Billing, jika belum.
+- [ ] Jalankan `flutterfire configure` untuk mendaftarkan app Android.
+- [ ] Tambahkan SHA-1 dan SHA-256 kunci signing Android di Project settings. Ini wajib untuk login Google di Android.
 - [ ] Cloud Messaging → buat Web Push certificate (VAPID key) untuk notifikasi di web.
 - [ ] App Check untuk melindungi tryout dari akses di luar aplikasi.
 - [ ] Domain sendiri di Hosting. Tambahkan juga ke Authentication → Settings → Authorized domains.
