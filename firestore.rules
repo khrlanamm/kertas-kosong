@@ -1,0 +1,14 @@
+rules_version = '2';
+
+// Aturan baru untuk website dan Portal Bimbel.
+//
+// Website komunitas tidak membaca Firestore, jadi semua akses ditutup dulu.
+// Buka akses per koleksi saat fitur portal dibuat (lihat docs/architecture.md),
+// dan uji di emulator sebelum deploy.
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
