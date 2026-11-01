@@ -8,8 +8,8 @@
   "scripts": {
     "build": "tsc",
     "build:watch": "tsc --watch",
-    "test": "npm run build && node --test test/penilaian.test.mjs",
-    "test:emulator": "npm run build && firebase emulators:exec --project demo-kertas-kosong --only auth,firestore,functions,storage \"node --test --test-concurrency=1 test/rules.test.mjs test/alur.test.mjs\"",
+    "test": "npm run build && node --test test/penilaian.test.mjs test/pendaftaran.test.mjs",
+    "test:emulator": "npm run build && firebase emulators:exec --project demo-kertas-kosong --only auth,firestore,functions,storage \"node --test --test-concurrency=1 test/rules.test.mjs test/rules-program.test.mjs test/alur.test.mjs test/alur-program.test.mjs\"",
     "deploy": "firebase deploy --only functions"
   },
   "dependencies": {

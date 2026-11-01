@@ -26,13 +26,23 @@ service cloud.firestore {
       return nilai is string && nilai.size() <= maks;
     }
 
+    function opsional(d, kunci, maks) {
+      return !(kunci in d) || teks(d[kunci], maks);
+    }
+
     function profilValid(d) {
-      return d.keys().hasOnly(['nama', 'email', 'peran', 'sekolah', 'kelas', 'kota', 'noHp', 'setujuData', 'dibuat', 'diperbarui'])
+      return d.keys().hasOnly(['nama', 'email', 'peran', 'sekolah', 'kelas', 'kota', 'noHp', 'alamat', 'minat',
+          'tanggalLahir', 'eligibleSnbp', 'nomorSnbp', 'setujuData', 'dibuat', 'diperbarui'])
         && teks(d.nama, 100) && d.nama.size() > 0
         && teks(d.sekolah, 150)
         && teks(d.kelas, 50)
         && teks(d.kota, 100)
-        && (!('noHp' in d) || teks(d.noHp, 20))
+        && opsional(d, 'noHp', 20)
+        && opsional(d, 'alamat', 300)
+        && opsional(d, 'tanggalLahir', 10)
+        && opsional(d, 'eligibleSnbp', 20)
+        && opsional(d, 'nomorSnbp', 30)
+        && (!('minat' in d) || (d.minat is list && d.minat.size() <= 3))
         && d.setujuData == true;
     }
 
@@ -80,18 +90,62 @@ service cloud.firestore {
 
         // Peserta hanya boleh menyimpan jawaban dan tanda ragu-ragu, untuk soal miliknya,
         // selama waktu subtes belum habis (dengan tenggang 5 detik untuk jaringan lambat).
+        //
+        // Catatan pengawasan (keluar tab, salin, tangkap layar, ...) hanya bisa bertambah:
+        // `pelanggaran` tidak boleh turun dan isi `jejak` lama tidak boleh dihapus.
         allow update: if masuk()
           && resource.data.uid == request.auth.uid
           && resource.data.selesai == false
           && request.time < resource.data.batas + duration.value(5, 's')
-          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['jawaban', 'ragu'])
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['jawaban', 'ragu', 'pelanggaran', 'jejak'])
           && request.resource.data.jawaban is map
           && request.resource.data.ragu is map
           && request.resource.data.jawaban.keys().hasOnly(resource.data.soalIds)
-          && request.resource.data.ragu.keys().hasOnly(resource.data.soalIds);
+          && request.resource.data.ragu.keys().hasOnly(resource.data.soalIds)
+          && request.resource.data.get('pelanggaran', 0) is int
+          && request.resource.data.get('pelanggaran', 0) >= resource.data.get('pelanggaran', 0)
+          && request.resource.data.get('jejak', []) is list
+          && request.resource.data.get('jejak', []).size() <= 300
+          && request.resource.data.get('jejak', []).hasAll(resource.data.get('jejak', []));
 
         allow create, delete: if false;
       }
+    }
+
+    // Program (seminar, bimbel). Pendaftaran ditulis Cloud Function daftarProgram supaya
+    // periode dan kuota terjaga; admin mengubah status dan kelas langsung dari portal.
+    match /program/{programId} {
+      allow read: if admin() || (masuk() && resource.data.status == 'terbit');
+      allow write: if admin();
+
+      function pendaftarSaya() {
+        return /databases/$(database)/documents/program/$(programId)/pendaftar/$(request.auth.uid);
+      }
+
+      function pesertaDiterima() {
+        return masuk() && exists(pendaftarSaya()) && get(pendaftarSaya()).data.status == 'diterima';
+      }
+
+      match /pendaftar/{uid} {
+        allow read: if admin() || (masuk() && request.auth.uid == uid);
+        allow create, delete: if false;
+        allow update: if admin()
+          && request.resource.data.diff(resource.data).affectedKeys().hasOnly(['status', 'kelas', 'catatanAdmin', 'diperbarui'])
+          && request.resource.data.status in ['menunggu', 'diterima', 'ditolak']
+          && (request.resource.data.get('kelas', null) == null || teks(request.resource.data.kelas, 20))
+          && teks(request.resource.data.get('catatanAdmin', ''), 500);
+      }
+
+      // Jadwal kelas hanya untuk peserta yang diterima (berisi tautan kelas daring).
+      match /jadwal/{jadwalId} {
+        allow read: if admin() || pesertaDiterima();
+        allow write: if admin();
+      }
+    }
+
+    // Daftar pendaftaran milik sendiri di semua program (collection group query).
+    match /{jalur=**}/pendaftar/{uid} {
+      allow read: if masuk() && resource.data.uid == request.auth.uid;
     }
 
     match /{document=**} {

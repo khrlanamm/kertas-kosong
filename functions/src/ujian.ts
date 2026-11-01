@@ -17,12 +17,15 @@ interface Ujian {
   buka: Timestamp;
   tutup: Timestamp;
   subtes: Subtes[];
+  /** Jika diisi, hanya peserta yang diterima di program ini yang bisa mengerjakan. */
+  programId?: string | null;
   pengaturan?: {
     acakSoal?: boolean;
     acakOpsi?: boolean;
     urutanBebas?: boolean;
     tampilkanHasil?: "segera" | "setelahTutup";
     tampilkanPembahasan?: boolean;
+    pengawasan?: { aktif?: boolean; batasPelanggaran?: number; layarPenuh?: boolean };
   };
 }
 
@@ -45,7 +48,11 @@ interface Pengerjaan {
   ragu: Record<string, boolean>;
   selesai: boolean;
   uji?: boolean;
+  pelanggaran?: number;
+  jejak?: string[];
 }
+
+type HasilSesi = { benar: number; jumlah: number; skor?: number; pelanggaran?: number };
 
 interface Sesi {
   uid: string;
@@ -55,7 +62,7 @@ interface Sesi {
   status: "berlangsung" | "selesai";
   subtesAktif: string | null;
   subtesSelesai: string[];
-  hasil: Record<string, { benar: number; jumlah: number; skor?: number }>;
+  hasil: Record<string, HasilSesi>;
   uji: boolean;
 }
 
@@ -136,12 +143,16 @@ function tutupPengerjaan(
 
   const subtesSelesai = Array.from(new Set([...(sesi.subtesSelesai ?? []), kerja.subtesId]));
   const semuaSelesai = ujian.subtes.every((s) => subtesSelesai.includes(s.id));
-  const hasilSesi = { ...(sesi.hasil ?? {}), [kerja.subtesId]: { benar: hasil.benar, jumlah: hasil.jumlah } };
+  const hasilSesi: Record<string, HasilSesi> = {
+    ...(sesi.hasil ?? {}),
+    [kerja.subtesId]: { benar: hasil.benar, jumlah: hasil.jumlah, pelanggaran: kerja.pelanggaran ?? 0 },
+  };
   tx.update(refSesiUjian, {
     hasil: hasilSesi,
     subtesSelesai,
     subtesAktif: sesi.subtesAktif === kerja.subtesId ? null : sesi.subtesAktif,
     totalBenar: Object.values(hasilSesi).reduce((s, h) => s + h.benar, 0),
+    pelanggaran: Object.values(hasilSesi).reduce((s, h) => s + (h.pelanggaran ?? 0), 0),
     status: semuaSelesai ? "selesai" : "berlangsung",
     ...(semuaSelesai ? { selesai: FieldValue.serverTimestamp() } : {}),
   });
@@ -170,6 +181,12 @@ export const mulaiSubtes = onCall(async (req) => {
 
   if (!admin) {
     if (ujian.status !== "terbit") throw new HttpsError("failed-precondition", "Ujian ini belum dibuka.");
+    if (ujian.programId) {
+      const pendaftar = await db().doc(`program/${ujian.programId}/pendaftar/${uid}`).get();
+      if (!pendaftar.exists || pendaftar.get("status") !== "diterima") {
+        throw new HttpsError("permission-denied", "Tryout ini khusus peserta bimbel yang sudah diterima.");
+      }
+    }
     if (sekarang.toMillis() < ujian.buka.toMillis()) throw new HttpsError("failed-precondition", "Ujian ini belum dimulai.");
     if (sekarang.toMillis() >= ujian.tutup.toMillis()) throw new HttpsError("failed-precondition", "Waktu ujian ini sudah berakhir.");
   }
@@ -302,6 +319,12 @@ export const mulaiSubtes = onCall(async (req) => {
     stimulus,
     jawaban: kerja.jawaban ?? {},
     ragu: kerja.ragu ?? {},
+    pelanggaran: kerja.pelanggaran ?? 0,
+    pengawasan: {
+      aktif: ujian.pengaturan?.pengawasan?.aktif !== false,
+      batasPelanggaran: ujian.pengaturan?.pengawasan?.batasPelanggaran ?? 0,
+      layarPenuh: ujian.pengaturan?.pengawasan?.layarPenuh === true,
+    },
   };
 });
 
@@ -403,13 +426,13 @@ export const hitungSkor = onCall({ timeoutSeconds: 300, memory: "512MiB" }, asyn
   const kerjaPerSesi = await Promise.all(sesiPeserta.map((d) => d.ref.collection("pengerjaan").get()));
 
   const penulis = db().bulkWriter();
-  const hasilBaru: Record<string, Record<string, { benar: number; jumlah: number; skor?: number }>> = {};
+  const hasilBaru: Record<string, Record<string, HasilSesi>> = {};
   const statistik: Record<string, { peserta: number; rataSkor: number }> = {};
 
   for (const subtes of ujian.subtes) {
     const soalSubtesIni = soal.filter((s) => s.subtesId === subtes.id);
     const ids = soalSubtesIni.map((s) => s.id);
-    const peserta: { sesiId: string; rincian: Record<string, boolean>; benar: number }[] = [];
+    const peserta: { sesiId: string; rincian: Record<string, boolean>; benar: number; pelanggaran: number }[] = [];
 
     sesiPeserta.forEach((sesiDoc, i) => {
       const kerjaDoc = kerjaPerSesi[i].docs.find((d) => d.id === subtes.id);
@@ -419,13 +442,13 @@ export const hitungSkor = onCall({ timeoutSeconds: 300, memory: "512MiB" }, asyn
       if (!sudahHabis) return;
       const hasil = nilaiSubtes(soalSubtesIni.filter((s) => kerja.soalIds.includes(s.id)), kerja.jawaban ?? {});
       penulis.update(kerjaDoc.ref, { selesai: true, rincian: hasil.rincian });
-      peserta.push({ sesiId: sesiDoc.id, rincian: hasil.rincian, benar: hasil.benar });
+      peserta.push({ sesiId: sesiDoc.id, rincian: hasil.rincian, benar: hasil.benar, pelanggaran: kerja.pelanggaran ?? 0 });
     });
 
     const { skor } = skorBerbobot(peserta.map((p) => p.rincian), ids);
     peserta.forEach((p, i) => {
       hasilBaru[p.sesiId] ??= {};
-      hasilBaru[p.sesiId][subtes.id] = { benar: p.benar, jumlah: ids.length, skor: skor[i] };
+      hasilBaru[p.sesiId][subtes.id] = { benar: p.benar, jumlah: ids.length, skor: skor[i], pelanggaran: p.pelanggaran };
     });
     statistik[subtes.id] = {
       peserta: peserta.length,
@@ -442,6 +465,7 @@ export const hitungSkor = onCall({ timeoutSeconds: 300, memory: "512MiB" }, asyn
       subtesSelesai: Object.keys(hasil),
       subtesAktif: null,
       totalBenar: Object.values(hasil).reduce((s, h) => s + h.benar, 0),
+      pelanggaran: Object.values(hasil).reduce((s, h) => s + (h.pelanggaran ?? 0), 0),
       skorRata: daftarSkor.length ? Math.round((daftarSkor.reduce((a, b) => a + b, 0) / daftarSkor.length) * 100) / 100 : null,
       status: selesaiSemua ? "selesai" : sesiDoc.get("status"),
     });
