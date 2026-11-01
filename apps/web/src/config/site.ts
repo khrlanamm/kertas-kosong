@@ -22,7 +22,7 @@ export const site = {
 
   links: {
     /** Portal Bimbel baru (Flutter, web + Android). Isi setelah portal rilis. */
-    portal: "",
+    portal: "https://kertas-kosong-portal.web.app",
     /** Formulir pendaftaran bimbel. Kosong = pendaftaran belum dibuka. */
     pendaftaranBimbel: "",
     /** Formulir pendaftaran tentor relawan. Kosong = belum dibuka. */

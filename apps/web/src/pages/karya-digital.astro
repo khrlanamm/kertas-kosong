@@ -3,6 +3,7 @@ import Foto from "../components/Foto.astro";
 import Icon from "../components/Icon.astro";
 import PageHero from "../components/PageHero.astro";
 import PortalSegera from "../components/PortalSegera.astro";
+import { site } from "../config/site";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -21,7 +22,8 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         tryout. Peserta yang tidak hadir menonton rekaman di YouTube Komunitas Kertas Kosong, lalu mengunggah abstrak
         lewat tautan yang tersedia.
       </p>
-      <p class="mt-4 text-slate-600">Versi barunya sedang disiapkan untuk web dan Android.</p>
+      <p class="mt-4 text-slate-600">Versi barunya sudah bisa dipakai di web, dan versi Android menyusul.</p>
+      <a href={site.links.portal} class="tombol-utama mt-6">Masuk Portal <Icon name="ArrowRight" class="size-4" /></a>
     </div>
     <div class="grid gap-3">
       <Foto src="digital/portal-bimbel-rekaman-kelas.png" alt="Portal Bimbel: tab rekaman kelas" class="w-full rounded-xl border border-tinta-100 shadow-md" />
