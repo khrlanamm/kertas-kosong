@@ -1,82 +1,97 @@
 # Kertas Kosong
 
-Tryout and student portal for Bimbel Ayo Kuliah 2026, the university entrance study program run by Komunitas Kertas Kosong.
+Monorepo untuk website Komunitas Kertas Kosong dan Portal Bimbel #AyoKuliah. Semuanya memakai satu project Firebase: `kertas-kosong`.
 
-Live at [kertas-kosong.web.app](https://kertas-kosong.web.app).
+Website: [kertas-kosong.web.app](https://kertas-kosong.web.app).
 
-## Screenshots
+Portal lama, yang hanya berisi tautan, diarsipkan di branch [`arsip/portal-lama`](https://github.com/khrlanamm/kertas-kosong/tree/arsip/portal-lama).
 
-![Student portal with the class recordings tab, the abstract upload instructions, and the recording list for Kelas A and Kelas B](docs/images/portal-recordings.webp)
-
-![Tryout schedule tab with two tryouts, their start and close dates, and closed buttons](docs/images/portal-tryout.webp)
-
-## Pages
-
-| URL | Content |
-|---|---|
-| `/` | Community landing page (placeholder for now) with a button to the student portal |
-| `/portal-bimbel` | Student portal with three tabs: class recordings, attendance, and the tryout schedule |
-| `/tryout` | Tryout subtests with a countdown, shown only while a tryout is open |
-
-The portal tabs:
-
-- **Kelas & Rekaman**: YouTube recordings grouped by class (Kelas A, Kelas B), week, and subtest, plus non-class events. Students who missed a class watch the recording and upload an abstract through the linked form.
-- **Info Kehadiran**: attendance recaps for each class.
-- **Jadwal Tryout**: each tryout with its start and close dates and its status.
-
-## Data
-
-All content comes from Firestore and is read-only for visitors.
-
-| Collection | Used for |
-|---|---|
-| `rekaman` | Recordings: `kelas`, `minggu`, `subtest`, `judul`, `url`, `kategori` |
-| `kehadiran` | Attendance links and recaps per class |
-| `jadwal_tryout` | Tryout windows: `tanggal_mulai`, `tanggal_selesai` |
-| `tryout` | Subtest links, fetched only while a tryout window is open |
-| `tautan_penting` | Shared links such as the abstract upload form |
-
-## Stack
-
-React 18, Vite 5, Tailwind CSS 3, React Router 6, and the Firebase JS SDK 10 (Firestore). Hosted on Firebase Hosting, with every path rewritten to `index.html` for client-side routing.
+## Struktur
 
 ```
-src/
-  App.jsx              routes
-  firebase.js          Firebase app and Firestore from the VITE_FIREBASE_* variables
-  pages/Landing.jsx    /
-  pages/PortalBimbel.jsx  /portal-bimbel
-  pages/Tryout.jsx     /tryout
+apps/
+  web/                  website komunitas (Astro + Tailwind CSS, statis)
+  portal/               (menyusul) Portal Bimbel, Flutter untuk web dan Android
+functions/              (menyusul) Cloud Functions, TypeScript, region asia-southeast2
+firebase.json           hosting, rules, dan emulator
+firestore.rules         aturan akses Firestore (saat ini semua ditutup)
+firestore.indexes.json
+storage.rules           aturan akses Cloud Storage (saat ini semua ditutup)
+docs/architecture.md    keputusan arsitektur, rencana data, dan tahapan
 ```
 
-## Running locally
+Alasan memakai satu repo dan rencana lengkapnya ada di [docs/architecture.md](docs/architecture.md).
 
-Create `.env` with the Firebase web config (not committed):
+## Website (`apps/web`)
+
+Butuh Node.js 22.23.4 atau lebih baru.
 
 ```sh
-VITE_FIREBASE_API_KEY=...
-VITE_FIREBASE_AUTH_DOMAIN=...
-VITE_FIREBASE_PROJECT_ID=...
-VITE_FIREBASE_STORAGE_BUCKET=...
-VITE_FIREBASE_MESSAGING_SENDER_ID=...
-VITE_FIREBASE_APP_ID=...
-VITE_FIREBASE_MEASUREMENT_ID=...
-```
-
-Then:
-
-```sh
+cd apps/web
 npm install
-npm run dev
+npm run dev        # http://localhost:4321
+npm run build      # cek tipe, lalu build ke apps/web/dist
 ```
 
-## Deploy
+Website tidak membaca Firestore dan tidak butuh file `.env`.
+
+### Mengubah isi
+
+| Yang diubah | Tempatnya |
+|---|---|
+| Nama, tagline, angkatan bimbel, tautan pendaftaran, tautan portal, media sosial | `apps/web/src/config/site.ts` |
+| Visi, misi, dan pengurus | bagian atas `apps/web/src/pages/tentang.astro` |
+| Fasilitas dan FAQ bimbel | bagian atas `apps/web/src/pages/bimbel.astro` |
+| Kegiatan (seminar, tryout, dan lain-lain) | satu file Markdown per kegiatan di `apps/web/src/content/kegiatan/` |
+
+Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan. Begitu juga visi, misi, dan pengurus yang masih kosong.
+
+Untuk menambah kegiatan, salin `contoh-seminar.md`, ganti isinya, lalu hapus `draft: true`. Nama file menjadi alamat halaman, misalnya `seminar-maret.md` menjadi `/kegiatan/seminar-maret`. Poster opsional dan disimpan di folder yang sama. Kegiatan dengan `draft: true` hanya muncul saat `npm run dev`.
+
+### Halaman
+
+| URL | Isi |
+|---|---|
+| `/` | Beranda: program, alur bimbel, kegiatan terbaru, info portal |
+| `/tentang` | Tentang komunitas |
+| `/bimbel` | Bimbel #AyoKuliah: fasilitas, aturan kelas, pendaftaran, FAQ |
+| `/kegiatan` | Daftar kegiatan |
+| `/kegiatan/<nama>` | Detail kegiatan |
+
+Alamat portal lama `/portal-bimbel` dan `/tryout` dialihkan (301) ke `/bimbel`.
+
+## Firebase
+
+Pasang Firebase CLI sekali: `npm install -g firebase-tools`.
+
+### Emulator lokal
+
+Emulator berjalan tanpa login dan tanpa menyentuh data asli:
 
 ```sh
-npm run build
-firebase deploy --only hosting
+npm --prefix apps/web run build
+firebase emulators:start --project demo-kertas-kosong
 ```
 
-## License
+Website tersedia di http://127.0.0.1:5002 dengan aturan hosting yang sama seperti produksi (URL bersih, redirect, dan cache). Emulator UI ada di http://127.0.0.1:4000.
 
-All rights reserved. The source code is public for reference only. See [LICENSE](LICENSE).
+### Deploy
+
+```sh
+firebase login
+firebase deploy --only hosting                # build website lalu unggah
+firebase deploy --only firestore              # rules dan index Firestore
+firebase deploy --only storage                # rules Storage (setelah Storage diaktifkan)
+```
+
+`firebase deploy --only hosting` menjalankan `npm run build` di `apps/web` secara otomatis.
+
+Saat domain sendiri sudah siap, build dengan alamat barunya supaya canonical URL, sitemap, dan pratinjau link memakai domain itu:
+
+```sh
+SITE_URL=https://domain-baru.id firebase deploy --only hosting
+```
+
+## Lisensi
+
+Hak cipta dilindungi. Kode sumber dipublikasikan hanya untuk referensi. Lihat [LICENSE](LICENSE).
