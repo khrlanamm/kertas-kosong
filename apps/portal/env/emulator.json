@@ -1,0 +1,9 @@
+{
+  "FIREBASE_API_KEY": "demo-api-key",
+  "FIREBASE_APP_ID": "1:000000000000:web:0000000000000000000000",
+  "FIREBASE_PROJECT_ID": "demo-kertas-kosong",
+  "FIREBASE_AUTH_DOMAIN": "demo-kertas-kosong.firebaseapp.com",
+  "FIREBASE_STORAGE_BUCKET": "demo-kertas-kosong.appspot.com",
+  "FIREBASE_MESSAGING_SENDER_ID": "000000000000",
+  "PAKAI_EMULATOR": "true"
+}

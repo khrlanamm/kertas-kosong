@@ -1,0 +1,10 @@
+{
+  "FIREBASE_API_KEY": "isi dari Firebase Console > Project settings > Your apps > Web app",
+  "FIREBASE_APP_ID": "1:...:web:...",
+  "FIREBASE_PROJECT_ID": "kertas-kosong",
+  "FIREBASE_AUTH_DOMAIN": "kertas-kosong.firebaseapp.com",
+  "FIREBASE_STORAGE_BUCKET": "kertas-kosong.firebasestorage.app",
+  "FIREBASE_MESSAGING_SENDER_ID": "...",
+  "FIREBASE_MEASUREMENT_ID": "G-...",
+  "PAKAI_EMULATOR": "false"
+}
