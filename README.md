@@ -12,13 +12,13 @@ Portal lama, yang hanya berisi tautan, diarsipkan di branch [`arsip/portal-lama`
 apps/
   web/                  website komunitas (Astro + Tailwind CSS, statis)
   portal/               Portal Bimbel (Flutter; web dulu, Android menyusul)
-functions/              Cloud Functions untuk tryout (TypeScript, region asia-southeast2)
+functions/              Cloud Functions untuk tryout dan pendaftaran (TypeScript, region asia-southeast2)
 firebase.json           dua situs hosting, functions, rules, dan emulator
 firestore.rules         aturan akses Firestore (peran siswa/admin, soal hanya untuk admin)
 firestore.indexes.json
 storage.rules           aturan akses Cloud Storage (gambar soal)
 docs/architecture.md    keputusan arsitektur dan tahapan
-docs/portal.md          fitur portal, tipe soal UTBK, cara menjalankan, deploy, dan eksplorasi pendaftaran
+docs/portal.md          fitur portal, tipe soal UTBK, pendaftaran, pengawasan, cara menjalankan, dan deploy
 ```
 
 Alasan memakai satu repo dan rencana lengkapnya ada di [docs/architecture.md](docs/architecture.md). Detail Portal Bimbel ada di [docs/portal.md](docs/portal.md).

@@ -29,6 +29,49 @@ Aplikasi Flutter di `apps/portal`, versi web dulu, lalu Android dari kode yang s
 - Mengatur peran pengguna.
 - Mencoba tryout sebagai peserta kapan saja. Percobaan admin tidak ikut dinilai.
 
+**Program, pendaftaran, dan jadwal**
+- Admin membuat program **Seminar** atau **Bimbel** dengan pengaturan berikut:
+  - periode pendaftaran (WIB) dan kuota;
+  - verifikasi panitia, atau langsung diterima;
+  - waktu dan tempat acara (seminar);
+  - daftar kelas (bimbel, bawaan A dan B).
+- Data pendaftaran sesuai permintaan:
+
+  | Program | Data |
+  |---|---|
+  | Seminar | nama, kelas, sekolah, email, nomor HP, alamat, kota, serta 1-3 pilihan jurusan dan kampus |
+  | Bimbel | semua data seminar, ditambah tanggal lahir dan pertanyaan apakah siswa eligible SNBP. Nomor pendaftaran SNBP wajib diisi jika jawabannya "ya" |
+
+- Data yang sudah pernah diisi dipakai ulang. Siswa yang sudah mendaftar seminar mendapati formulir bimbelnya sudah terisi, dan cukup menambah data pelengkap.
+- Pendaftaran diproses Cloud Function `daftarProgram`, yang menjaga periode, kuota, dan validasi data. Siswa bisa mengubah data atau membatalkan pendaftaran selama periode masih dibuka dan panitia belum memutuskan.
+- Admin mengelola pendaftar di satu tabel:
+  - terima atau tolak, satu per satu atau "Terima semua yang menunggu";
+  - pilih kelas per siswa, atau tekan **Bagi kelas otomatis** untuk membagi rata ke kelas A/B sesuai urutan mendaftar;
+  - beri catatan panitia yang terlihat oleh siswa;
+  - unduh CSV.
+- Admin mengatur jadwal bimbel per pertemuan: materi, tanggal, jam (WIB), kelas (semua, A, atau B), tautan Zoom, dan catatan.
+- Siswa yang diterima melihat jadwal kelasnya di beranda (pertemuan terdekat) dan di halaman **Jadwal bimbel**, lengkap dengan tombol masuk kelas daring. Siswa yang belum diterima tidak bisa membaca jadwal, karena isinya tautan kelas.
+- Tryout bisa dibatasi untuk peserta yang diterima di program tertentu, dan dicek di server.
+
+**Pengawasan saat mengerjakan tryout** (bisa diatur per tryout)
+- **Tanda air** berisi nama, email, dan waktu peserta di seluruh area soal, sehingga foto atau screenshot yang tersebar bisa dilacak.
+- **Soal tidak bisa disalin:**
+  - teks tidak bisa diblok;
+  - salin (Ctrl+C) dan klik kanan diblokir;
+  - cetak (Ctrl+P) diblokir, dan halaman tetap kosong jika dicetak lewat menu browser.
+- **Soal ditutup** saat peserta pindah tab, pindah aplikasi, atau meninggalkan jendela. Untuk melanjutkan, peserta harus menekan tombol, dan kejadiannya tercatat.
+- **Dicatat sebagai pelanggaran:**
+  - pindah tab atau jendela;
+  - mencoba menyalin;
+  - menekan tombol Print Screen (clipboard juga dikosongkan, jika browser mengizinkan);
+  - membuka alat pengembang;
+  - keluar dari layar penuh (jika layar penuh diwajibkan).
+- **Opsi wajib layar penuh**, dan **kumpulkan otomatis** setelah 3, 5, atau 10 pelanggaran.
+- **Admin melihat jumlah pelanggaran** setiap peserta di tab Hasil (juga di CSV), beserta rincian jenis dan waktu tiap kejadian.
+- **Catatan tidak bisa dihapus** peserta: rules hanya mengizinkan jumlahnya bertambah.
+
+Batasannya: di browser, tangkapan layar tidak bisa diblokir sepenuhnya, karena itu fitur sistem operasi. Begitu juga foto dari HP lain. Pengawasan web menyulitkan, mendeteksi, dan membuat bocoran bisa dilacak. Pemblokiran penuh tersedia di aplikasi Android lewat `FLAG_SECURE`, yang membuat layar tryout tidak bisa di-screenshot atau direkam.
+
 **Siswa**
 - Daftar tryout dengan statusnya: akan dibuka, bisa dikerjakan, sedang dikerjakan, selesai, atau ditutup.
 - Halaman pengerjaan bergaya CBT UTBK:
@@ -88,12 +131,14 @@ Cara menghitung bobot setiap soal: `bobot = 0,1 + 0,9 × (1 - p)`, dengan `p` ad
 - Waktu mulai dan batas waktu ditentukan server. Rules menolak jawaban setelah batas waktu (dengan tenggang 5 detik) dan menolak jawaban untuk soal di luar sesinya.
 - Jawaban dinilai di server (`kumpulkanSubtes`, `hitungSkor`). Kunci baru dikirim ke peserta lewat `pembahasan` setelah tryout ditutup, dan hanya jika admin mengizinkan.
 
+- Data pendaftar hanya bisa dibaca pemiliknya dan admin. Pendaftar hanya bisa ditulis lewat Cloud Function, dan admin hanya bisa mengubah status, kelas, dan catatan.
+
 Tes otomatisnya ada di `functions/test`:
 
 | Tes | Isi | Perintah |
 |---|---|---|
-| Penilaian | Logika penilaian (unit test) | `npm test` |
-| Rules dan alur | Rules Firestore dan alur ujian lengkap di emulator | `npm run test:emulator` |
+| Penilaian dan validasi | Logika penilaian dan validasi data pendaftaran (unit test) | `npm test` |
+| Rules dan alur | Rules Firestore, alur ujian, pendaftaran, akses jadwal, dan catatan pelanggaran di emulator | `npm run test:emulator` |
 
 ## Menjalankan di komputer
 
@@ -147,76 +192,28 @@ Untuk mencoba sebagai admin:
    ```sh
    firebase deploy --only functions,firestore,storage,hosting:kertas-kosong-portal
    ```
+   `firestore` ikut men-deploy index untuk daftar pendaftaran siswa (`firestore.indexes.json`). Index ini perlu beberapa menit sampai aktif.
 8. Masuk ke portal dengan akunmu.
 9. Di Firebase Console → Firestore → `pengguna/<uid kamu>`, ubah `peran` menjadi `admin`. Setelah itu admin lain bisa diatur dari menu Pengguna di portal.
 
 Jika gambar soal tidak tampil, portal sudah memuatnya lewat elemen `<img>` sebagai cadangan. Untuk performa terbaik, atur CORS bucket Storage seperti dijelaskan di [dokumentasi Firebase](https://firebase.google.com/docs/storage/web/download-files#cors_configuration).
 
-## Eksplorasi: pendaftaran bimbel dan seminar
+## Pendaftaran: keputusan yang diambil
 
-Selama ini pendaftaran memakai Google Form, dan datanya tersimpan di Drive. Catatan tim menemukan folder pendaftaran 2025 dan 2026 (foto diri, kartu pelajar, kartu UTBK) bisa dibuka siapa saja yang punya tautan. Pindah ke portal sekaligus menyelesaikan masalah itu.
+Pendaftaran pindah dari Google Form ke portal. Keputusan pengurus:
 
-### Pilihan
+- **Seminar dan bimbel didaftarkan lewat portal.** Seminar langsung diterima, bimbel diverifikasi panitia.
+- **Data seminar:** nama, kelas, sekolah, email, nomor HP, alamat, serta minat jurusan dan kampus.
+- **Data bimbel:** data seminar, ditambah tanggal lahir dan status eligible SNBP. Nomor SNBP diisi jika eligible.
+- **Pembagian kelas** (biasanya A dan B) dilakukan admin di portal.
+- **Jadwal bimbel** diatur admin dan dilihat siswa di portal.
 
-**A. Program dikelola admin di portal (disarankan)**
-
-- **Admin membuat Program**, misalnya "Bimbel Ayo Kuliah 2027" atau "Seminar Ayo Kuliah 2027". Pengaturannya:
-  - jenis, deskripsi, periode pendaftaran, dan kuota (opsional);
-  - cara seleksi: langsung diterima, atau ditinjau admin;
-  - pertanyaan tambahan dengan pembuat formulir sederhana: teks pendek, paragraf (surat motivasi atau esai), pilihan, dan centang persetujuan atau kontrak belajar.
-- **Siswa mendaftar sekali klik.** Profil yang sudah ada dipakai ulang, jadi siswa cukup menjawab pertanyaan tambahan.
-  - Status pendaftarannya terlihat di portal: menunggu, diterima, cadangan, atau ditolak.
-- **Admin meninjau di satu tabel.**
-  - Filter per status, sekolah, dan kota.
-  - Baca esai dan ubah status, termasuk sekaligus untuk banyak pendaftar.
-  - Bagi peserta ke kelas (A, B, ...) dan ekspor CSV.
-  - Statistik jangkauan: jumlah per kota dan per sekolah, seperti slide jangkauan 2026.
-- **Terhubung dengan tryout.** Akses tryout bisa diatur untuk semua siswa atau hanya peserta program tertentu. Nanti rekaman kelas dan presensi memakai daftar peserta yang sama.
-- **Seminar:** cukup mode langsung diterima dengan kuota. Bisa ditambah check-in QR dan sertifikat di tahap berikutnya.
-
-Rancangan data: `program/{id}` untuk pengaturan, dan `program/{id}/pendaftar/{uid}` untuk jawaban dan status. ID pendaftar sama dengan uid, sehingga satu akun hanya bisa mendaftar sekali. Rules mengizinkan siswa membuat pendaftarannya sendiri hanya selama periode pendaftaran, dan hanya admin yang bisa mengubah status.
-
-**B. Tetap Google Form, lalu impor ke portal**
-
-Admin mengunggah daftar email peserta yang diterima, lalu portal membuka akses tryout untuk email itu.
-- **Kelebihan:** paling cepat, tidak ada yang perlu dibangun.
-- **Kekurangan:**
-  - data tersebar di dua tempat;
-  - risiko folder Drive publik tetap ada;
-  - siswa harus memakai email yang sama di formulir dan di portal.
-
-**C. Formulir tetap khusus bimbel**
-
-Isian formulirnya ditulis langsung di kode.
-- **Kelebihan:** sederhana.
-- **Kekurangan:** setiap angkatan atau seminar dengan isian berbeda butuh perubahan kode.
-
-### Saran
-
-Pilih **A**, mulai dari versi minimal yang siap sebelum pendaftaran Februari 2027:
-- program;
-- pertanyaan tambahan;
-- seleksi oleh admin;
-- akses tryout khusus peserta.
-
-Check-in seminar, sertifikat, dan notifikasi menyusul.
-
-Sesuai UU Pelindungan Data Pribadi:
-- kumpulkan data seperlunya saja, dan hindari meminta scan kartu identitas jika tidak benar-benar dibutuhkan;
-- tentukan kapan data pendaftar dihapus setelah program selesai.
-
-### Yang perlu diputuskan
-
-1. Apakah seleksi bimbel memakai surat motivasi atau esai yang ditinjau, atau semua pendaftar langsung diterima?
-2. Apakah ada kuota per angkatan?
-3. Apakah pembagian kelas (A/B) dilakukan admin di portal?
-4. Data tambahan apa yang wajib, selain profil? Apakah benar-benar perlu unggah berkas?
-5. Apakah pendaftaran seminar juga lewat portal, atau seminar boleh tanpa akun?
+Sesuai UU Pelindungan Data Pribadi, portal tidak meminta unggahan berkas identitas. Data pendaftar hanya bisa dibaca admin dan pemiliknya. Tetapkan juga kapan data pendaftar dihapus setelah program selesai.
 
 ## Rencana berikutnya
 
-1. Pendaftaran program (lihat eksplorasi di atas).
-2. Impor soal massal dari spreadsheet, supaya 160 soal tidak diketik satu per satu.
+1. Impor soal massal dari spreadsheet, supaya 160 soal tidak diketik satu per satu.
+2. Notifikasi email atau WhatsApp saat pendaftaran diterima.
 3. Rekaman kelas dan presensi, menggantikan tautan di portal lama.
 4. Versi Android, notifikasi FCM (pengingat tryout), dan `FLAG_SECURE` di layar tryout.
 5. App Check untuk melindungi Functions dan Firestore dari akses di luar aplikasi.

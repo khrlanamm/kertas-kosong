@@ -99,7 +99,7 @@ Koleksi lama (`rekaman`, `kehadiran`, `jadwal_tryout`, `tryout`, `tautan_penting
 
 1. **Website komunitas (selesai).** Astro, isi dari materi komunitas, hosting baru.
 2. **Portal: akun dan tryout (selesai, versi web).** Login Google/email, peran siswa/admin, penyusun tryout dengan empat tipe soal UTBK, pengerjaan berwaktu, penilaian di Functions, hasil, skor berbobot, dan pembahasan. Lihat [portal.md](portal.md).
-3. **Portal: pendaftaran program.** Bimbel dan seminar dikelola admin, terhubung dengan akses tryout. Lihat eksplorasinya di [portal.md](portal.md#eksplorasi-pendaftaran-bimbel-dan-seminar).
+3. **Portal: pendaftaran, jadwal, dan pengawasan (selesai, versi web).** Pendaftaran seminar dan bimbel, pembagian kelas A/B, jadwal bimbel, tryout khusus peserta, dan pengawasan saat tryout. Lihat [portal.md](portal.md).
 4. **Android.** Rilis ke Play Store, notifikasi FCM, dan `FLAG_SECURE` di layar tryout.
 5. **Rekaman dan kehadiran** pindah ke portal, menggantikan tautan di portal lama.
 
