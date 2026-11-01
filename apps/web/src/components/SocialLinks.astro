@@ -1,0 +1,52 @@
+---
+import { siInstagram, siTiktok, siWhatsapp, siYoutube } from "simple-icons";
+import { site } from "../config/site";
+import Icon from "./Icon.astro";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className = "" } = Astro.props;
+const { instagram, youtube, tiktok, whatsapp, email } = site.social;
+
+const brands = [
+  { href: instagram, label: "Instagram", icon: siInstagram },
+  { href: youtube, label: "YouTube", icon: siYoutube },
+  { href: tiktok, label: "TikTok", icon: siTiktok },
+  { href: whatsapp, label: "WhatsApp", icon: siWhatsapp },
+].filter((item) => item.href);
+---
+
+{
+  (brands.length > 0 || email) && (
+    <ul class:list={["flex flex-wrap items-center gap-2", className]}>
+      {brands.map(({ href, label, icon }) => (
+        <li>
+          <a
+            href={href}
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label={label}
+            class="grid size-10 place-items-center rounded-full border border-tinta-100 bg-white text-tinta-700 transition-colors hover:border-tinta-300 hover:text-tinta-900"
+          >
+            <svg viewBox="0 0 24 24" class="size-4" fill="currentColor" aria-hidden="true">
+              <path d={icon.path} />
+            </svg>
+          </a>
+        </li>
+      ))}
+      {email && (
+        <li>
+          <a
+            href={`mailto:${email}`}
+            aria-label="Email"
+            class="grid size-10 place-items-center rounded-full border border-tinta-100 bg-white text-tinta-700 transition-colors hover:border-tinta-300 hover:text-tinta-900"
+          >
+            <Icon name="Mail" class="size-4" />
+          </a>
+        </li>
+      )}
+    </ul>
+  )
+}

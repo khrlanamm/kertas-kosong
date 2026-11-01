@@ -1,0 +1,93 @@
+---
+import { nav, site } from "../config/site";
+import Brand from "./Brand.astro";
+import Icon from "./Icon.astro";
+
+const path = Astro.url.pathname.replace(/\.html$/, "");
+const isActive = (href: string) => (href === "/" ? path === "/" || path === "/index" : path.startsWith(href));
+---
+
+<header class="sticky top-0 z-40 border-b border-tinta-100/80 bg-kertas/90 backdrop-blur">
+  <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
+    <Brand />
+
+    <nav aria-label="Navigasi utama" class="hidden items-center gap-1 md:flex">
+      {
+        nav.map(({ href, label }) => (
+          <a
+            href={href}
+            aria-current={isActive(href) ? "page" : undefined}
+            class:list={[
+              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              isActive(href) ? "bg-tinta-100 text-tinta-900" : "text-slate-600 hover:bg-tinta-50 hover:text-tinta-900",
+            ]}
+          >
+            {label}
+          </a>
+        ))
+      }
+      {
+        site.links.portal && (
+          <a href={site.links.portal} class="tombol-utama ml-2 py-2">
+            Masuk Portal
+          </a>
+        )
+      }
+    </nav>
+
+    <button
+      type="button"
+      class="grid size-10 place-items-center rounded-full text-tinta-800 hover:bg-tinta-50 md:hidden"
+      aria-controls="menu-hp"
+      aria-expanded="false"
+      aria-label="Buka menu"
+      data-menu-toggle
+    >
+      <span data-menu-open><Icon name="Menu" class="size-6" /></span>
+      <span data-menu-close class="hidden"><Icon name="X" class="size-6" /></span>
+    </button>
+  </div>
+
+  <nav id="menu-hp" aria-label="Navigasi utama" class="hidden border-t border-tinta-100 bg-kertas md:hidden">
+    <ul class="mx-auto max-w-6xl space-y-1 px-4 py-3">
+      {
+        nav.map(({ href, label }) => (
+          <li>
+            <a
+              href={href}
+              aria-current={isActive(href) ? "page" : undefined}
+              class:list={[
+                "block rounded-xl px-4 py-3 font-medium",
+                isActive(href) ? "bg-tinta-100 text-tinta-900" : "text-slate-700 hover:bg-tinta-50",
+              ]}
+            >
+              {label}
+            </a>
+          </li>
+        ))
+      }
+      {
+        site.links.portal && (
+          <li class="pt-2">
+            <a href={site.links.portal} class="tombol-utama w-full">
+              Masuk Portal
+            </a>
+          </li>
+        )
+      }
+    </ul>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.querySelector<HTMLButtonElement>("[data-menu-toggle]");
+  const menu = document.getElementById("menu-hp");
+  toggle?.addEventListener("click", () => {
+    const open = toggle.getAttribute("aria-expanded") !== "true";
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Tutup menu" : "Buka menu");
+    menu?.classList.toggle("hidden", !open);
+    toggle.querySelector("[data-menu-open]")?.classList.toggle("hidden", open);
+    toggle.querySelector("[data-menu-close]")?.classList.toggle("hidden", !open);
+  });
+</script>

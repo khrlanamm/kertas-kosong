@@ -1,0 +1,57 @@
+---
+import "../styles/global.css";
+import Footer from "../components/Footer.astro";
+import Header from "../components/Header.astro";
+import { site } from "../config/site";
+
+interface Props {
+  /** Judul halaman tanpa nama komunitas. Kosongkan untuk beranda. */
+  title?: string;
+  description?: string;
+  /** Gambar pratinjau link (path absolut di situs, mis. "/og.png"). */
+  image?: string;
+  type?: "website" | "article";
+  /** true untuk halaman yang tidak perlu muncul di mesin pencari (mis. 404). */
+  noindex?: boolean;
+}
+
+const { title, description = site.description, image = "/og.png", type = "website", noindex = false } = Astro.props;
+
+const fullTitle = title ? `${title} | ${site.name}` : `${site.name}: ${site.tagline}`;
+const canonical = new URL(Astro.url.pathname.replace(/(\/index)?\.html$/, "") || "/", Astro.site);
+const imageUrl = new URL(image, Astro.site);
+---
+
+<!doctype html>
+<html lang="id">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
+    <link rel="icon" type="image/png" href="/favicon.png" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="sitemap" href="/sitemap-index.xml" />
+    <meta name="theme-color" content="#3b7186" />
+
+    <meta property="og:type" content={type} />
+    <meta property="og:site_name" content={site.name} />
+    <meta property="og:locale" content={site.locale} />
+    <meta property="og:title" content={title ?? site.name} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={canonical} />
+    <meta property="og:image" content={imageUrl} />
+    <meta name="twitter:card" content="summary_large_image" />
+  </head>
+  <body class="flex min-h-screen flex-col">
+    <a href="#konten" class="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-full focus:bg-white focus:px-4 focus:py-2 focus:shadow">
+      Langsung ke konten
+    </a>
+    <Header />
+    <main id="konten" class="flex-1">
+      <slot />
+    </main>
+    <Footer />
+  </body>
+</html>

@@ -1,0 +1,38 @@
+---
+/**
+ * Label "Akan datang" / "Berlangsung" / "Selesai".
+ * Situs ini statis, jadi status dihitung ulang di browser agar tetap benar
+ * walau website belum di-build ulang sejak kegiatan berlalu.
+ */
+interface Props {
+  mulai: Date;
+  akhir: Date;
+}
+
+const { mulai, akhir } = Astro.props;
+---
+
+<span
+  data-status-kegiatan
+  data-mulai={mulai.toISOString()}
+  data-akhir={akhir.toISOString()}
+  class="hidden rounded-full px-2.5 py-1"></span>
+
+<script>
+  const gaya = {
+    akan: ["Akan datang", "bg-stabilo/70 text-amber-950"],
+    berlangsung: ["Berlangsung", "bg-emerald-100 text-emerald-800"],
+    selesai: ["Selesai", "bg-slate-100 text-slate-600"],
+  } as const;
+
+  const sekarang = Date.now();
+  document.querySelectorAll<HTMLElement>("[data-status-kegiatan]").forEach((el) => {
+    const mulai = Date.parse(el.dataset.mulai ?? "");
+    const akhir = Date.parse(el.dataset.akhir ?? "");
+    const status = sekarang < mulai ? "akan" : sekarang <= akhir ? "berlangsung" : "selesai";
+    const [label, kelas] = gaya[status];
+    el.textContent = label;
+    el.classList.remove("hidden");
+    el.classList.add(...kelas.split(" "));
+  });
+</script>

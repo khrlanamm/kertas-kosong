@@ -1,0 +1,34 @@
+---
+import KegiatanCard from "../../components/KegiatanCard.astro";
+import PageHero from "../../components/PageHero.astro";
+import SocialLinks from "../../components/SocialLinks.astro";
+import { site } from "../../config/site";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getKegiatan } from "../../lib/kegiatan";
+
+const kegiatan = await getKegiatan();
+---
+
+<BaseLayout title="Kegiatan" description={`Seminar, tryout, dan kegiatan ${site.name}.`}>
+  <PageHero eyebrow="Kegiatan" title="Seminar, tryout, dan kabar komunitas">
+    <p>Daftar kegiatan yang sudah dan akan diselenggarakan {site.name}.</p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+    {
+      kegiatan.length > 0 ? (
+        <div class="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+          {kegiatan.map((item) => (
+            <KegiatanCard kegiatan={item} />
+          ))}
+        </div>
+      ) : (
+        <div class="rounded-2xl border border-dashed border-tinta-200 bg-white p-10 text-center">
+          <p class="text-lg font-semibold text-tinta-950">Belum ada kegiatan yang diumumkan.</p>
+          <p class="mt-2 text-slate-600">Pantau media sosial kami untuk kabar terbaru.</p>
+          <SocialLinks class="mt-6 justify-center" />
+        </div>
+      )
+    }
+  </section>
+</BaseLayout>

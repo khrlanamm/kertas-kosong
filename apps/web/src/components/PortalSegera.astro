@@ -1,0 +1,42 @@
+---
+import { site } from "../config/site";
+import Icon from "./Icon.astro";
+---
+
+<section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+  <div class="relative overflow-hidden rounded-3xl bg-tinta-700 px-6 py-12 text-tinta-50 sm:px-12">
+    <div class="garis-buku pointer-events-none absolute inset-0 opacity-20"></div>
+    <div class="relative grid items-center gap-8 md:grid-cols-[1.5fr_1fr]">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-200">Portal Bimbel</p>
+        <h2 class="mt-2 text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+          {site.links.portal ? "Semua urusan bimbel di satu tempat" : "Segera hadir di web dan Android"}
+        </h2>
+        <p class="mt-4 max-w-xl text-lg leading-relaxed text-tinta-100">
+          Daftar bimbel dan seminar, kerjakan tryout, tonton rekaman kelas, dan pantau kehadiran dari satu akun.
+        </p>
+        {
+          site.links.portal && (
+            <a href={site.links.portal} class="tombol mt-8 bg-white text-tinta-800 hover:bg-tinta-50">
+              Masuk Portal <Icon name="ArrowRight" class="size-4" />
+            </a>
+          )
+        }
+      </div>
+      <ul class="grid gap-3 text-sm font-medium">
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+          <Icon name="ClipboardCheck" class="size-5 text-stabilo" /> Pendaftaran bimbel &amp; seminar
+        </li>
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+          <Icon name="Timer" class="size-5 text-stabilo" /> Tryout langsung dari portal
+        </li>
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+          <Icon name="CirclePlay" class="size-5 text-stabilo" /> Rekaman kelas &amp; kehadiran
+        </li>
+        <li class="flex items-center gap-3 rounded-2xl bg-white/10 px-4 py-3">
+          <Icon name="Smartphone" class="size-5 text-stabilo" /> Notifikasi di aplikasi Android
+        </li>
+      </ul>
+    </div>
+  </div>
+</section>

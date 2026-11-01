@@ -1,0 +1,47 @@
+---
+import { Image } from "astro:assets";
+import { akhirKegiatan, formatTanggal, labelJenis, type Kegiatan } from "../lib/kegiatan";
+import Icon from "./Icon.astro";
+import StatusKegiatan from "./StatusKegiatan.astro";
+
+interface Props {
+  kegiatan: Kegiatan;
+}
+
+const { kegiatan } = Astro.props;
+const { judul, jenis, mulai, lokasi, ringkasan, poster } = kegiatan.data;
+---
+
+<article class="group relative flex flex-col overflow-hidden rounded-2xl border border-tinta-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md">
+  {
+    poster ? (
+      <Image src={poster} alt="" width={640} class="aspect-[4/3] w-full object-cover" />
+    ) : (
+      <div class="garis-buku grid aspect-[4/3] place-items-center bg-tinta-50">
+        <span class="rounded-full bg-white px-4 py-1.5 text-sm font-semibold text-tinta-700 shadow-sm">{labelJenis[jenis]}</span>
+      </div>
+    )
+  }
+  <div class="flex flex-1 flex-col gap-3 p-5">
+    <div class="flex flex-wrap items-center gap-2 text-xs font-semibold">
+      <span class="rounded-full bg-tinta-100 px-2.5 py-1 text-tinta-800">{labelJenis[jenis]}</span>
+      <StatusKegiatan mulai={mulai} akhir={akhirKegiatan(kegiatan)} />
+    </div>
+    <h3 class="text-lg font-bold leading-snug">
+      <a href={`/kegiatan/${kegiatan.id}`} class="after:absolute after:inset-0">{judul}</a>
+    </h3>
+    <p class="line-clamp-3 text-sm text-slate-600">{ringkasan}</p>
+    <dl class="mt-auto space-y-1.5 pt-2 text-sm text-slate-600">
+      <div class="flex items-center gap-2">
+        <dt class="sr-only">Tanggal</dt>
+        <Icon name="CalendarDays" class="size-4 text-tinta-500" />
+        <dd>{formatTanggal(mulai)}</dd>
+      </div>
+      <div class="flex items-center gap-2">
+        <dt class="sr-only">Lokasi</dt>
+        <Icon name="MapPin" class="size-4 text-tinta-500" />
+        <dd>{lokasi}</dd>
+      </div>
+    </dl>
+  </div>
+</article>

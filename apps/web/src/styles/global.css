@@ -1,0 +1,95 @@
+@import "tailwindcss";
+@import "@fontsource-variable/plus-jakarta-sans";
+
+@theme {
+  --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Warna dari logo: tinta biru-petrol dan kertas biru muda. */
+  --color-tinta-50: #f1f7fa;
+  --color-tinta-100: #e1eef4;
+  --color-tinta-200: #c3dde8;
+  --color-tinta-300: #95c2d5;
+  --color-tinta-400: #5f9db7;
+  --color-tinta-500: #4a87a0;
+  --color-tinta-600: #3b7186;
+  --color-tinta-700: #325c6d;
+  --color-tinta-800: #2c4d5b;
+  --color-tinta-900: #1f3a46;
+  --color-tinta-950: #13262f;
+
+  --color-kertas: #fbfaf6;
+  --color-stabilo: #ffe680;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    @apply bg-kertas font-sans text-slate-700 antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4 {
+    @apply text-tinta-950 text-balance;
+  }
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-tinta-600;
+  }
+}
+
+/* Garis buku tulis untuk latar bagian hero. */
+@utility garis-buku {
+  background-image: repeating-linear-gradient(
+    to bottom,
+    transparent 0,
+    transparent 35px,
+    color-mix(in oklab, var(--color-tinta-300) 35%, transparent) 35px,
+    color-mix(in oklab, var(--color-tinta-300) 35%, transparent) 36px
+  );
+}
+
+/* Coretan stabilo di belakang kata penting. */
+@utility stabilo {
+  background-image: linear-gradient(to top, var(--color-stabilo) 0, var(--color-stabilo) 40%, transparent 40%);
+  box-decoration-break: clone;
+  @apply -mx-1 rounded-sm px-1;
+}
+
+@utility tombol {
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-colors;
+}
+
+@utility tombol-utama {
+  @apply tombol bg-tinta-600 text-white shadow-sm hover:bg-tinta-700;
+}
+
+@utility tombol-kedua {
+  @apply tombol border border-tinta-200 bg-white text-tinta-800 hover:border-tinta-300 hover:bg-tinta-50;
+}
+
+@layer components {
+  /* Teks hasil Markdown di halaman detail kegiatan. */
+  .isi-artikel {
+    @apply space-y-4 leading-relaxed;
+  }
+  .isi-artikel h2 {
+    @apply pt-4 text-xl font-bold;
+  }
+  .isi-artikel h3 {
+    @apply pt-2 text-lg font-semibold;
+  }
+  .isi-artikel a {
+    @apply font-medium text-tinta-700 underline underline-offset-2 hover:text-tinta-900;
+  }
+  .isi-artikel ul {
+    @apply list-disc space-y-1 pl-5;
+  }
+  .isi-artikel ol {
+    @apply list-decimal space-y-1 pl-5;
+  }
+  .isi-artikel strong {
+    @apply font-semibold text-slate-900;
+  }
+}

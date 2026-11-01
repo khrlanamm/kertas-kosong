@@ -1,0 +1,124 @@
+---
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+import { site } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+/*
+ * Isi bagian di bawah ini sesuai data resmi komunitas.
+ * Daftar yang dibiarkan kosong ([]) tidak ditampilkan di halaman.
+ */
+const visi = ""; // contoh: "Menjadi ..."
+const misi: string[] = [];
+const pengurus: { nama: string; peran: string }[] = [];
+
+const kegiatanKami = [
+  {
+    icon: "BookOpen",
+    title: site.bimbel.name,
+    text: "Bimbingan belajar gratis per subtes untuk persiapan seleksi masuk perguruan tinggi.",
+  },
+  {
+    icon: "Video",
+    title: "Rekaman kelas",
+    text: "Seluruh kelas direkam dan diunggah ke YouTube komunitas, jadi materi bisa diulang kapan saja.",
+  },
+  {
+    icon: "Timer",
+    title: "Tryout",
+    text: "Tryout berkala untuk mengukur kesiapan peserta menjelang hari ujian.",
+  },
+  {
+    icon: "Presentation",
+    title: "Seminar",
+    text: "Seminar dan diskusi seputar dunia perkuliahan dan pengembangan diri.",
+  },
+] as const;
+---
+
+<BaseLayout title="Tentang" description={`Mengenal ${site.name}, penyelenggara ${site.bimbel.name}.`}>
+  <PageHero eyebrow="Tentang kami" title={site.name}>
+    <p>
+      Kami adalah komunitas yang membantu pelajar mempersiapkan diri masuk perguruan tinggi, secara gratis.
+      Setiap tahun kami menyelenggarakan {site.bimbel.name}: kelas per subtes, rekaman kelas, tryout, dan seminar.
+    </p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Yang kami kerjakan" title="Belajar bareng, terbuka untuk semua" />
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      {
+        kegiatanKami.map(({ icon, title, text }) => (
+          <div class="flex gap-4 rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
+            <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-tinta-50 text-tinta-600">
+              <Icon name={icon} class="size-6" />
+            </span>
+            <div>
+              <h3 class="text-lg font-bold">{title}</h3>
+              <p class="mt-1.5 text-slate-600">{text}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  {
+    (visi || misi.length > 0) && (
+      <section class="border-y border-tinta-100 bg-white">
+        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2">
+          {visi && (
+            <div>
+              <h2 class="text-2xl font-extrabold">Visi</h2>
+              <p class="mt-4 text-lg leading-relaxed text-slate-600">{visi}</p>
+            </div>
+          )}
+          {misi.length > 0 && (
+            <div>
+              <h2 class="text-2xl font-extrabold">Misi</h2>
+              <ol class="mt-4 list-decimal space-y-2 pl-5 text-slate-600">
+                {misi.map((item) => (
+                  <li>{item}</li>
+                ))}
+              </ol>
+            </div>
+          )}
+        </div>
+      </section>
+    )
+  }
+
+  {
+    pengurus.length > 0 && (
+      <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
+        <SectionHeading eyebrow="Pengurus" title="Orang-orang di balik komunitas" />
+        <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          {pengurus.map(({ nama, peran }) => (
+            <li class="rounded-2xl border border-tinta-100 bg-white p-5 text-center shadow-sm">
+              <span class="mx-auto grid size-14 place-items-center rounded-full bg-tinta-100 text-lg font-bold text-tinta-700">
+                {nama.charAt(0)}
+              </span>
+              <p class="mt-3 font-bold text-tinta-950">{nama}</p>
+              <p class="text-sm text-slate-600">{peran}</p>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )
+  }
+
+  <section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
+    <div class="rounded-3xl border border-tinta-100 bg-tinta-50 p-8 sm:p-12">
+      <h2 class="text-2xl font-extrabold sm:text-3xl">Ingin ikut atau berkolaborasi?</h2>
+      <p class="mt-3 max-w-2xl text-lg text-slate-600">
+        Pengumuman pendaftaran bimbel, tryout, dan seminar kami bagikan lewat media sosial komunitas.
+      </p>
+      <div class="mt-6 flex flex-wrap items-center gap-4">
+        <a href="/bimbel" class="tombol-utama">Lihat {site.bimbel.name}</a>
+        <SocialLinks />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

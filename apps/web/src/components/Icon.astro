@@ -1,0 +1,20 @@
+---
+import * as lucide from "lucide-static";
+
+type IconName = keyof typeof lucide;
+
+interface Props {
+  name: IconName;
+  class?: string;
+}
+
+const { name, class: className = "size-5" } = Astro.props;
+// Atur ukuran lewat class, jadi width/height bawaan hanya dibuang dari tag <svg> terluar.
+const svg = String(lucide[name]).replace(/<svg[^>]*>/, (tag) =>
+  tag
+    .replace(/\s(width|height)="\d+"/g, "")
+    .replace(/class="[^"]*"/, `class="${className}" aria-hidden="true" focusable="false"`),
+);
+---
+
+<Fragment set:html={svg} />

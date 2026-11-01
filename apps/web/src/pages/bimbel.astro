@@ -1,0 +1,151 @@
+---
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import SectionHeading from "../components/SectionHeading.astro";
+import SocialLinks from "../components/SocialLinks.astro";
+import { site } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+
+const fasilitas = [
+  {
+    icon: "Users",
+    title: "Kelas per subtes",
+    text: "Materi dibahas per subtes setiap minggu. Peserta dibagi ke beberapa kelas agar tetap nyaman bertanya.",
+  },
+  {
+    icon: "CirclePlay",
+    title: "Rekaman di YouTube",
+    text: "Setiap kelas direkam, jadi kamu bisa mengulang materi atau mengejar kelas yang terlewat.",
+  },
+  {
+    icon: "ClipboardCheck",
+    title: "Presensi & rekap kehadiran",
+    text: "Kehadiranmu tercatat di setiap kelas dan rekapnya bisa dilihat kapan saja.",
+  },
+  {
+    icon: "Timer",
+    title: "Tryout",
+    text: "Biasanya dua kali setahun, bulan Maret dan Mei, untuk mengukur kesiapan sebelum hari ujian.",
+  },
+] as const;
+
+const faq = [
+  {
+    q: "Apakah bimbel ini berbayar?",
+    a: "Tidak. Seluruh program Komunitas Kertas Kosong, termasuk bimbel, tryout, dan seminar, gratis.",
+  },
+  {
+    q: "Bagaimana kalau saya tidak bisa hadir di kelas?",
+    a: "Tonton rekaman kelas tersebut, lalu unggah abstrak (catatan atau rangkuman materi) melalui formulir yang dibagikan ke peserta.",
+  },
+  {
+    q: "Kapan pendaftaran dibuka?",
+    a: "Pendaftaran angkatan baru diumumkan di halaman ini dan di media sosial komunitas.",
+  },
+  {
+    q: "Di mana saya mengerjakan tryout?",
+    a: "Jadwal dan tautan tryout dibagikan ke peserta. Ke depannya tryout dikerjakan langsung di Portal Bimbel, lewat web maupun aplikasi Android.",
+  },
+];
+---
+
+<BaseLayout title={site.bimbel.name} description={`${site.bimbel.name}: bimbingan belajar gratis dari ${site.name} untuk persiapan masuk perguruan tinggi.`}>
+  <PageHero eyebrow={`Angkatan ${site.bimbel.angkatan}`} title={site.bimbel.name}>
+    <p>
+      Bimbingan belajar <strong class="stabilo font-semibold text-tinta-950">gratis</strong> untuk kamu yang sedang bersiap
+      masuk perguruan tinggi. Belajar per subtes bersama pengajar, ulangi materi lewat rekaman, dan ukur kesiapanmu lewat tryout.
+    </p>
+    <Fragment slot="actions">
+      <a href="#daftar" class="tombol-utama">Cara mendaftar <Icon name="ArrowRight" class="size-4" /></a>
+      <a href="#faq" class="tombol-kedua">Pertanyaan umum</a>
+    </Fragment>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Fasilitas" title="Yang kamu dapatkan" />
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      {
+        fasilitas.map(({ icon, title, text }) => (
+          <div
+            id={title === "Tryout" ? "tryout" : undefined}
+            class="flex scroll-mt-24 gap-4 rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm"
+          >
+            <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-tinta-50 text-tinta-600">
+              <Icon name={icon} class="size-6" />
+            </span>
+            <div>
+              <h3 class="text-lg font-bold">{title}</h3>
+              <p class="mt-1.5 text-slate-600">{text}</p>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2 md:items-center">
+      <div>
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Aturan kelas</p>
+        <h2 class="mt-2 text-3xl font-extrabold tracking-tight">Berhalangan hadir? Tetap bisa mengejar.</h2>
+        <p class="mt-4 text-lg leading-relaxed text-slate-600">
+          Peserta yang tidak hadir atau izin wajib menonton rekaman kelas, lalu mengunggah{" "}
+          <strong class="font-semibold text-slate-900">abstrak</strong>, yaitu catatan atau rangkuman materi, melalui formulir
+          yang dibagikan.
+        </p>
+      </div>
+      <ol class="space-y-3">
+        {
+          ["Tonton rekaman kelas yang terlewat", "Tulis catatan atau rangkuman materi", "Unggah abstrak lewat formulir peserta"].map((item, i) => (
+            <li class="flex items-center gap-4 rounded-2xl bg-kertas p-4">
+              <span class="grid size-9 shrink-0 place-items-center rounded-full bg-tinta-600 text-sm font-bold text-white">{i + 1}</span>
+              <span class="font-medium text-slate-800">{item}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section id="daftar" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-20">
+    <div class="rounded-3xl border border-tinta-100 bg-tinta-50 p-8 sm:p-12">
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Pendaftaran</p>
+      {
+        site.links.pendaftaranBimbel ? (
+          <>
+            <h2 class="mt-2 text-3xl font-extrabold tracking-tight">Pendaftaran angkatan {site.bimbel.angkatan} dibuka</h2>
+            <p class="mt-3 max-w-2xl text-lg text-slate-600">Isi formulir pendaftaran, lalu tunggu informasi kelas dari panitia.</p>
+            <a href={site.links.pendaftaranBimbel} target="_blank" rel="noopener noreferrer" class="tombol-utama mt-6">
+              Daftar sekarang <Icon name="ExternalLink" class="size-4" />
+            </a>
+          </>
+        ) : (
+          <>
+            <h2 class="mt-2 text-3xl font-extrabold tracking-tight">Pendaftaran belum dibuka</h2>
+            <p class="mt-3 max-w-2xl text-lg text-slate-600">
+              Pendaftaran angkatan {site.bimbel.angkatan} akan diumumkan di halaman ini dan di media sosial komunitas.
+            </p>
+            <SocialLinks class="mt-6" />
+          </>
+        )
+      }
+    </div>
+  </section>
+
+  <section id="faq" class="mx-auto max-w-3xl scroll-mt-20 px-4 pb-20 sm:px-6">
+    <SectionHeading eyebrow="FAQ" title="Pertanyaan umum" center />
+    <div class="mt-10 space-y-3">
+      {
+        faq.map(({ q, a }) => (
+          <details class="group rounded-2xl border border-tinta-100 bg-white p-5 shadow-sm open:shadow-md">
+            <summary class="flex cursor-pointer list-none items-center justify-between gap-4 font-semibold text-tinta-950">
+              {q}
+              <Icon name="ChevronDown" class="size-5 shrink-0 text-tinta-500 transition-transform group-open:rotate-180" />
+            </summary>
+            <p class="mt-3 leading-relaxed text-slate-600">{a}</p>
+          </details>
+        ))
+      }
+    </div>
+  </section>
+</BaseLayout>
