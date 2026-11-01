@@ -1,0 +1,66 @@
+---
+import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
+import Foto from "../../components/Foto.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const sabuSaku = [
+  {
+    judul: "Literasi aktif",
+    isi: "Siswa membaca minimal satu buku setiap bulan, lalu menindaklanjutinya dengan diskusi kritis dan presentasi hasil bacaan. Tujuannya pemahaman yang mendalam, bukan sekadar menuntaskan halaman.",
+  },
+  { judul: "Hasil terukur", isi: "Setiap buku yang selesai dibaca menghasilkan ulasan tertulis sebagai bukti perkembangan pola pikir." },
+  { judul: "Jurnal baca harian", isi: "Peserta mencatat bacaan setiap hari." },
+  { judul: "Bedah buku", isi: "Peserta bergantian membedah buku yang sudah dibaca." },
+];
+---
+
+<BaseLayout
+  title="Ayo Membaca"
+  description="Ayo Membaca, pilar pertama gerakan #4AYO, menguatkan fondasi intelektual siswa lewat program Sabu Saku: Satu Bulan Satu Buku."
+>
+  <PageHero eyebrow="Pilar 1 · #AyoMembaca" title="Ayo Membaca" foto="gerakan/gerakan-ayo-membaca.jpg" fotoAlt="Gerakan Ayo Membaca">
+    <p>
+      Ayo Membaca adalah pilar pertama yang berfokus pada penguatan fondasi intelektual siswa. Gerakan ini mengubah
+      kebiasaan membaca menjadi budaya yang sistematis, untuk memperluas cakrawala berpikir dan daya analisis.
+    </p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Program utama" title="Sabu Saku: Satu Bulan Satu Buku" />
+    <div class="mt-10 grid gap-5 sm:grid-cols-2">
+      {
+        sabuSaku.map(({ judul, isi }) => (
+          <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-bold">{judul}</h3>
+            <p class="mt-1.5 text-slate-600">{isi}</p>
+          </div>
+        ))
+      }
+    </div>
+    <p class="mt-8 text-slate-600">
+      Kegiatan lainnya: membaca bersama (<em>silent reading</em>), kampanye literasi, dan penyediaan bahan bacaan.
+    </p>
+  </section>
+
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:items-center">
+      <div>
+        <SectionHeading eyebrow="Aplikasi" title="Jurnal membaca harian Sabu Saku">
+          Siswa mencatat bacaan setiap hari dengan katalog lebih dari 1.000 buku, sementara guru pendamping memantau
+          perkembangan dan memberi komentar.
+        </SectionHeading>
+        <a href="/karya-digital#sabu-saku" class="tombol-kedua mt-8">Lihat di Karya Digital <Icon name="ArrowRight" class="size-4" /></a>
+      </div>
+      <Foto
+        src="digital/sabu-saku-feature-graphic.png"
+        alt="Sabu Saku, jurnal membaca harian siswa dengan katalog lebih dari 1.000 buku"
+        class="w-full rounded-2xl shadow-md"
+      />
+    </div>
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

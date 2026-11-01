@@ -1,0 +1,56 @@
+---
+import Galeri from "../components/Galeri.astro";
+import Lightbox from "../components/Lightbox.astro";
+import PageHero from "../components/PageHero.astro";
+import { album, liputan } from "../data/galeri";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Galeri" description="Dokumentasi kegiatan Komunitas Kertas Kosong: Seminar Ayo Kuliah, Bimbel Ayo Kuliah, Ayo Berbagi, relawan, masa awal, dan liputan media.">
+  <PageHero eyebrow="Galeri" title="Dokumentasi kegiatan">
+    <p>Kumpulan foto dari kegiatan K3 sejak 2017. Klik foto untuk memperbesar.</p>
+  </PageHero>
+
+  <nav aria-label="Album" class="sticky top-16 z-30 border-b border-tinta-100 bg-kertas/90 backdrop-blur">
+    <ul class="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-6">
+      {
+        [...album.map(({ id, judul }) => ({ id, judul })), { id: "liputan", judul: "Liputan Media" }].map(({ id, judul }) => (
+          <li>
+            <a href={`#${id}`} class="block whitespace-nowrap rounded-full border border-tinta-200 bg-white px-4 py-1.5 text-sm font-medium text-tinta-800 hover:bg-tinta-50">
+              {judul}
+            </a>
+          </li>
+        ))
+      }
+    </ul>
+  </nav>
+
+  <div class="mx-auto max-w-6xl space-y-16 px-4 py-14 sm:px-6">
+    {
+      album.map(({ id, judul, foto }) => (
+        <section id={id} class="scroll-mt-32">
+          <h2 class="mb-6 text-2xl font-extrabold">{judul}</h2>
+          <Galeri grup={id} items={foto} />
+        </section>
+      ))
+    }
+
+    <section id="liputan" class="scroll-mt-32">
+      <h2 class="mb-6 text-2xl font-extrabold">Liputan Media</h2>
+      <div class="space-y-10">
+        {
+          liputan.map(({ media, judul, foto }) => (
+            <div>
+              <p class="text-sm font-semibold uppercase tracking-wider text-tinta-500">{media}</p>
+              <h3 class="mb-4 mt-1 text-lg font-bold">{judul}</h3>
+              <Galeri grup="liputan" items={foto} />
+            </div>
+          ))
+        }
+      </div>
+      <p class="mt-6 text-sm text-slate-500">Cuplikan liputan adalah milik media terkait dan ditampilkan dengan menyebutkan sumbernya.</p>
+    </section>
+  </div>
+
+  <Lightbox />
+</BaseLayout>

@@ -1,0 +1,108 @@
+---
+import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
+import Foto from "../../components/Foto.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import { kegiatanAyoKuliah, seminar } from "../../data/program";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const ikon = ["Presentation", "BookOpen", "Timer", "Compass", "Users", "MapPin"] as const;
+---
+
+<BaseLayout
+  title="Ayo Kuliah"
+  description="Ayo Kuliah adalah jembatan bagi siswa berprestasi menuju perguruan tinggi: seminar, bimbel gratis, tryout, konsultasi, home visit, dan pendampingan tes."
+>
+  <PageHero eyebrow="Pilar 3 · #AyoKuliah" title="Ayo Kuliah" foto="seminar/seminar-2026-meja-registrasi.jpg" fotoAlt="Meja registrasi Seminar Ayo Kuliah 2026 dengan roll banner Program Ayo Kuliah">
+    <p>
+      Ayo Kuliah adalah jembatan bagi siswa berprestasi untuk menembus keterbatasan ekonomi menuju bangku perguruan
+      tinggi. Pendampingannya menyeluruh, mulai dari membuka wawasan sampai hari tes.
+    </p>
+    <Fragment slot="actions">
+      <a href="/bimbel" class="tombol-utama">Bimbel Ayo Kuliah <Icon name="ArrowRight" class="size-4" /></a>
+      <a href="#seminar" class="tombol-kedua">Seminar Ayo Kuliah</a>
+    </Fragment>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Pendampingan" title="Dari membuka wawasan sampai hari tes" />
+    <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      {
+        kegiatanAyoKuliah.map(({ nama, isi }, i) => (
+          <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
+            <span class="grid size-11 place-items-center rounded-xl bg-tinta-50 text-tinta-600">
+              <Icon name={ikon[i] ?? "Sparkles"} class="size-5" />
+            </span>
+            <h3 class="mt-4 text-lg font-bold">{nama}</h3>
+            <p class="mt-1.5 text-slate-600">{isi}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section id="seminar" class="scroll-mt-20 border-y border-tinta-100 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <SectionHeading eyebrow="Seminar Ayo Kuliah" title="Seminar gratis untuk siswa SMA dan sederajat">
+        Peserta mendapat sertifikat dan materi. Pematerinya alumni dan mahasiswa.
+      </SectionHeading>
+
+      <div class="mt-10 overflow-x-auto rounded-2xl border border-tinta-100">
+        <table class="w-full min-w-[40rem] text-left text-sm">
+          <thead class="bg-tinta-50 text-tinta-900">
+            <tr>
+              <th scope="col" class="px-4 py-3 font-semibold">Tahun</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Waktu dan tempat</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Tema</th>
+              <th scope="col" class="px-4 py-3 font-semibold">Materi</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-tinta-100 bg-white">
+            {
+              [...seminar].reverse().map(({ tahun, waktu, tema, materi }) => (
+                <tr class="align-top">
+                  <th scope="row" class="px-4 py-3 font-bold text-tinta-800">{tahun}</th>
+                  <td class="px-4 py-3 text-slate-700">{waktu}</td>
+                  <td class="px-4 py-3 font-medium text-slate-900">{tema}</td>
+                  <td class="px-4 py-3 text-slate-600">{materi}</td>
+                </tr>
+              ))
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+        {
+          [
+            ["seminar/seminar-2026-sesi-pemateri.jpg", "Sesi pemateri Seminar Ayo Kuliah 2026"],
+            ["seminar/seminar-2026-registrasi-peserta.jpg", "Registrasi peserta Seminar Ayo Kuliah 2026"],
+            ["seminar/seminar-2025-sesi-materi.jpg", "Sesi materi Seminar Ayo Kuliah 2025"],
+            ["seminar/seminar-2024-foto-bersama.jpg", "Foto bersama Seminar Ayo Kuliah 2024"],
+          ].map(([src, alt]) => (
+            <Foto src={src} alt={alt} widths={[320, 640]} sizes="(min-width: 768px) 25vw, 50vw" class="aspect-[4/3] w-full rounded-xl object-cover" />
+          ))
+        }
+      </div>
+      <a href="/galeri#seminar" class="tombol-kedua mt-8">Galeri seminar <Icon name="ArrowRight" class="size-4" /></a>
+    </div>
+  </section>
+
+  <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
+    <div>
+      <SectionHeading eyebrow="Bimbel Ayo Kuliah" title="Bimbel gratis persiapan UTBK-SNBT">
+        Bimbel ini bertujuan meningkatkan minat kuliah dan membantu siswa mempersiapkan UTBK-SNBT secara optimal, dengan
+        akses yang lebih baik terhadap materi, strategi pengerjaan soal, dan latihan intensif.
+      </SectionHeading>
+      <a href="/bimbel" class="tombol-utama mt-8">Selengkapnya tentang bimbel <Icon name="ArrowRight" class="size-4" /></a>
+    </div>
+    <Foto
+      src="bimbel/bimbel-2026-slide-progres-tryout.jpg"
+      alt="Progres pembelajaran Bimbel Ayo Kuliah 2026: rerata tryout naik 6 persen"
+      class="w-full rounded-2xl border border-tinta-100 shadow-md"
+    />
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

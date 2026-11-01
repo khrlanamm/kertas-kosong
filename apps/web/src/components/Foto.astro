@@ -1,0 +1,25 @@
+---
+import { Image } from "astro:assets";
+import { foto } from "../lib/foto";
+
+interface Props {
+  /** Path di src/assets/foto/, mis. "seminar/seminar-2026-foto-bersama-aula.jpg". */
+  src: string;
+  alt: string;
+  class?: string;
+  widths?: number[];
+  sizes?: string;
+  loading?: "eager" | "lazy";
+}
+
+const {
+  src,
+  alt,
+  class: className,
+  widths = [480, 800, 1200],
+  sizes = "(min-width: 1024px) 50vw, 100vw",
+  loading = "lazy",
+} = Astro.props;
+---
+
+<Image src={foto(src)} alt={alt} widths={widths} sizes={sizes} loading={loading} class={className} />

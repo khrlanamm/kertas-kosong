@@ -1,0 +1,46 @@
+---
+import { getImage, Image } from "astro:assets";
+import type { FotoGaleri } from "../data/galeri";
+import { foto } from "../lib/foto";
+
+interface Props {
+  /** Nama grup untuk tombol sebelum/sesudah di lightbox. */
+  grup: string;
+  items: FotoGaleri[];
+}
+
+const { grup, items } = Astro.props;
+
+const daftar = await Promise.all(
+  items.map(async (item) => {
+    const img = foto(item.foto);
+    const besar = await getImage({ src: img, width: Math.min(1600, img.width), format: "webp" });
+    return { ...item, img, besar: besar.src };
+  }),
+);
+---
+
+<ul class="columns-2 gap-3 sm:columns-3 lg:columns-4">
+  {
+    daftar.map(({ img, besar, ket }) => (
+      <li class="mb-3 break-inside-avoid">
+        <button
+          type="button"
+          data-lightbox={grup}
+          data-src={besar}
+          data-ket={ket}
+          class="group block w-full overflow-hidden rounded-xl border border-tinta-100 bg-white shadow-sm"
+          aria-label={`Perbesar foto: ${ket}`}
+        >
+          <Image
+            src={img}
+            alt={ket}
+            widths={[320, 640]}
+            sizes="(min-width: 1024px) 25vw, (min-width: 640px) 33vw, 50vw"
+            class="h-auto w-full transition duration-300 group-hover:scale-[1.03]"
+          />
+        </button>
+      </li>
+    ))
+  }
+</ul>

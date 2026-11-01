@@ -1,0 +1,60 @@
+---
+import Icon from "./Icon.astro";
+---
+
+<dialog
+  id="lightbox"
+  class="m-auto max-h-none max-w-none bg-transparent p-0 backdrop:bg-tinta-950/90"
+  aria-label="Foto diperbesar"
+>
+  <div class="flex h-dvh w-screen flex-col items-center justify-center gap-3 p-4">
+    <img data-lightbox-img alt="" class="max-h-[80dvh] max-w-full rounded-lg object-contain shadow-2xl" />
+    <p data-lightbox-ket class="max-w-2xl text-center text-sm text-white"></p>
+  </div>
+  <button type="button" data-lightbox-tutup class="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Tutup">
+    <Icon name="X" class="size-6" />
+  </button>
+  <button type="button" data-lightbox-geser="-1" class="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Foto sebelumnya">
+    <Icon name="ChevronLeft" class="size-6" />
+  </button>
+  <button type="button" data-lightbox-geser="1" class="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Foto berikutnya">
+    <Icon name="ChevronRight" class="size-6" />
+  </button>
+</dialog>
+
+<script>
+  const dialog = document.getElementById("lightbox") as HTMLDialogElement | null;
+  const gambar = dialog?.querySelector<HTMLImageElement>("[data-lightbox-img]");
+  const keterangan = dialog?.querySelector<HTMLElement>("[data-lightbox-ket]");
+  let daftar: HTMLElement[] = [];
+  let posisi = 0;
+
+  function tampilkan(i: number) {
+    if (!gambar || !keterangan || daftar.length === 0) return;
+    posisi = (i + daftar.length) % daftar.length;
+    const el = daftar[posisi];
+    gambar.src = el.dataset.src ?? "";
+    gambar.alt = el.dataset.ket ?? "";
+    keterangan.textContent = el.dataset.ket ?? "";
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-lightbox]").forEach((tombol) => {
+    tombol.addEventListener("click", () => {
+      daftar = [...document.querySelectorAll<HTMLElement>(`[data-lightbox="${tombol.dataset.lightbox}"]`)];
+      tampilkan(daftar.indexOf(tombol));
+      dialog?.showModal();
+    });
+  });
+
+  dialog?.querySelectorAll<HTMLElement>("[data-lightbox-geser]").forEach((tombol) => {
+    tombol.addEventListener("click", () => tampilkan(posisi + Number(tombol.dataset.lightboxGeser)));
+  });
+  dialog?.querySelector("[data-lightbox-tutup]")?.addEventListener("click", () => dialog.close());
+  dialog?.addEventListener("click", (e) => {
+    if (e.target === dialog || (e.target as HTMLElement).classList.contains("h-dvh")) dialog.close();
+  });
+  dialog?.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowLeft") tampilkan(posisi - 1);
+    if (e.key === "ArrowRight") tampilkan(posisi + 1);
+  });
+</script>

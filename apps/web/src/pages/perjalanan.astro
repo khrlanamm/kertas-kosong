@@ -1,0 +1,22 @@
+---
+import AjakanTerlibat from "../components/AjakanTerlibat.astro";
+import PageHero from "../components/PageHero.astro";
+import Timeline from "../components/Timeline.astro";
+import { perjalanan } from "../data/perjalanan";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Perjalanan" description="Perjalanan Komunitas Kertas Kosong sejak dibentuk pada 8 Juli 2016 di Lamongan.">
+  <PageHero eyebrow="Perjalanan" title="Langkah kecil yang terus-menerus sejak 2016">
+    <p>
+      Dari reaksi atas ketimpangan pendidikan dan literasi di Lamongan, K3 tumbuh menjadi gerakan yang menjangkau siswa
+      dari berbagai kota di Indonesia.
+    </p>
+  </PageHero>
+
+  <section class="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
+    <Timeline items={perjalanan} />
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

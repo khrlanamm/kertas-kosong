@@ -5,7 +5,7 @@ import { render } from "astro:content";
 import Icon from "../../components/Icon.astro";
 import StatusKegiatan from "../../components/StatusKegiatan.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { akhirKegiatan, formatWaktu, getKegiatan, labelJenis, type Kegiatan } from "../../lib/kegiatan";
+import { formatWaktuLengkap, getKegiatan, labelJenis, rentangKegiatan, type Kegiatan } from "../../lib/kegiatan";
 
 export const getStaticPaths = (async () => {
   const semua = await getKegiatan();
@@ -17,8 +17,8 @@ interface Props {
 }
 
 const { kegiatan } = Astro.props;
-const { judul, jenis, mulai, selesai, lokasi, ringkasan, poster, pendaftaran } = kegiatan.data;
-const akhir = akhirKegiatan(kegiatan);
+const { judul, jenis, lokasi, ringkasan, poster, pendaftaran } = kegiatan.data;
+const { mulai, akhir } = rentangKegiatan(kegiatan);
 const { Content } = await render(kegiatan);
 const ogImage = poster ? (await getImage({ src: poster, width: 1200, format: "jpeg" })).src : undefined;
 ---
@@ -32,7 +32,7 @@ const ogImage = poster ? (await getImage({ src: poster, width: 1200, format: "jp
     <div class:list={["mt-6 grid gap-10", poster && "md:grid-cols-[1fr_1.2fr]"]}>
       {
         poster && (
-          <Image src={poster} alt={`Poster ${judul}`} width={800} class="h-auto w-full rounded-2xl border border-tinta-100 shadow-sm" />
+          <Image src={poster} alt={judul} widths={[480, 800]} sizes="(min-width: 768px) 45vw, 100vw" class="h-auto w-full rounded-2xl border border-tinta-100 shadow-sm" />
         )
       }
       <div>
@@ -47,7 +47,7 @@ const ogImage = poster ? (await getImage({ src: poster, width: 1200, format: "jp
             <Icon name="CalendarDays" class="size-5 shrink-0 text-tinta-500" />
             <div>
               <dt class="sr-only">Waktu</dt>
-              <dd class="font-medium text-slate-800">{formatWaktu(mulai, selesai)}</dd>
+              <dd class="font-medium text-slate-800">{formatWaktuLengkap(kegiatan)}</dd>
             </div>
           </div>
           <div class="flex gap-3">

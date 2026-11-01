@@ -1,124 +1,166 @@
 ---
+import AjakanTerlibat from "../components/AjakanTerlibat.astro";
+import Foto from "../components/Foto.astro";
 import Icon from "../components/Icon.astro";
 import PageHero from "../components/PageHero.astro";
 import SectionHeading from "../components/SectionHeading.astro";
-import SocialLinks from "../components/SocialLinks.astro";
 import { site } from "../config/site";
+import { hambatan, identitas, misi, nilai, penggerak, sapaan, visi } from "../data/tentang";
 import BaseLayout from "../layouts/BaseLayout.astro";
-
-/*
- * Isi bagian di bawah ini sesuai data resmi komunitas.
- * Daftar yang dibiarkan kosong ([]) tidak ditampilkan di halaman.
- */
-const visi = ""; // contoh: "Menjadi ..."
-const misi: string[] = [];
-const pengurus: { nama: string; peran: string }[] = [];
-
-const kegiatanKami = [
-  {
-    icon: "BookOpen",
-    title: site.bimbel.name,
-    text: "Bimbingan belajar gratis per subtes untuk persiapan seleksi masuk perguruan tinggi.",
-  },
-  {
-    icon: "Video",
-    title: "Rekaman kelas",
-    text: "Seluruh kelas direkam dan diunggah ke YouTube komunitas, jadi materi bisa diulang kapan saja.",
-  },
-  {
-    icon: "Timer",
-    title: "Tryout",
-    text: "Tryout berkala untuk mengukur kesiapan peserta menjelang hari ujian.",
-  },
-  {
-    icon: "Presentation",
-    title: "Seminar",
-    text: "Seminar dan diskusi seputar dunia perkuliahan dan pengembangan diri.",
-  },
-] as const;
 ---
 
-<BaseLayout title="Tentang" description={`Mengenal ${site.name}, penyelenggara ${site.bimbel.name}.`}>
-  <PageHero eyebrow="Tentang kami" title={site.name}>
+<BaseLayout title="Tentang Kami" description={site.description}>
+  <PageHero
+    eyebrow="Tentang Kami"
+    title="Apa itu Komunitas Kertas Kosong"
+    foto="relawan/pengurus-evaluasi-mei-2025.jpg"
+    fotoAlt="Anggota Komunitas Kertas Kosong selepas rapat evaluasi, Mei 2025"
+  >
     <p>
-      Kami adalah komunitas yang membantu pelajar mempersiapkan diri masuk perguruan tinggi, secara gratis.
-      Setiap tahun kami menyelenggarakan {site.bimbel.name}: kelas per subtes, rekaman kelas, tryout, dan seminar.
+      Komunitas Kertas Kosong (K3) adalah gerakan sosial pendidikan yang lahir sejak 2016 untuk memutus rantai
+      kemiskinan melalui akses pendidikan tinggi. Kami mendampingi siswa berprestasi yang terkendala ekonomi melalui
+      program literasi, kepenulisan, dan pendampingan kuliah serta beasiswa yang sistematis.
+    </p>
+    <p>
+      Dengan semangat berbagi, kami membangun ekosistem berkelanjutan untuk mencetak generasi cerdas, kritis, dan
+      berdaya sosial. K3 adalah organisasi nonprofit. Kegiatan kami dijalankan oleh relawan dan didanai dari donasi
+      berbagai pihak.
     </p>
   </PageHero>
 
+  <!-- Makna nama -->
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
-    <SectionHeading eyebrow="Yang kami kerjakan" title="Belajar bareng, terbuka untuk semua" />
-    <div class="mt-10 grid gap-5 sm:grid-cols-2">
-      {
-        kegiatanKami.map(({ icon, title, text }) => (
-          <div class="flex gap-4 rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
-            <span class="grid size-12 shrink-0 place-items-center rounded-xl bg-tinta-50 text-tinta-600">
-              <Icon name={icon} class="size-6" />
-            </span>
-            <div>
-              <h3 class="text-lg font-bold">{title}</h3>
-              <p class="mt-1.5 text-slate-600">{text}</p>
-            </div>
-          </div>
-        ))
-      }
+    <div class="grid gap-10 lg:grid-cols-[1fr_1.3fr] lg:items-center">
+      <SectionHeading eyebrow="Makna nama" title="Setiap anak ibarat kertas yang masih kosong" />
+      <blockquote class="relative rounded-3xl border border-tinta-100 bg-white p-8 text-lg leading-relaxed text-slate-700 shadow-sm">
+        <Icon name="Quote" class="absolute -top-4 left-6 size-9 rounded-full bg-stabilo p-2 text-tinta-900" />
+        Setiap anak ibarat kertas yang masih kosong dan berhak menuliskan masa depannya sendiri. Nilai-nilai komunitas
+        adalah tinta yang menghidupkan harapan di atas kertas itu, sekaligus kompas sederhana yang menjaga langkah kami
+        agar tetap tulus mengabdi.
+      </blockquote>
     </div>
   </section>
 
-  {
-    (visi || misi.length > 0) && (
-      <section class="border-y border-tinta-100 bg-white">
-        <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 md:grid-cols-2">
-          {visi && (
-            <div>
-              <h2 class="text-2xl font-extrabold">Visi</h2>
-              <p class="mt-4 text-lg leading-relaxed text-slate-600">{visi}</p>
+  <!-- Apa yang menggerakkan kami -->
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <SectionHeading eyebrow="Apa yang menggerakkan kami" title="Tiga hambatan utama">
+        Banyak siswa SMA dan SMK memiliki kemampuan akademik luar biasa dan semangat belajar tinggi. Tanpa akses
+        informasi dan pendampingan yang tepat, mereka terjebak dalam keterbatasan jenjang karier yang sulit
+        meningkatkan taraf ekonomi keluarga.
+      </SectionHeading>
+      <div class="mt-10 grid gap-5 md:grid-cols-3">
+        {
+          hambatan.map(({ judul, isi }, i) => (
+            <div class="rounded-2xl border border-dashed border-tinta-200 bg-kertas p-6">
+              <span class="text-4xl font-extrabold text-tinta-200">{String(i + 1).padStart(2, "0")}</span>
+              <h3 class="mt-3 text-lg font-bold">{judul}</h3>
+              <p class="mt-1.5 text-slate-600">{isi}</p>
             </div>
-          )}
-          {misi.length > 0 && (
-            <div>
-              <h2 class="text-2xl font-extrabold">Misi</h2>
-              <ol class="mt-4 list-decimal space-y-2 pl-5 text-slate-600">
-                {misi.map((item) => (
-                  <li>{item}</li>
-                ))}
-              </ol>
-            </div>
-          )}
-        </div>
-      </section>
-    )
-  }
-
-  {
-    pengurus.length > 0 && (
-      <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6">
-        <SectionHeading eyebrow="Pengurus" title="Orang-orang di balik komunitas" />
-        <ul class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-          {pengurus.map(({ nama, peran }) => (
-            <li class="rounded-2xl border border-tinta-100 bg-white p-5 text-center shadow-sm">
-              <span class="mx-auto grid size-14 place-items-center rounded-full bg-tinta-100 text-lg font-bold text-tinta-700">
-                {nama.charAt(0)}
-              </span>
-              <p class="mt-3 font-bold text-tinta-950">{nama}</p>
-              <p class="text-sm text-slate-600">{peran}</p>
-            </li>
-          ))}
-        </ul>
-      </section>
-    )
-  }
-
-  <section class="mx-auto max-w-6xl px-4 pb-20 sm:px-6">
-    <div class="rounded-3xl border border-tinta-100 bg-tinta-50 p-8 sm:p-12">
-      <h2 class="text-2xl font-extrabold sm:text-3xl">Ingin ikut atau berkolaborasi?</h2>
-      <p class="mt-3 max-w-2xl text-lg text-slate-600">
-        Pengumuman pendaftaran bimbel, tryout, dan seminar kami bagikan lewat media sosial komunitas.
-      </p>
-      <div class="mt-6 flex flex-wrap items-center gap-4">
-        <a href="/bimbel" class="tombol-utama">Lihat {site.bimbel.name}</a>
-        <SocialLinks />
+          ))
+        }
       </div>
+      <p class="mt-8 max-w-3xl text-slate-600">
+        Di beberapa keluarga, ada pula anggapan bahwa kuliah bukan hal penting untuk diperjuangkan. Karena itu
+        pendampingan kami juga menyentuh orang tua, antara lain melalui kunjungan ke rumah.
+      </p>
     </div>
   </section>
+
+  <!-- Visi misi -->
+  <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Visi</p>
+      <p class="mt-3 text-2xl font-bold leading-snug text-tinta-950 sm:text-3xl">{visi}</p>
+    </div>
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Misi</p>
+      <ol class="mt-4 space-y-3">
+        {
+          misi.map((item, i) => (
+            <li class="flex gap-4 rounded-2xl bg-white p-4 shadow-sm ring-1 ring-tinta-100">
+              <span class="grid size-8 shrink-0 place-items-center rounded-full bg-tinta-600 text-sm font-bold text-white">{i + 1}</span>
+              <span class="text-slate-700">{item}</span>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <!-- Nilai -->
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+      <SectionHeading eyebrow="Nilai dasar" title="Tinta yang menghidupkan harapan" />
+      <dl class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+        {
+          nilai.map(({ nama, makna }) => (
+            <div class="rounded-2xl border border-tinta-100 bg-kertas p-6">
+              <dt class="text-lg font-bold text-tinta-800">{nama}</dt>
+              <dd class="mt-2 text-slate-600">{makna}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <!-- Siklus, sapaan, penggerak -->
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <div class="grid gap-10 lg:grid-cols-2 lg:items-center">
+      <div>
+        <SectionHeading eyebrow="Siklus yang kami bangun" title="Mereka yang dulu didampingi kini mendampingi">
+          Alumni yang sudah menempuh pendidikan tinggi kembali sebagai relawan, pemateri seminar, tentor, dan fasilitator
+          bagi adik-adik tingkatnya. Siklus inilah yang membuat gerakan terus berjalan.
+        </SectionHeading>
+        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Sapaan khas komunitas</h3>
+        <ul class="mt-4 flex flex-wrap gap-2">
+          {
+            sapaan.map(({ nama, arti }) => (
+              <li class="rounded-full border border-tinta-200 bg-white px-4 py-2 text-sm">
+                <strong class="font-semibold text-tinta-900">{nama}</strong>
+                <span class="text-slate-600"> untuk {arti}</span>
+              </li>
+            ))
+          }
+        </ul>
+        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Para penggerak</h3>
+        <p class="mt-3 text-slate-600">
+          Kegiatan K3 digerakkan oleh {penggerak.join(", ").toLowerCase()}. Nama tidak dicantumkan karena susunan
+          berganti dari tahun ke tahun.
+        </p>
+      </div>
+      <Foto
+        src="seminar/seminar-2026-tim-panitia-dan-banner.jpg"
+        alt="Panitia Seminar Ayo Kuliah 2026 di samping roll banner Komunitas Kertas Kosong"
+        sizes="(min-width: 1024px) 45vw, 100vw"
+        class="aspect-[4/5] w-full rounded-2xl border-4 border-white object-cover shadow-lg"
+      />
+    </div>
+  </section>
+
+  <!-- Identitas -->
+  <section class="mx-auto max-w-6xl px-4 pb-4 sm:px-6">
+    <div class="grid gap-6 rounded-3xl border border-tinta-100 bg-white p-6 sm:p-10 lg:grid-cols-[1fr_2fr]">
+      <div>
+        <h2 class="text-2xl font-extrabold">Identitas singkat</h2>
+        <div class="mt-4 flex flex-wrap gap-3">
+          <a href="/perjalanan" class="tombol-kedua">Perjalanan K3 <Icon name="ArrowRight" class="size-4" /></a>
+          <a href="/dampak" class="tombol-kedua">Dampak</a>
+        </div>
+      </div>
+      <dl class="divide-y divide-tinta-100">
+        {
+          identitas.map(({ hal, isi }) => (
+            <div class="grid gap-1 py-3 sm:grid-cols-[9rem_1fr]">
+              <dt class="text-sm font-semibold text-tinta-700">{hal}</dt>
+              <dd class="text-slate-700">{isi}</dd>
+            </div>
+          ))
+        }
+      </dl>
+    </div>
+  </section>
+
+  <AjakanTerlibat />
 </BaseLayout>

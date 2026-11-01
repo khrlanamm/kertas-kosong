@@ -1,0 +1,82 @@
+---
+import Foto from "../components/Foto.astro";
+import Icon from "../components/Icon.astro";
+import PageHero from "../components/PageHero.astro";
+import PortalSegera from "../components/PortalSegera.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Karya Digital" description="Aplikasi yang dibangun Komunitas Kertas Kosong: Portal Bimbel Ayo Kuliah, Mandu (Teman Ngadu), dan Sabu Saku.">
+  <PageHero eyebrow="Karya Digital" title="Teknologi untuk menjangkau lebih banyak siswa">
+    <p>Selain kegiatan langsung, K3 membangun aplikasi untuk mendukung belajar, membaca, dan keamanan siswa di sekolah.</p>
+  </PageHero>
+
+  <!-- Portal Bimbel -->
+  <section id="portal-bimbel" class="mx-auto grid max-w-6xl scroll-mt-20 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
+    <div>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Portal Bimbel Ayo Kuliah</p>
+      <h2 class="mt-2 text-3xl font-extrabold tracking-tight">Portal peserta bimbel</h2>
+      <p class="mt-4 text-lg leading-relaxed text-slate-600">
+        Portal peserta Bimbel Ayo Kuliah 2026 berisi rekaman kelas per minggu dan materi, rekap kehadiran, serta jadwal
+        tryout. Peserta yang tidak hadir menonton rekaman di YouTube Komunitas Kertas Kosong, lalu mengunggah abstrak
+        lewat tautan yang tersedia.
+      </p>
+      <p class="mt-4 text-slate-600">Versi barunya sedang disiapkan untuk web dan Android.</p>
+    </div>
+    <div class="grid gap-3">
+      <Foto src="digital/portal-bimbel-rekaman-kelas.png" alt="Portal Bimbel: tab rekaman kelas" class="w-full rounded-xl border border-tinta-100 shadow-md" />
+      <Foto src="digital/portal-bimbel-jadwal-tryout.png" alt="Portal Bimbel: jadwal tryout" class="w-full rounded-xl border border-tinta-100 shadow-md" />
+    </div>
+  </section>
+
+  <!-- Mandu -->
+  <section id="mandu" class="scroll-mt-20 border-y border-tinta-100 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
+      <div class="lg:order-2">
+        <div class="flex items-center gap-4">
+          <Foto src="digital/mandu-logo.png" alt="Logo Mandu Teman Ngadu" widths={[128, 256]} sizes="4rem" class="size-16 rounded-2xl" />
+          <div>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Mandu</p>
+            <h2 class="text-3xl font-extrabold tracking-tight">Teman Ngadu</h2>
+          </div>
+        </div>
+        <p class="mt-5 text-lg leading-relaxed text-slate-600">
+          Mandu adalah aplikasi pelaporan dan dukungan siswa yang pertama kali dibangun untuk SMA Negeri 1 Sukodadi dan
+          diterbitkan oleh Komunitas Kertas Kosong di Google Play. Aplikasi ini berangkat dari keprihatinan atas kasus
+          perundungan yang berdampak pada kondisi psikologis peserta didik.
+        </p>
+        <p class="mt-4 text-slate-600">
+          Siswa bisa melapor, curhat, menyampaikan aspirasi, meminta bantuan, dan mendapat edukasi, dan identitasnya bisa
+          dirahasiakan saat melapor. Pihak sekolah memantau laporan lewat dasbor
+          <a href="https://teman-ngadu.web.app" target="_blank" rel="noopener noreferrer" class="font-medium text-tinta-700 underline underline-offset-2">teman-ngadu.web.app</a>.
+        </p>
+      </div>
+      <div class="grid grid-cols-3 gap-3 lg:order-1">
+        <Foto src="digital/mandu-layar-home.png" alt="Mandu: layar beranda" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
+        <Foto src="digital/mandu-layar-report.png" alt="Mandu: layar lapor" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
+        <Foto src="digital/mandu-layar-dashboard.png" alt="Mandu: dasbor sekolah" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
+      </div>
+    </div>
+  </section>
+
+  <!-- Sabu Saku -->
+  <section id="sabu-saku" class="mx-auto grid max-w-6xl scroll-mt-20 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
+    <div>
+      <Foto src="digital/sabu-saku-logo-horizontal.png" alt="Sabu Saku, Satu Bulan Satu Buku" widths={[400, 800]} sizes="16rem" class="h-auto w-64" />
+      <p class="mt-6 text-lg leading-relaxed text-slate-600">
+        Aplikasi jurnal membaca harian untuk siswa SMA, sejalan dengan semangat Satu Bulan Satu Buku. Siswa mencatat
+        bacaan setiap hari dengan katalog lebih dari 1.000 buku, sementara guru pendamping memantau perkembangan dan
+        memberi komentar.
+      </p>
+      <a href="https://sabusaku.web.app" target="_blank" rel="noopener noreferrer" class="tombol-kedua mt-6">
+        sabusaku.web.app <Icon name="ExternalLink" class="size-4" />
+      </a>
+    </div>
+    <div class="grid grid-cols-2 gap-3">
+      <Foto src="digital/sabu-saku-layar-journal.png" alt="Sabu Saku: layar jurnal" widths={[240, 480]} sizes="(min-width: 1024px) 20vw, 50vw" class="w-full rounded-xl shadow-md" />
+      <Foto src="digital/sabu-saku-layar-catalog.png" alt="Sabu Saku: layar katalog buku" widths={[240, 480]} sizes="(min-width: 1024px) 20vw, 50vw" class="w-full rounded-xl shadow-md" />
+    </div>
+  </section>
+
+  <PortalSegera />
+</BaseLayout>

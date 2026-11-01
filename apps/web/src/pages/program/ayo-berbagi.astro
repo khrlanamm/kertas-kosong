@@ -1,0 +1,100 @@
+---
+import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
+import Foto from "../../components/Foto.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import { alurBerbagi, capaianBerbagi } from "../../data/program";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout
+  title="Ayo Berbagi"
+  description="Ayo Berbagi, muara gerakan #4AYO: Gerakan 1000 Baju Lebaran untuk anak yatim, sinergi alumni, dan berbagi ilmu."
+>
+  <PageHero eyebrow="Pilar 4 · #AyoBerbagi" title="Ayo Berbagi" foto="berbagi/celengan-akhirat-2026.jpg" fotoAlt="Celengan Akhirat disiapkan sebelum Ramadan 2026">
+    <p>
+      Ayo Berbagi adalah muara dari seluruh gerakan kami, tempat kepedulian sosial diwujudkan dalam aksi nyata. Gerakan
+      ini menumbuhkan kepekaan generasi muda dan memastikan keberhasilan setiap individu kembali memberi dampak bagi
+      generasi berikutnya dan lingkungan sekitar.
+    </p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Gerakan 1000 Baju Lebaran" title="Baju layak untuk anak yatim di hari raya">
+      Setiap Ramadan, kami mengajak masyarakat membantu menghadirkan kebahagiaan Lebaran bagi anak yatim dan piatu lewat
+      baju yang layak. Angka 1000 adalah cita-cita gerakan, dan setiap tahun kami berusaha mendekatinya.
+    </SectionHeading>
+
+    <ol class="mt-10 grid gap-4 sm:grid-cols-2 lg:grid-cols-5">
+      {
+        alurBerbagi.map(({ judul, isi }, i) => (
+          <li class="rounded-2xl border border-dashed border-tinta-200 bg-white p-5">
+            <span class="text-3xl font-extrabold text-tinta-200">{String(i + 1).padStart(2, "0")}</span>
+            <h3 class="mt-2 font-bold">{judul}</h3>
+            <p class="mt-1 text-sm text-slate-600">{isi}</p>
+          </li>
+        ))
+      }
+    </ol>
+
+    <div class="mt-12 grid gap-10 lg:grid-cols-[1fr_1.4fr] lg:items-start">
+      <div>
+        <h3 class="text-xl font-bold">Yang sudah tersalurkan</h3>
+        <dl class="mt-4 divide-y divide-tinta-100 rounded-2xl border border-tinta-100 bg-white">
+          {
+            capaianBerbagi.map(({ tahun, isi }) => (
+              <div class="flex items-baseline justify-between gap-4 px-5 py-3">
+                <dt class="font-bold text-tinta-800">{tahun}</dt>
+                <dd class="text-right text-slate-700">{isi}</dd>
+              </div>
+            ))
+          }
+        </dl>
+        <blockquote class="mt-6 text-lg font-semibold text-tinta-800">
+          "Satu baju layak, satu senyum, satu kebahagiaan di hari raya."
+        </blockquote>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        {
+          [
+            ["berbagi/paket-baju-2026.jpg", "Tumpukan paket baju lebaran, 2026"],
+            ["berbagi/mengemas-baju-2026.jpg", "Relawan mengemas baju lebaran, 2026"],
+            ["berbagi/belanja-baju-2020.jpg", "Relawan memilih baju lebaran, 2020"],
+            ["berbagi/label-celengan-akhirat-2022.jpg", "Label Celengan Akhirat, 2022"],
+          ].map(([src, alt]) => (
+            <Foto src={src} alt={alt} widths={[320, 640]} sizes="(min-width: 1024px) 25vw, 50vw" class="aspect-[4/3] w-full rounded-xl object-cover" />
+          ))
+        }
+      </div>
+    </div>
+  </section>
+
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-5 px-4 py-16 sm:px-6 md:grid-cols-3">
+      <div class="rounded-2xl bg-kertas p-6">
+        <Icon name="Repeat" class="size-6 text-tinta-600" />
+        <h3 class="mt-3 text-lg font-bold">Sinergi alumni</h3>
+        <p class="mt-1.5 text-slate-600">
+          Alumni yang telah menempuh pendidikan tinggi kembali berbagi ilmu, membimbing adik tingkat, dan berdonasi untuk
+          pendidikan.
+        </p>
+      </div>
+      <div class="rounded-2xl bg-kertas p-6">
+        <Icon name="Lightbulb" class="size-6 text-tinta-600" />
+        <h3 class="mt-3 text-lg font-bold">Berbagi ilmu</h3>
+        <p class="mt-1.5 text-slate-600">
+          Salah satunya webinar "Kiat Mudah Tembus SKD CPNS" pada 13 Oktober 2024 lewat Zoom, membahas strategi tes TWK,
+          TIU, dan TKP.
+        </p>
+      </div>
+      <div class="rounded-2xl bg-kertas p-6">
+        <Icon name="HeartHandshake" class="size-6 text-tinta-600" />
+        <h3 class="mt-3 text-lg font-bold">Perempuan kepala keluarga</h3>
+        <p class="mt-1.5 text-slate-600">Donasi juga diarahkan kepada perempuan yang menjadi tulang punggung keluarga.</p>
+      </div>
+    </div>
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

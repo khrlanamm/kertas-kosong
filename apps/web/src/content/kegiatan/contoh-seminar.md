@@ -1,14 +1,15 @@
 ---
 # Contoh format kegiatan. `draft: true` membuatnya hanya tampil saat `npm run dev`.
 # Salin file ini untuk kegiatan baru; nama file menjadi alamat halaman (/kegiatan/<nama-file>).
-judul: Contoh Seminar Persiapan Kuliah
-jenis: seminar # seminar | tryout | bimbel | lainnya
-mulai: 2027-02-14T09:00:00+07:00
-selesai: 2027-02-14T11:30:00+07:00
-lokasi: Daring (Zoom)
-ringkasan: Contoh ringkasan satu-dua kalimat yang tampil di kartu kegiatan dan pratinjau link.
-# poster: ./poster-contoh.jpg   # opsional, simpan gambar di folder ini
-# pendaftaran: https://forms.gle/...   # opsional
+judul: Contoh Seminar Ayo Kuliah 2027
+jenis: seminar # seminar | tryout | bimbel | berbagi | lainnya
+tanggal: 2027-01-23
+# tanggalSelesai: 2027-01-24   # opsional, untuk kegiatan lebih dari sehari
+waktu: 08.00-12.00 WIB # opsional
+lokasi: Nama sekolah atau Daring (Zoom)
+ringkasan: Satu-dua kalimat yang tampil di kartu kegiatan dan pratinjau link.
+# poster: ../../assets/foto/seminar/nama-gambar.jpg   # opsional
+# pendaftaran: https://forms.gle/...   # opsional, tombol daftar hilang otomatis setelah kegiatan selesai
 draft: true
 ---
 
@@ -18,7 +19,3 @@ Tulis deskripsi lengkap kegiatan di sini dengan **Markdown**.
 
 - Poin pertama
 - Poin kedua
-
-## Pembicara
-
-Nama pembicara dan latar belakang singkatnya.

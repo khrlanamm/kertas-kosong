@@ -1,54 +1,53 @@
 ---
 import { Image } from "astro:assets";
 import logo from "../assets/logo.png";
-import { nav, site } from "../config/site";
+import { peta, site } from "../config/site";
+import Icon from "./Icon.astro";
 import SocialLinks from "./SocialLinks.astro";
 
 const year = new Date().getFullYear();
 ---
 
 <footer class="border-t border-tinta-100 bg-white">
-  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 md:grid-cols-[1.4fr_1fr_1fr]">
+  <div class="mx-auto grid max-w-6xl gap-10 px-4 py-12 sm:px-6 lg:grid-cols-[1.3fr_2fr]">
     <div class="space-y-4">
       <Image src={logo} alt="Logo Komunitas Kertas Kosong" width={360} class="h-auto w-44" />
       <p class="max-w-sm text-sm leading-relaxed text-slate-600">{site.description}</p>
-    </div>
-
-    <div>
-      <h2 class="text-sm font-semibold uppercase tracking-wider text-tinta-700">Jelajahi</h2>
-      <ul class="mt-4 space-y-2 text-sm">
-        {
-          nav.map(({ href, label }) => (
-            <li>
-              <a href={href} class="text-slate-600 hover:text-tinta-800">
-                {label}
-              </a>
-            </li>
-          ))
-        }
-        {
-          site.links.portal && (
-            <li>
-              <a href={site.links.portal} class="text-slate-600 hover:text-tinta-800">
-                Portal Bimbel
-              </a>
-            </li>
-          )
-        }
+      <ul class="space-y-1.5 text-sm text-slate-600">
+        <li class="flex items-start gap-2">
+          <Icon name="MapPin" class="mt-0.5 size-4 shrink-0 text-tinta-500" />
+          {site.lokasi}
+        </li>
+        <li class="flex items-start gap-2">
+          <Icon name="Mail" class="mt-0.5 size-4 shrink-0 text-tinta-500" />
+          <a href={`mailto:${site.social.email}`} class="break-all hover:text-tinta-800">{site.social.email}</a>
+        </li>
       </ul>
+      <SocialLinks />
     </div>
 
-    <div>
-      <h2 class="text-sm font-semibold uppercase tracking-wider text-tinta-700">Ikuti kami</h2>
-      <SocialLinks class="mt-4" />
-      <p class="mt-4 text-sm text-slate-600">
-        Pengumuman pendaftaran bimbel dan kegiatan disampaikan melalui media sosial komunitas.
-      </p>
+    <div class="grid gap-8 sm:grid-cols-3">
+      {
+        peta.map(({ judul, tautan }) => (
+          <div>
+            <h2 class="text-sm font-semibold uppercase tracking-wider text-tinta-700">{judul}</h2>
+            <ul class="mt-4 space-y-2 text-sm">
+              {tautan.map(({ href, label }) => (
+                <li>
+                  <a href={href} class="text-slate-600 hover:text-tinta-800">
+                    {label}
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+        ))
+      }
     </div>
   </div>
   <div class="border-t border-tinta-100">
     <p class="mx-auto max-w-6xl px-4 py-5 text-xs text-slate-500 sm:px-6">
-      &copy; {year} {site.name}
+      &copy; {year} {site.name} &middot; {site.tagline}
     </p>
   </div>
 </footer>

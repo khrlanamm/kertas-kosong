@@ -1,0 +1,75 @@
+---
+import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
+import Foto from "../../components/Foto.astro";
+import PageHero from "../../components/PageHero.astro";
+import SectionHeading from "../../components/SectionHeading.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+
+const sabuSaka = [
+  {
+    judul: "Eksplorasi karya",
+    isi: "Siswa menulis esai, cerpen, opini, hingga karya ilmiah setiap bulan, dengan pendampingan penyuntingan.",
+  },
+  {
+    judul: "Prestasi dan portofolio",
+    isi: "Karya diarahkan mengikuti berbagai kompetisi. Sertifikat dan penghargaannya menjadi portofolio yang memudahkan pendaftaran kuliah dan beasiswa.",
+  },
+  { judul: "Kelas dan pelatihan menulis", isi: "Antara lain kelas menulis daring dan Pelatihan Menulis Puisi." },
+];
+---
+
+<BaseLayout
+  title="Ayo Menulis"
+  description="Ayo Menulis melatih cara berpikir lewat Sabu Saka: Satu Bulan Satu Karya, dari esai sampai karya ilmiah."
+>
+  <PageHero eyebrow="Pilar 2 · #AyoMenulis" title="Ayo Menulis" foto="gerakan/gerakan-ayo-menulis.jpg" fotoAlt="Gerakan Ayo Menulis">
+    <p>
+      Membaca adalah bekal untuk menulis, dan menulis melatih cara berpikir. Program utamanya <strong
+        class="font-semibold text-slate-900">Sabu Saka (Satu Bulan Satu Karya)</strong>, wadah bagi siswa untuk mengubah
+      wawasan menjadi gagasan nyata.
+    </p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <SectionHeading eyebrow="Program utama" title="Sabu Saka: Satu Bulan Satu Karya" />
+    <div class="mt-10 grid gap-5 md:grid-cols-3">
+      {
+        sabuSaka.map(({ judul, isi }) => (
+          <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
+            <h3 class="text-lg font-bold">{judul}</h3>
+            <p class="mt-1.5 text-slate-600">{isi}</p>
+          </div>
+        ))
+      }
+    </div>
+  </section>
+
+  <section class="border-y border-tinta-100 bg-white">
+    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+      <div>
+        <SectionHeading eyebrow="Buku" title="Para Perebut Mimpi">
+          Antologi kisah inspiratif para pejuang K3 yang berhasil melawan berbagai keterbatasan. Hasil penjualannya
+          digunakan untuk kegiatan komunitas dan membantu siswa mewujudkan cita-cita.
+        </SectionHeading>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <Foto
+          src="menulis/buku-para-perebut-mimpi.jpg"
+          alt="Buku Para Perebut Mimpi"
+          widths={[432]}
+          sizes="(min-width: 1024px) 20vw, 50vw"
+          class="aspect-square w-full rounded-2xl object-cover"
+        />
+        <Foto
+          src="menulis/adik-pejuang-juara-lomba-esai.jpg"
+          alt="Adik pejuang menjadi juara lomba esai"
+          widths={[400, 800]}
+          sizes="(min-width: 1024px) 20vw, 50vw"
+          class="aspect-square w-full rounded-2xl object-cover"
+        />
+      </div>
+    </div>
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

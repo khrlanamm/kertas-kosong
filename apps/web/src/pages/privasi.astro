@@ -1,0 +1,44 @@
+---
+import PageHero from "../components/PageHero.astro";
+import { site } from "../config/site";
+import BaseLayout from "../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Kebijakan Privasi" description={`Kebijakan privasi website ${site.name}.`}>
+  <PageHero eyebrow="Kebijakan Privasi" title="Privasi di website ini">
+    <p>Terakhir diperbarui 1 November 2026.</p>
+  </PageHero>
+
+  <section class="mx-auto max-w-3xl px-4 py-16 sm:px-6">
+    <div class="isi-artikel text-lg text-slate-700">
+      <h2>Data yang kami kumpulkan</h2>
+      <p>
+        Website ini adalah halaman informasi. Website ini tidak memiliki formulir, tidak meminta data pribadi, dan tidak
+        memakai cookie pelacak atau iklan. Tautan pendaftaran mengarah ke formulir terpisah yang menjelaskan penggunaan
+        datanya sendiri.
+      </p>
+
+      <h2>Foto kegiatan</h2>
+      <p>
+        Foto di website ini adalah dokumentasi kegiatan K3 seperti seminar, bimbingan belajar, dan kegiatan relawan. Kami
+        tidak menampilkan foto anak penerima bantuan, dan tidak mencantumkan nama orang di keterangan foto.
+      </p>
+      <p>
+        Jika kamu, atau anak yang kamu wakili sebagai orang tua atau wali, ada di salah satu foto dan ingin foto itu
+        diturunkan atau disamarkan, kirim email ke <a href={`mailto:${site.social.email}`}>{site.social.email}</a> dengan
+        menyebutkan halaman dan foto yang dimaksud. Kami akan menindaklanjutinya secepatnya.
+      </p>
+
+      <h2>Layanan pihak ketiga</h2>
+      <p>
+        Website ini di-hosting di Firebase Hosting milik Google, yang dapat mencatat data teknis standar seperti alamat IP
+        untuk keperluan keamanan dan operasional server.
+      </p>
+
+      <h2>Kontak</h2>
+      <p>
+        Pertanyaan tentang kebijakan ini bisa dikirim ke <a href={`mailto:${site.social.email}`}>{site.social.email}</a>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

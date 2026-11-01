@@ -1,0 +1,33 @@
+---
+import type { Peristiwa } from "../data/perjalanan";
+import Foto from "./Foto.astro";
+
+interface Props {
+  items: Peristiwa[];
+}
+
+const { items } = Astro.props;
+---
+
+<ol class="relative space-y-10 border-l-2 border-dashed border-tinta-200 pl-6 sm:pl-10">
+  {
+    items.map(({ tahun, isi, foto }) => (
+      <li class="relative">
+        <span class="absolute -left-[2.05rem] top-1 grid size-5 place-items-center rounded-full border-4 border-kertas bg-tinta-600 sm:-left-[3.05rem]" />
+        <p class="inline-block rounded-full bg-stabilo/70 px-3 py-0.5 text-sm font-bold text-tinta-950">{tahun}</p>
+        <div class:list={["mt-3 grid gap-5", foto && "md:grid-cols-[1.4fr_1fr] md:items-start"]}>
+          <p class="text-lg leading-relaxed text-slate-700">{isi}</p>
+          {foto && (
+            <Foto
+              src={foto}
+              alt=""
+              widths={[400, 700]}
+              sizes="(min-width: 768px) 35vw, 100vw"
+              class="w-full rounded-xl border border-tinta-100 shadow-sm"
+            />
+          )}
+        </div>
+      </li>
+    ))
+  }
+</ol>

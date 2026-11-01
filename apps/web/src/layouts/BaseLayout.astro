@@ -8,14 +8,14 @@ interface Props {
   /** Judul halaman tanpa nama komunitas. Kosongkan untuk beranda. */
   title?: string;
   description?: string;
-  /** Gambar pratinjau link (path absolut di situs, mis. "/og.png"). */
+  /** Gambar pratinjau link (path absolut di situs, mis. "/og.jpg"). */
   image?: string;
   type?: "website" | "article";
   /** true untuk halaman yang tidak perlu muncul di mesin pencari (mis. 404). */
   noindex?: boolean;
 }
 
-const { title, description = site.description, image = "/og.png", type = "website", noindex = false } = Astro.props;
+const { title, description = site.description, image = "/og.jpg", type = "website", noindex = false } = Astro.props;
 
 const fullTitle = title ? `${title} | ${site.name}` : `${site.name}: ${site.tagline}`;
 const canonical = new URL(Astro.url.pathname.replace(/(\/index)?\.html$/, "") || "/", Astro.site);

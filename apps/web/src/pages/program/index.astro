@@ -1,0 +1,41 @@
+---
+import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
+import Foto from "../../components/Foto.astro";
+import Icon from "../../components/Icon.astro";
+import PageHero from "../../components/PageHero.astro";
+import { gerakan, pengantar4ayo } from "../../data/program";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+---
+
+<BaseLayout title="Program #4AYO" description={pengantar4ayo}>
+  <PageHero eyebrow="Program" title="Gerakan #4AYO">
+    <p>{pengantar4ayo}</p>
+  </PageHero>
+
+  <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
+    <ol class="grid gap-6 md:grid-cols-2">
+      {
+        gerakan.map(({ slug, nama, ringkas, kartu }, i) => (
+          <li>
+            <a
+              href={`/program/${slug}`}
+              class="group grid h-full overflow-hidden rounded-3xl border border-tinta-100 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-md sm:grid-cols-[11rem_1fr]"
+            >
+              <Foto src={kartu} alt={`Gerakan ${nama}`} widths={[360, 720]} sizes="(min-width: 640px) 11rem, 100vw" class="aspect-square h-full w-full object-cover" />
+              <div class="flex flex-col p-6">
+                <p class="text-sm font-semibold text-tinta-500">Pilar {i + 1}</p>
+                <h2 class="mt-1 text-2xl font-extrabold">{nama}</h2>
+                <p class="mt-2 flex-1 text-slate-600">{ringkas}</p>
+                <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-tinta-700">
+                  Selengkapnya <Icon name="ArrowRight" class="size-4 transition-transform group-hover:translate-x-0.5" />
+                </span>
+              </div>
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </section>
+
+  <AjakanTerlibat />
+</BaseLayout>

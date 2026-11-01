@@ -1,24 +1,24 @@
 ---
-import { nav, site } from "../config/site";
+import { nav } from "../config/site";
 import Brand from "./Brand.astro";
 import Icon from "./Icon.astro";
 
 const path = Astro.url.pathname.replace(/\.html$/, "");
-const isActive = (href: string) => (href === "/" ? path === "/" || path === "/index" : path.startsWith(href));
+const isActive = (href: string) => path === href || path.startsWith(`${href}/`);
 ---
 
 <header class="sticky top-0 z-40 border-b border-tinta-100/80 bg-kertas/90 backdrop-blur">
   <div class="mx-auto flex h-16 max-w-6xl items-center justify-between px-4 sm:px-6">
     <Brand />
 
-    <nav aria-label="Navigasi utama" class="hidden items-center gap-1 md:flex">
+    <nav aria-label="Navigasi utama" class="hidden items-center gap-0.5 lg:flex">
       {
         nav.map(({ href, label }) => (
           <a
             href={href}
             aria-current={isActive(href) ? "page" : undefined}
             class:list={[
-              "rounded-full px-4 py-2 text-sm font-medium transition-colors",
+              "rounded-full px-3.5 py-2 text-sm font-medium transition-colors",
               isActive(href) ? "bg-tinta-100 text-tinta-900" : "text-slate-600 hover:bg-tinta-50 hover:text-tinta-900",
             ]}
           >
@@ -26,18 +26,12 @@ const isActive = (href: string) => (href === "/" ? path === "/" || path === "/in
           </a>
         ))
       }
-      {
-        site.links.portal && (
-          <a href={site.links.portal} class="tombol-utama ml-2 py-2">
-            Masuk Portal
-          </a>
-        )
-      }
+      <a href="/ayo-terlibat" class="tombol-utama ml-3 py-2">Ayo Terlibat</a>
     </nav>
 
     <button
       type="button"
-      class="grid size-10 place-items-center rounded-full text-tinta-800 hover:bg-tinta-50 md:hidden"
+      class="grid size-10 place-items-center rounded-full text-tinta-800 hover:bg-tinta-50 lg:hidden"
       aria-controls="menu-hp"
       aria-expanded="false"
       aria-label="Buka menu"
@@ -48,7 +42,7 @@ const isActive = (href: string) => (href === "/" ? path === "/" || path === "/in
     </button>
   </div>
 
-  <nav id="menu-hp" aria-label="Navigasi utama" class="hidden border-t border-tinta-100 bg-kertas md:hidden">
+  <nav id="menu-hp" aria-label="Navigasi utama" class="hidden border-t border-tinta-100 bg-kertas lg:hidden">
     <ul class="mx-auto max-w-6xl space-y-1 px-4 py-3">
       {
         nav.map(({ href, label }) => (
@@ -66,15 +60,9 @@ const isActive = (href: string) => (href === "/" ? path === "/" || path === "/in
           </li>
         ))
       }
-      {
-        site.links.portal && (
-          <li class="pt-2">
-            <a href={site.links.portal} class="tombol-utama w-full">
-              Masuk Portal
-            </a>
-          </li>
-        )
-      }
+      <li class="pt-2">
+        <a href="/ayo-terlibat" class="tombol-utama w-full">Ayo Terlibat</a>
+      </li>
     </ul>
   </nav>
 </header>
