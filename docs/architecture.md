@@ -69,7 +69,9 @@ Fitur admin (kelola kegiatan, pendaftar, soal tryout) dibuat sebagai halaman khu
 
 Firestore berada di `asia-southeast2` (Jakarta). Functions harus diletakkan di region yang sama.
 
-## Rancangan data portal (draf)
+## Rancangan data portal
+
+> Rancangan awal di bawah ini sudah diwujudkan dengan nama koleksi `pengguna`, `ujian` (beserta `soal` dan `stimulus`), dan `sesi` (beserta `pengerjaan`). Detail yang berlaku ada di [portal.md](portal.md) dan `firestore.rules`.
 
 Koleksi lama (`rekaman`, `kehadiran`, `jadwal_tryout`, `tryout`, `tautan_penting`) milik portal lama. Datanya tetap ada, tapi tidak lagi bisa dibaca klien sejak rules baru di-deploy. Portal baru memakai koleksi baru:
 
@@ -95,9 +97,9 @@ Koleksi lama (`rekaman`, `kehadiran`, `jadwal_tryout`, `tryout`, `tautan_penting
 
 ## Tahapan
 
-1. **Website komunitas (selesai di repo ini).** Astro, hosting baru, rules baru yang menutup semua akses.
-2. **Portal: akun dan pendaftaran.** Flutter web, Firebase Auth, profil, `kegiatan`, `pendaftaran`, halaman admin, notifikasi email atau FCM.
-3. **Portal: tryout.** Bank soal, sesi berwaktu, simpan otomatis, penilaian di Functions, hasil dan peringkat.
+1. **Website komunitas (selesai).** Astro, isi dari materi komunitas, hosting baru.
+2. **Portal: akun dan tryout (selesai, versi web).** Login Google/email, peran siswa/admin, penyusun tryout dengan empat tipe soal UTBK, pengerjaan berwaktu, penilaian di Functions, hasil, skor berbobot, dan pembahasan. Lihat [portal.md](portal.md).
+3. **Portal: pendaftaran program.** Bimbel dan seminar dikelola admin, terhubung dengan akses tryout. Lihat eksplorasinya di [portal.md](portal.md#eksplorasi-pendaftaran-bimbel-dan-seminar).
 4. **Android.** Rilis ke Play Store, notifikasi FCM, dan `FLAG_SECURE` di layar tryout.
 5. **Rekaman dan kehadiran** pindah ke portal, menggantikan tautan di portal lama.
 

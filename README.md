@@ -11,16 +11,17 @@ Portal lama, yang hanya berisi tautan, diarsipkan di branch [`arsip/portal-lama`
 ```
 apps/
   web/                  website komunitas (Astro + Tailwind CSS, statis)
-  portal/               (menyusul) Portal Bimbel, Flutter untuk web dan Android
-functions/              (menyusul) Cloud Functions, TypeScript, region asia-southeast2
-firebase.json           hosting, rules, dan emulator
-firestore.rules         aturan akses Firestore (saat ini semua ditutup)
+  portal/               Portal Bimbel (Flutter; web dulu, Android menyusul)
+functions/              Cloud Functions untuk tryout (TypeScript, region asia-southeast2)
+firebase.json           dua situs hosting, functions, rules, dan emulator
+firestore.rules         aturan akses Firestore (peran siswa/admin, soal hanya untuk admin)
 firestore.indexes.json
-storage.rules           aturan akses Cloud Storage (saat ini semua ditutup)
-docs/architecture.md    keputusan arsitektur, rencana data, dan tahapan
+storage.rules           aturan akses Cloud Storage (gambar soal)
+docs/architecture.md    keputusan arsitektur dan tahapan
+docs/portal.md          fitur portal, tipe soal UTBK, cara menjalankan, deploy, dan eksplorasi pendaftaran
 ```
 
-Alasan memakai satu repo dan rencana lengkapnya ada di [docs/architecture.md](docs/architecture.md).
+Alasan memakai satu repo dan rencana lengkapnya ada di [docs/architecture.md](docs/architecture.md). Detail Portal Bimbel ada di [docs/portal.md](docs/portal.md).
 
 ## Website (`apps/web`)
 
@@ -88,23 +89,23 @@ npm --prefix apps/web run build
 firebase emulators:start --project demo-kertas-kosong
 ```
 
-Website tersedia di http://127.0.0.1:5002 dengan aturan hosting yang sama seperti produksi (URL bersih, redirect, dan cache). Emulator UI ada di http://127.0.0.1:4000.
+Website tersedia di http://127.0.0.1:5002 dengan aturan hosting yang sama seperti produksi (URL bersih, redirect, dan cache). Portal (hasil `flutter build web --dart-define-from-file=env/emulator.json` di `apps/portal`) ada di http://127.0.0.1:5007, dan Emulator UI di http://127.0.0.1:4000. Sebelum menjalankan emulator, pasang dependensi Functions sekali: `npm --prefix functions install`.
 
 ### Deploy
 
 ```sh
 firebase login
-firebase deploy --only hosting                # build website lalu unggah
-firebase deploy --only firestore              # rules dan index Firestore
-firebase deploy --only storage                # rules Storage (setelah Storage diaktifkan)
+firebase deploy --only hosting:kertas-kosong           # website
+firebase deploy --only hosting:kertas-kosong-portal    # portal (butuh apps/portal/env/produksi.json)
+firebase deploy --only functions,firestore,storage     # backend portal
 ```
 
-`firebase deploy --only hosting` menjalankan `npm run build` di `apps/web` secara otomatis.
+Deploy website menjalankan `npm run build` di `apps/web` secara otomatis, dan deploy portal menjalankan `flutter build web`. Langkah persiapan portal (Blaze, Authentication, Storage, situs hosting kedua, admin pertama) ada di [docs/portal.md](docs/portal.md#menayangkan).
 
 Saat domain sendiri sudah siap, build dengan alamat barunya supaya canonical URL, sitemap, dan pratinjau link memakai domain itu:
 
 ```sh
-SITE_URL=https://domain-baru.id firebase deploy --only hosting
+SITE_URL=https://domain-baru.id firebase deploy --only hosting:kertas-kosong
 ```
 
 ## Lisensi
