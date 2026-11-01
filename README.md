@@ -39,24 +39,39 @@ Website tidak membaca Firestore dan tidak butuh file `.env`.
 
 | Yang diubah | Tempatnya |
 |---|---|
-| Nama, tagline, angkatan bimbel, tautan pendaftaran, tautan portal, media sosial | `apps/web/src/config/site.ts` |
-| Visi, misi, dan pengurus | bagian atas `apps/web/src/pages/tentang.astro` |
-| Fasilitas dan FAQ bimbel | bagian atas `apps/web/src/pages/bimbel.astro` |
-| Kegiatan (seminar, tryout, dan lain-lain) | satu file Markdown per kegiatan di `apps/web/src/content/kegiatan/` |
+| Nama, slogan, angkatan bimbel, tautan pendaftaran, tautan portal, media sosial, email | `apps/web/src/config/site.ts` |
+| Tentang Kami: visi, misi, nilai, hambatan, sapaan | `apps/web/src/data/tentang.ts` |
+| Garis waktu Perjalanan | `apps/web/src/data/perjalanan.ts` |
+| Program #4AYO, Seminar Ayo Kuliah, Ayo Berbagi | `apps/web/src/data/program.ts` |
+| Bimbel: materi, data per angkatan, hasil, syarat, FAQ | `apps/web/src/data/bimbel.ts` |
+| Angka di Beranda dan halaman Dampak | `apps/web/src/data/dampak.ts` |
+| Album galeri dan liputan media | `apps/web/src/data/galeri.ts` |
+| Ayo Terlibat: tentor, fasilitator, donasi, FAQ | `apps/web/src/data/terlibat.ts` |
+| Kegiatan (seminar, bimbel, dan lain-lain) | satu file Markdown per kegiatan di `apps/web/src/content/kegiatan/` |
 
-Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan. Begitu juga visi, misi, dan pengurus yang masih kosong.
+Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan, misalnya WhatsApp, YouTube, dan formulir pendaftaran.
 
-Untuk menambah kegiatan, salin `contoh-seminar.md`, ganti isinya, lalu hapus `draft: true`. Nama file menjadi alamat halaman, misalnya `seminar-maret.md` menjadi `/kegiatan/seminar-maret`. Poster opsional dan disimpan di folder yang sama. Kegiatan dengan `draft: true` hanya muncul saat `npm run dev`.
+**Kegiatan baru:** salin `contoh-seminar.md`, ganti isinya, lalu hapus `draft: true`. Nama file menjadi alamat halaman, misalnya `seminar-ayo-kuliah-2027.md` menjadi `/kegiatan/seminar-ayo-kuliah-2027`. Kegiatan dengan `draft: true` hanya muncul saat `npm run dev`.
+
+**Foto:** simpan di `apps/web/src/assets/foto/<album>/`, kecilkan dulu ke sisi terpanjang sekitar 1600 px, lalu sebutkan path-nya di file data, misalnya `"seminar/nama-foto.jpg"`. Website membuat ukuran kecil dan format WebP secara otomatis. Build gagal kalau path-nya salah, jadi gambar rusak tidak akan sampai tayang. Jangan memasang foto wajah anak penerima bantuan atau peserta kelas daring tanpa izin wali atau peserta.
 
 ### Halaman
 
 | URL | Isi |
 |---|---|
-| `/` | Beranda: program, alur bimbel, kegiatan terbaru, info portal |
-| `/tentang` | Tentang komunitas |
-| `/bimbel` | Bimbel #AyoKuliah: fasilitas, aturan kelas, pendaftaran, FAQ |
-| `/kegiatan` | Daftar kegiatan |
-| `/kegiatan/<nama>` | Detail kegiatan |
+| `/` | Beranda: slogan, angka singkat, mengapa kami ada, #4AYO, bimbel, kegiatan terbaru |
+| `/tentang` | Tentang Kami: makna nama, hambatan, visi, misi, nilai, siklus alumni |
+| `/perjalanan` | Garis waktu sejak 2016 |
+| `/program` | Gerakan #4AYO |
+| `/program/ayo-membaca`, `/ayo-menulis`, `/ayo-kuliah`, `/ayo-berbagi` | Detail tiap gerakan |
+| `/bimbel` | Bimbel Ayo Kuliah: jangkauan, materi, cara kerja, data per angkatan, hasil, pendaftaran, FAQ |
+| `/dampak` | Capaian per tahun |
+| `/karya-digital` | Portal Bimbel, Mandu, Sabu Saku |
+| `/galeri` | Album foto dengan lightbox, dan liputan media |
+| `/kegiatan`, `/kegiatan/<nama>` | Daftar dan detail kegiatan |
+| `/ayo-terlibat` | Tentor relawan, fasilitator, peserta, donasi, kolaborasi |
+| `/kontak` | Email, Instagram, LinkedIn, lokasi |
+| `/privasi` | Kebijakan privasi dan cara meminta foto diturunkan |
 
 Alamat portal lama `/portal-bimbel` dan `/tryout` dialihkan (301) ke `/bimbel`.
 
