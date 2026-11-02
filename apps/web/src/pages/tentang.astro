@@ -70,11 +70,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <!-- Visi misi -->
   <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
     <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Visi</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Visi</p>
       <p class="mt-3 text-2xl font-bold leading-snug text-tinta-950 sm:text-3xl">{visi}</p>
     </div>
     <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Misi</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Misi</p>
       <ol class="mt-4 space-y-3">
         {
           misi.map((item, i) => (
@@ -113,7 +113,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           Alumni yang sudah menempuh pendidikan tinggi kembali sebagai relawan, pemateri seminar, tentor, dan fasilitator
           bagi adik-adik tingkatnya. Siklus inilah yang membuat gerakan terus berjalan.
         </SectionHeading>
-        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Sapaan khas komunitas</h3>
+        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Sapaan khas komunitas</h3>
         <ul class="mt-4 flex flex-wrap gap-2">
           {
             sapaan.map(({ nama, arti }) => (
@@ -124,7 +124,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
             ))
           }
         </ul>
-        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Para penggerak</h3>
+        <h3 class="mt-10 text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Para penggerak</h3>
         <p class="mt-3 text-slate-600">
           Kegiatan K3 digerakkan oleh {penggerak.join(", ").toLowerCase()}. Nama tidak dicantumkan karena susunan
           berganti dari tahun ke tahun.

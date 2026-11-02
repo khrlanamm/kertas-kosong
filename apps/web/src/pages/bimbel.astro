@@ -1,14 +1,16 @@
 ---
 import FaqList from "../components/FaqList.astro";
-import Foto from "../components/Foto.astro";
 import Icon from "../components/Icon.astro";
 import PageHero from "../components/PageHero.astro";
+import PetaJangkauan from "../components/PetaJangkauan.astro";
+import Pita from "../components/Pita.astro";
 import PortalSegera from "../components/PortalSegera.astro";
 import SectionHeading from "../components/SectionHeading.astro";
 import SocialLinks from "../components/SocialLinks.astro";
 import StatGrid from "../components/StatGrid.astro";
+import VideoLoop from "../components/VideoLoop.astro";
 import { site } from "../config/site";
-import { angkatan, caraKerja, faqBimbel, hasil, jangkauan2026, materi, pesertaBimbel } from "../data/bimbel";
+import { alurLimaMinggu, angkatan, caraKerja, faqBimbel, hasil, jangkauan2026, kampusLolos, materi, pesertaBimbel } from "../data/bimbel";
 import BaseLayout from "../layouts/BaseLayout.astro";
 
 const baris = [
@@ -20,6 +22,8 @@ const baris = [
   ["Fasilitator", "fasilitator"],
   ["Durasi per sesi", "durasi"],
 ] as const;
+
+const kampus = kampusLolos.map(({ kampus, jumlah, tahun }) => `${kampus} ${jumlah}, ${tahun}`);
 ---
 
 <BaseLayout
@@ -29,8 +33,8 @@ const baris = [
   <PageHero
     eyebrow="#AyoKuliah"
     title={site.bimbel.name}
-    foto="bimbel/bimbel-2025-kelas-online-papan-tulis.jpg"
-    fotoAlt="Tentor menjelaskan soal di kelas daring Bimbel 2025"
+    foto="bimbel/bimbel-2024-kelas-luring.jpg"
+    fotoAlt="Suasana kelas luring Bimbel 2024 di SMAN 1 Sukodadi"
   >
     <p>
       Bimbel <strong class="stabilo font-semibold text-tinta-950">gratis</strong> ini bertujuan meningkatkan minat kuliah
@@ -51,13 +55,13 @@ const baris = [
         <StatGrid items={jangkauan2026.ringkas} class="mt-8 grid-cols-3!" />
         <p class="mt-5 text-slate-600">{jangkauan2026.sebaran}</p>
       </div>
-      <Foto
-        src="bimbel/bimbel-2026-slide-jangkauan.jpg"
-        alt="Slide jangkauan Bimbel Ayo Kuliah 2026: 171 siswa, 50 sekolah, 15 kota, beserta persebaran kota dan sekolah"
-        sizes="(min-width: 1024px) 55vw, 100vw"
-        class="w-full rounded-2xl border border-tinta-100 shadow-md"
-      />
+      <PetaJangkauan />
     </div>
+  </section>
+
+  <!-- Suasana kelas -->
+  <section class="mx-auto max-w-6xl px-4 pb-16 sm:px-6 sm:pb-20">
+    <VideoLoop src="kelas-luring-2024.mp4" poster="bimbel/bimbel-2024-kelas-luring.jpg" ket="Kelas luring, 2024" alt="Video pendek suasana kelas luring Bimbel 2024" />
   </section>
 
   <!-- Materi dan cara kerja -->
@@ -67,7 +71,7 @@ const baris = [
         <SectionHeading eyebrow="Materi" title="Tujuh materi UTBK-SNBT">
           Program dijalankan sekitar lima minggu menjelang UTBK.
         </SectionHeading>
-        <ol class="mt-6 grid gap-2">
+        <ol data-urut class="mt-6 grid gap-2">
           {
             materi.map((m, i) => (
               <li class="flex items-center gap-3 rounded-xl bg-kertas px-4 py-3">
@@ -80,14 +84,41 @@ const baris = [
       </div>
       <div>
         <SectionHeading eyebrow="Cara kerja" title="Lima minggu yang terstruktur" />
+        <div role="tablist" aria-label="Alur program" class="mt-6 flex gap-1.5">
+          {
+            alurLimaMinggu.map(({ judul, lebar }, i) => (
+              <button
+                type="button"
+                role="tab"
+                id={`tab-minggu-${i}`}
+                aria-controls={`panel-minggu-${i}`}
+                aria-selected={i === 0 ? "true" : "false"}
+                tabindex={i === 0 ? 0 : -1}
+                class="langkah-minggu"
+                style={`flex-grow:${lebar}`}
+              >
+                {judul}
+              </button>
+            ))
+          }
+        </div>
+        {
+          alurLimaMinggu.map(({ isi }, i) => (
+            <div role="tabpanel" id={`panel-minggu-${i}`} aria-labelledby={`tab-minggu-${i}`} class:list={["mt-3 rounded-xl bg-kertas p-4 text-slate-700", i === 0 && "aktif"]}>
+              {isi}
+            </div>
+          ))
+        }
         <ul class="mt-6 space-y-3">
           {
-            caraKerja.map((item) => (
-              <li class="flex gap-3">
-                <Icon name="ClipboardCheck" class="mt-0.5 size-5 shrink-0 text-tinta-500" />
-                <span class="text-slate-700">{item}</span>
-              </li>
-            ))
+            caraKerja
+              .filter((item) => !item.startsWith("Minggu 1") && !item.startsWith("Program ditutup"))
+              .map((item) => (
+                <li class="flex gap-3">
+                  <Icon name="ClipboardCheck" class="mt-0.5 size-5 shrink-0 text-tinta-500" />
+                  <span class="text-slate-700">{item}</span>
+                </li>
+              ))
           }
         </ul>
       </div>
@@ -97,31 +128,36 @@ const baris = [
   <!-- Per angkatan -->
   <section class="mx-auto max-w-6xl px-4 py-16 sm:px-6 sm:py-20">
     <SectionHeading eyebrow="Dari tahun ke tahun" title="Tiga angkatan terakhir" />
-    <div class="mt-10 overflow-x-auto rounded-2xl border border-tinta-100">
-      <table class="w-full min-w-[36rem] text-left text-sm">
-        <thead class="bg-tinta-50 text-tinta-900">
-          <tr>
-            <th scope="col" class="px-4 py-3"><span class="sr-only">Keterangan</span></th>
-            {angkatan.map(({ tahun }) => <th scope="col" class="px-4 py-3 text-base font-bold">{tahun}</th>)}
-          </tr>
-        </thead>
-        <tbody class="divide-y divide-tinta-100 bg-white">
-          {
-            baris.map(([label, kunci]) => (
-              <tr class="align-top">
-                <th scope="row" class="px-4 py-3 font-semibold text-tinta-800">{label}</th>
-                {angkatan.map((a) => (
-                  <td class="px-4 py-3 text-slate-700">{a[kunci] ?? "-"}</td>
-                ))}
-              </tr>
-            ))
-          }
-        </tbody>
-      </table>
+    <div role="tablist" aria-label="Pilih angkatan" class="mt-8 flex gap-2">
+      {
+        angkatan.map(({ tahun }, i) => (
+          <button type="button" role="tab" id={`tab-angkatan-${tahun}`} aria-controls={`panel-angkatan-${tahun}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} class="pilih-tahun">
+            {tahun}
+          </button>
+        ))
+      }
     </div>
+    {
+      angkatan.map((a, i) => (
+        <div role="tabpanel" id={`panel-angkatan-${a.tahun}`} aria-labelledby={`tab-angkatan-${a.tahun}`} class:list={["mt-4", i === 0 && "aktif"]}>
+          <h3 class="sr-only">Angkatan {a.tahun}</h3>
+          <dl class="grid gap-px overflow-hidden rounded-2xl border border-tinta-100 bg-tinta-100 sm:grid-cols-2 lg:grid-cols-3">
+            {baris.map(([label, kunci]) => (
+              <div class="bg-white p-4 last:col-span-full">
+                <dt class="text-sm text-slate-500">{label}</dt>
+                <dd class="mt-0.5 font-semibold text-tinta-900">{a[kunci] ?? "Belum terdata"}</dd>
+              </div>
+            ))}
+          </dl>
+        </div>
+      ))
+    }
 
-    <h3 id="hasil" class="mt-14 text-2xl font-extrabold">Hasil yang tercatat</h3>
-    <div class="mt-6 grid gap-5 lg:grid-cols-3">
+    <h3 id="hasil" class="mt-14 scroll-mt-24 text-2xl font-extrabold">Hasil yang tercatat</h3>
+    <div class="mt-5 rounded-xl bg-tinta-700 py-2.5 text-white">
+      <Pita items={kampus} class="tulisan text-2xl leading-none" />
+    </div>
+    <div data-urut class="mt-6 grid gap-5 lg:grid-cols-3">
       {
         hasil.map(({ tahun, isi }) => (
           <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
@@ -140,7 +176,7 @@ const baris = [
   <section id="daftar" class="scroll-mt-20 border-y border-tinta-100 bg-white">
     <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2">
       <div>
-        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Pendaftaran angkatan {site.bimbel.angkatan}</p>
+        <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Pendaftaran angkatan {site.bimbel.angkatan}</p>
         {
           site.links.pendaftaranBimbel ? (
             <>
@@ -188,3 +224,48 @@ const baris = [
 
   <PortalSegera />
 </BaseLayout>
+
+<style is:global>
+  .langkah-minggu {
+    min-width: max-content;
+    flex-basis: 0;
+    cursor: pointer;
+    border-radius: 0.5rem;
+    background: var(--color-tinta-100);
+    color: var(--color-tinta-800);
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.55rem 0.6rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .langkah-minggu[aria-selected="true"] {
+    background: var(--color-tinta-700);
+    color: white;
+  }
+  .pilih-tahun {
+    cursor: pointer;
+    border: 1px solid var(--color-tinta-200);
+    border-radius: 9999px;
+    background: white;
+    color: var(--color-tinta-800);
+    font-weight: 700;
+    padding: 0.35rem 1.1rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s;
+  }
+  .pilih-tahun[aria-selected="true"] {
+    border-color: var(--color-tinta-700);
+    background: var(--color-tinta-700);
+    color: white;
+  }
+  html:not(.js) [role="tablist"]:has(.pilih-tahun, .langkah-minggu) {
+    display: none;
+  }
+</style>
+
+<script>
+  import "../scripts/tab";
+</script>

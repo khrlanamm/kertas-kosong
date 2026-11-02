@@ -1,0 +1,97 @@
+---
+import { alurBerbagi } from "../data/program";
+import Foto from "./Foto.astro";
+import Ilustrasi from "./Ilustrasi.astro";
+---
+
+<div class="mt-10 grid gap-10 lg:grid-cols-2" data-cerita>
+  <!-- Panel foto yang berganti mengikuti langkah, hanya di layar lebar -->
+  <div class="sticky top-24 hidden aspect-[4/3] self-start overflow-hidden rounded-2xl bg-tinta-50 shadow-md lg:block" aria-hidden="true">
+    {
+      alurBerbagi.map(({ foto, alt }, i) => (
+        <div class:list={["cerita-layar", i === 0 && "aktif"]} data-layar={i}>
+          {foto ? (
+            <Foto src={foto} alt={alt ?? ""} widths={[640, 1000]} sizes="50vw" class="h-full w-full object-cover" />
+          ) : (
+            <div class="garis-buku grid h-full place-items-center">
+              <Ilustrasi nama="tulis" class="w-56" />
+            </div>
+          )}
+        </div>
+      ))
+    }
+  </div>
+
+  <ol class="space-y-6 lg:space-y-0">
+    {
+      alurBerbagi.map(({ judul, isi, foto, alt }, i) => (
+        <li class="cerita-langkah" data-langkah={i}>
+          <div class="rounded-2xl border border-dashed border-tinta-200 bg-white p-6">
+            <span class="tulisan text-4xl leading-none text-tinta-500">{i + 1}</span>
+            <h3 class="mt-1 text-xl font-bold">{judul}</h3>
+            <p class="mt-1 text-slate-600">{isi}</p>
+            {foto && <Foto src={foto} alt={alt ?? ""} widths={[480, 800]} sizes="100vw" class="mt-4 aspect-[4/3] w-full rounded-xl object-cover lg:hidden" />}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .cerita-layar {
+    position: absolute;
+    inset: 0;
+    opacity: 0;
+    scale: 1.04;
+    transition:
+      opacity 0.5s,
+      scale 0.8s var(--ease-kertas);
+  }
+  .cerita-layar.aktif {
+    opacity: 1;
+    scale: 1;
+  }
+  @media (min-width: 64rem) {
+    .cerita-langkah {
+      display: flex;
+      min-height: 62vh;
+      align-items: center;
+      opacity: 0.35;
+      transition: opacity 0.4s;
+    }
+    .cerita-langkah > div {
+      width: 100%;
+    }
+    .cerita-langkah:first-child {
+      min-height: 40vh;
+    }
+    .cerita-langkah.aktif {
+      opacity: 1;
+    }
+    :global(html:not(.js)) .cerita-langkah {
+      opacity: 1;
+    }
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-cerita]").forEach((akar) => {
+    const langkah = [...akar.querySelectorAll<HTMLElement>("[data-langkah]")];
+    const layar = [...akar.querySelectorAll<HTMLElement>("[data-layar]")];
+    const aktifkan = (n: number) => {
+      langkah.forEach((el, i) => el.classList.toggle("aktif", i === n));
+      layar.forEach((el, i) => el.classList.toggle("aktif", i === n));
+    };
+    aktifkan(0);
+    const pengamat = new IntersectionObserver(
+      (entri) => {
+        entri.forEach((e) => {
+          if (e.isIntersecting) aktifkan(langkah.indexOf(e.target as HTMLElement));
+        });
+      },
+      { rootMargin: "-45% 0px -50% 0px" },
+    );
+    langkah.forEach((el) => pengamat.observe(el));
+  });
+</script>

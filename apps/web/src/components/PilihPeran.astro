@@ -1,0 +1,182 @@
+---
+import { site } from "../config/site";
+import { pesertaBimbel } from "../data/bimbel";
+import { donasi, fasilitator, kolaborasi, tentor } from "../data/terlibat";
+import Foto from "./Foto.astro";
+import Icon from "./Icon.astro";
+import SocialLinks from "./SocialLinks.astro";
+
+const peran = [
+  { id: "siswa", label: "Aku siswa", ikon: "GraduationCap" },
+  { id: "relawan", label: "Aku ingin mengajar", ikon: "BookOpen" },
+  { id: "donatur", label: "Aku ingin berdonasi", ikon: "Gift" },
+  { id: "mitra", label: "Kami ingin bermitra", ikon: "Handshake" },
+] as const;
+---
+
+<section id="peran" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-14 sm:px-6 sm:py-16">
+  <p data-muncul class="tulisan text-3xl text-tinta-600">Kamu yang mana?</p>
+  <div role="tablist" aria-label="Pilih peran" data-muncul class="mt-3 grid grid-cols-2 gap-2 lg:grid-cols-4">
+    {
+      peran.map(({ id, label, ikon }, i) => (
+        <button type="button" role="tab" id={`tab-${id}`} aria-controls={`panel-${id}`} aria-selected={i === 0 ? "true" : "false"} tabindex={i === 0 ? 0 : -1} class="peran-tab">
+          <Icon name={ikon} class="size-6 shrink-0" />
+          {label}
+        </button>
+      ))
+    }
+  </div>
+
+  <!-- Siswa -->
+  <div role="tabpanel" id="panel-siswa" aria-labelledby="tab-siswa" class="peran-panel aktif">
+    <div id="peserta" class="grid scroll-mt-52 gap-8 lg:grid-cols-[1.2fr_1fr]">
+      <div>
+        <h2 class="text-2xl font-extrabold">Menjadi peserta bimbel</h2>
+        <p class="mt-2 text-lg text-slate-600">{pesertaBimbel.sasaran}</p>
+        <h3 class="mt-5 font-bold text-tinta-950">Syarat umum</h3>
+        <ol class="mt-2 space-y-2 text-slate-700">
+          {
+            pesertaBimbel.syarat.map((s, i) => (
+              <li class="flex gap-3">
+                <span class="grid size-6 shrink-0 place-items-center rounded-full bg-tinta-100 text-xs font-bold text-tinta-800">{i + 1}</span>
+                {s}
+              </li>
+            ))
+          }
+        </ol>
+        <p class="mt-4 text-slate-600">{pesertaBimbel.jadwal}</p>
+        <a href="/bimbel#daftar" class="tombol-utama mt-6">Syarat dan pendaftaran <Icon name="ArrowRight" class="size-4" /></a>
+      </div>
+      <div class="bingkai-foto selotip relative self-start rotate-1">
+        <Foto src="bimbel/bimbel-2024-peserta-menyimak.jpg" alt="Peserta mengikuti pembahasan soal di kelas luring" widths={[400, 800]} sizes="(min-width: 1024px) 35vw, 100vw" class="aspect-[4/3] w-full object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Relawan -->
+  <div role="tabpanel" id="panel-relawan" aria-labelledby="tab-relawan" class="peran-panel">
+    <div id="tentor" class="scroll-mt-52">
+      <p class="tulisan text-2xl text-tinta-600">{tentor.kutipan}</p>
+      <h2 class="mt-1 text-2xl font-extrabold">Menjadi tentor relawan</h2>
+      <p class="mt-2 max-w-2xl text-lg text-slate-600">{tentor.ajakan}</p>
+      <div class="mt-6 grid gap-5 lg:grid-cols-3">
+        <div class="rounded-2xl bg-kertas p-5">
+          <h3 class="font-bold text-tinta-950">Posisi</h3>
+          <ul class="mt-3 space-y-2 text-slate-700">
+            {tentor.posisi.map((p) => <li class="flex gap-2"><Icon name="BookOpen" class="mt-0.5 size-4 shrink-0 text-tinta-500" />{p}</li>)}
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-kertas p-5">
+          <h3 class="font-bold text-tinta-950">Syarat</h3>
+          <ul class="mt-3 space-y-2 text-slate-700">
+            {tentor.syarat.map((s) => <li class="flex gap-2"><Icon name="ClipboardCheck" class="mt-0.5 size-4 shrink-0 text-tinta-500" />{s}</li>)}
+          </ul>
+        </div>
+        <div class="rounded-2xl bg-kertas p-5">
+          <h3 class="font-bold text-tinta-950">Yang didapat</h3>
+          <p class="mt-3 text-slate-700">{tentor.didapat}</p>
+          <h3 class="mt-5 font-bold text-tinta-950">Alur</h3>
+          <ol class="mt-2 flex flex-wrap items-center gap-2 text-sm">
+            {
+              tentor.alur.map((a, i) => (
+                <li class="flex items-center gap-2">
+                  <span class="rounded-full bg-white px-3 py-1 font-medium text-tinta-800">{a}</span>
+                  {i < tentor.alur.length - 1 && <Icon name="ArrowRight" class="size-3.5 text-tinta-300" />}
+                </li>
+              ))
+            }
+          </ol>
+          <p class="mt-3 text-sm text-slate-600">{tentor.jadwal}</p>
+        </div>
+      </div>
+      {
+        site.links.pendaftaranRelawan && (
+          <a href={site.links.pendaftaranRelawan} target="_blank" rel="noopener noreferrer" class="tombol-utama mt-6">
+            Daftar jadi tentor <Icon name="ExternalLink" class="size-4" />
+          </a>
+        )
+      }
+    </div>
+    <div id="fasilitator" class="mt-10 grid scroll-mt-52 gap-8 border-t border-tinta-100 pt-8 lg:grid-cols-[1.3fr_1fr] lg:items-center">
+      <div>
+        <h2 class="text-2xl font-extrabold">Menjadi fasilitator</h2>
+        <p class="mt-2 text-lg text-slate-600">{fasilitator}</p>
+      </div>
+      <Foto src="relawan/relawan-dan-roll-banner-sman1-dukun.jpg" alt="Relawan Komunitas Kertas Kosong di samping roll banner, SMAN 1 Dukun" widths={[400, 800]} sizes="(min-width: 1024px) 35vw, 100vw" class="aspect-[4/3] w-full rounded-xl object-cover" />
+    </div>
+  </div>
+
+  <!-- Donatur -->
+  <div role="tabpanel" id="panel-donatur" aria-labelledby="tab-donatur" class="peran-panel">
+    <div id="donasi" class="grid scroll-mt-52 gap-8 lg:grid-cols-[1.2fr_1fr] lg:items-center">
+      <div>
+        <h2 class="text-2xl font-extrabold">Berdonasi</h2>
+        <p class="mt-2 text-lg text-slate-600">{donasi.isi}</p>
+        <p class="tulisan mt-4 text-3xl leading-tight text-tinta-800">"{donasi.kutipan}"</p>
+        <p class="mt-4 text-slate-600">Untuk informasi donasi, hubungi kami lewat email atau Instagram.</p>
+        <div class="mt-6 flex flex-wrap gap-3">
+          <a href="/kontak" class="tombol-utama">Hubungi kami <Icon name="ArrowRight" class="size-4" /></a>
+          <a href="/program/ayo-berbagi" class="tombol-kedua">Tentang Ayo Berbagi</a>
+        </div>
+      </div>
+      <div class="bingkai-foto selotip relative -rotate-1">
+        <Foto src="berbagi/celengan-akhirat-2026.jpg" alt="Deretan Celengan Akhirat yang siap dibagikan" widths={[400, 800]} sizes="(min-width: 1024px) 35vw, 100vw" class="aspect-[4/3] w-full object-cover" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Mitra -->
+  <div role="tabpanel" id="panel-mitra" aria-labelledby="tab-mitra" class="peran-panel">
+    <div id="kolaborasi" class="max-w-2xl scroll-mt-52">
+      <h2 class="text-2xl font-extrabold">Berkolaborasi</h2>
+      <p class="mt-2 text-lg text-slate-600">{kolaborasi} Hubungi kami melalui email atau Instagram.</p>
+      <SocialLinks class="mt-6" />
+    </div>
+  </div>
+</section>
+
+<style>
+  .peran-tab {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    cursor: pointer;
+    border: 1px solid var(--color-tinta-200);
+    border-radius: 1rem;
+    background: white;
+    color: var(--color-tinta-800);
+    font-weight: 700;
+    line-height: 1.2;
+    padding: 0.9rem 1rem;
+    text-align: left;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      translate 0.2s var(--ease-kertas);
+  }
+  .peran-tab:hover {
+    translate: 0 -2px;
+  }
+  .peran-tab[aria-selected="true"] {
+    border-color: var(--color-tinta-700);
+    background: var(--color-tinta-700);
+    color: white;
+  }
+  .peran-panel {
+    margin-top: 1rem;
+    border: 1px solid var(--color-tinta-100);
+    border-radius: 1.5rem;
+    background: white;
+    box-shadow: 0 1px 2px rgb(19 38 47 / 0.06);
+    padding: 1.5rem;
+  }
+  @media (min-width: 40rem) {
+    .peran-panel {
+      padding: 2.25rem;
+    }
+  }
+</style>
+
+<script>
+  import "../scripts/tab";
+</script>

@@ -8,25 +8,25 @@ export const gerakan = [
     slug: "ayo-membaca",
     nama: "Ayo Membaca",
     ringkas: "Menumbuhkan budaya baca yang sistematis lewat Sabu Saku: Satu Bulan Satu Buku.",
-    kartu: "gerakan/gerakan-ayo-membaca.jpg",
+    ilustrasi: "baca",
   },
   {
     slug: "ayo-menulis",
     nama: "Ayo Menulis",
     ringkas: "Melatih berpikir kritis lewat Sabu Saka: Satu Bulan Satu Karya.",
-    kartu: "gerakan/gerakan-ayo-menulis.jpg",
+    ilustrasi: "tulis",
   },
   {
     slug: "ayo-kuliah",
     nama: "Ayo Kuliah",
     ringkas: "Seminar, bimbel gratis, tryout, konsultasi, sampai pendampingan hari tes.",
-    kartu: "gerakan/gerakan-ayo-kuliah.jpg",
+    ilustrasi: "kuliah",
   },
   {
     slug: "ayo-berbagi",
     nama: "Ayo Berbagi",
     ringkas: "Gerakan 1000 Baju Lebaran untuk anak yatim dan sinergi alumni.",
-    kartu: "gerakan/gerakan-ayo-berbagi.jpg",
+    ilustrasi: "berbagi",
   },
 ] as const;
 
@@ -66,18 +66,19 @@ export const seminar = [
   },
 ];
 
+/** `foto` kosong berarti langkah itu memakai ilustrasi, karena belum ada dokumentasinya. */
 export const alurBerbagi = [
-  { judul: "Celengan Akhirat", isi: "Celengan dibagikan kepada para donatur, dan donasi juga bisa disalurkan secara digital." },
+  { judul: "Celengan Akhirat", isi: "Celengan dibagikan kepada para donatur, dan donasi juga bisa disalurkan secara digital.", foto: "berbagi/celengan-akhirat-2026.jpg", alt: "Deretan Celengan Akhirat yang siap dibagikan" },
   { judul: "Data penerima", isi: "Data penerima dikumpulkan dari relawan di berbagai daerah." },
-  { judul: "Buka celengan", isi: "Celengan biasanya dibuka bersama-sama, diiringi buka puasa bersama." },
-  { judul: "Belanja dan pengemasan", isi: "Baju dibeli dan dikemas sesuai ukuran tiap anak." },
-  { judul: "Penyaluran langsung", isi: "Paket diantar ke rumah penerima menjelang Lebaran." },
+  { judul: "Buka celengan", isi: "Celengan biasanya dibuka bersama-sama, diiringi buka puasa bersama.", foto: "berbagi/celengan-terkumpul-2026.jpg", alt: "Celengan yang kembali dari para donatur" },
+  { judul: "Belanja dan pengemasan", isi: "Baju dibeli dan dikemas sesuai ukuran tiap anak.", foto: "berbagi/belanja-baju-2020.jpg", alt: "Relawan memilih baju lebaran di toko" },
+  { judul: "Penyaluran langsung", isi: "Paket diantar ke rumah penerima menjelang Lebaran.", foto: "berbagi/penyaluran-tangan-2026.jpg", alt: "Tangan relawan menyerahkan tas berisi baju lebaran" },
 ];
 
 /** Angka tahun lain belum terdata, jadi tidak ditampilkan. */
 export const capaianBerbagi = [
-  { tahun: "2018", isi: "Baju untuk 70 anak yatim piatu" },
-  { tahun: "2020", isi: "69 anak yatim" },
-  { tahun: "2024", isi: "123 baju untuk 104 anak" },
-  { tahun: "2025", isi: "137 baju" },
+  { tahun: "2018", isi: "Baju untuk 70 anak yatim piatu", jumlah: 70, satuan: "anak" },
+  { tahun: "2020", isi: "69 anak yatim", jumlah: 69, satuan: "anak" },
+  { tahun: "2024", isi: "123 baju untuk 104 anak", jumlah: 123, satuan: "baju" },
+  { tahun: "2025", isi: "137 baju", jumlah: 137, satuan: "baju" },
 ];

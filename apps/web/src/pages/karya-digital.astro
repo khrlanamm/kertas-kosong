@@ -1,5 +1,6 @@
 ---
 import Foto from "../components/Foto.astro";
+import HpLayar from "../components/HpLayar.astro";
 import Icon from "../components/Icon.astro";
 import PageHero from "../components/PageHero.astro";
 import PortalSegera from "../components/PortalSegera.astro";
@@ -15,7 +16,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <!-- Portal Bimbel -->
   <section id="portal-bimbel" class="mx-auto grid max-w-6xl scroll-mt-20 gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
     <div>
-      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Portal Bimbel Ayo Kuliah</p>
+      <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Portal Bimbel Ayo Kuliah</p>
       <h2 class="mt-2 text-3xl font-extrabold tracking-tight">Portal peserta bimbel</h2>
       <p class="mt-4 text-lg leading-relaxed text-slate-600">
         Portal peserta Bimbel Ayo Kuliah 2026 berisi rekaman kelas per minggu dan materi, rekap kehadiran, serta jadwal
@@ -25,7 +26,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       <p class="mt-4 text-slate-600">Versi barunya sudah bisa dipakai di web, dan versi Android menyusul.</p>
       <a href={site.links.portal} class="tombol-utama mt-6">Masuk Portal <Icon name="ArrowRight" class="size-4" /></a>
     </div>
-    <div class="grid gap-3">
+    <div data-urut class="grid gap-3">
       <Foto src="digital/portal-bimbel-rekaman-kelas.png" alt="Portal Bimbel: tab rekaman kelas" class="w-full rounded-xl border border-tinta-100 shadow-md" />
       <Foto src="digital/portal-bimbel-jadwal-tryout.png" alt="Portal Bimbel: jadwal tryout" class="w-full rounded-xl border border-tinta-100 shadow-md" />
     </div>
@@ -38,7 +39,7 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         <div class="flex items-center gap-4">
           <Foto src="digital/mandu-logo.png" alt="Logo Mandu Teman Ngadu" widths={[128, 256]} sizes="4rem" class="size-16 rounded-2xl" />
           <div>
-            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">Mandu</p>
+            <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">Mandu</p>
             <h2 class="text-3xl font-extrabold tracking-tight">Teman Ngadu</h2>
           </div>
         </div>
@@ -53,11 +54,15 @@ import BaseLayout from "../layouts/BaseLayout.astro";
           <a href="https://teman-ngadu.web.app" target="_blank" rel="noopener noreferrer" class="font-medium text-tinta-700 underline underline-offset-2">teman-ngadu.web.app</a>.
         </p>
       </div>
-      <div class="grid grid-cols-3 gap-3 lg:order-1">
-        <Foto src="digital/mandu-layar-home.png" alt="Mandu: layar beranda" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
-        <Foto src="digital/mandu-layar-report.png" alt="Mandu: layar lapor" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
-        <Foto src="digital/mandu-layar-dashboard.png" alt="Mandu: dasbor sekolah" widths={[240, 480]} sizes="(min-width: 1024px) 15vw, 33vw" class="w-full rounded-xl shadow-md" />
-      </div>
+      <HpLayar
+        id="mandu"
+        class="lg:order-1"
+        layar={[
+          { foto: "digital/mandu-layar-home.png", label: "Beranda", alt: "Mandu: layar beranda" },
+          { foto: "digital/mandu-layar-report.png", label: "Lapor", alt: "Mandu: layar lapor" },
+          { foto: "digital/mandu-layar-dashboard.png", label: "Dasbor", alt: "Mandu: dasbor sekolah" },
+        ]}
+      />
     </div>
   </section>
 
@@ -74,10 +79,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
         sabusaku.web.app <Icon name="ExternalLink" class="size-4" />
       </a>
     </div>
-    <div class="grid grid-cols-2 gap-3">
-      <Foto src="digital/sabu-saku-layar-journal.png" alt="Sabu Saku: layar jurnal" widths={[240, 480]} sizes="(min-width: 1024px) 20vw, 50vw" class="w-full rounded-xl shadow-md" />
-      <Foto src="digital/sabu-saku-layar-catalog.png" alt="Sabu Saku: layar katalog buku" widths={[240, 480]} sizes="(min-width: 1024px) 20vw, 50vw" class="w-full rounded-xl shadow-md" />
-    </div>
+    <HpLayar
+      id="sabu-saku"
+      layar={[
+        { foto: "digital/sabu-saku-layar-journal.png", label: "Jurnal", alt: "Sabu Saku: layar jurnal" },
+        { foto: "digital/sabu-saku-layar-catalog.png", label: "Katalog", alt: "Sabu Saku: layar katalog buku" },
+      ]}
+    />
   </section>
 
   <PortalSegera />

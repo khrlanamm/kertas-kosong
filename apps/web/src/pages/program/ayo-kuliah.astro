@@ -1,6 +1,7 @@
 ---
 import AjakanTerlibat from "../../components/AjakanTerlibat.astro";
 import Foto from "../../components/Foto.astro";
+import GrafikTryout from "../../components/GrafikTryout.astro";
 import Icon from "../../components/Icon.astro";
 import PageHero from "../../components/PageHero.astro";
 import SectionHeading from "../../components/SectionHeading.astro";
@@ -14,7 +15,7 @@ const ikon = ["Presentation", "BookOpen", "Timer", "Compass", "Users", "MapPin"]
   title="Ayo Kuliah"
   description="Ayo Kuliah adalah jembatan bagi siswa berprestasi menuju perguruan tinggi: seminar, bimbel gratis, tryout, konsultasi, home visit, dan pendampingan tes."
 >
-  <PageHero eyebrow="Pilar 3 · #AyoKuliah" title="Ayo Kuliah" foto="seminar/seminar-2026-meja-registrasi.jpg" fotoAlt="Meja registrasi Seminar Ayo Kuliah 2026 dengan roll banner Program Ayo Kuliah">
+  <PageHero eyebrow="Pilar 3 · #AyoKuliah" title="Ayo Kuliah" foto="seminar/seminar-2026-di-tengah-peserta.jpg" fotoAlt="Pembicara berdiri di tengah peserta Seminar Ayo Kuliah 2026">
     <p>
       Ayo Kuliah adalah jembatan bagi siswa berprestasi untuk menembus keterbatasan ekonomi menuju bangku perguruan
       tinggi. Pendampingannya menyeluruh, mulai dari membuka wawasan sampai hari tes.
@@ -73,10 +74,10 @@ const ikon = ["Presentation", "BookOpen", "Timer", "Compass", "Users", "MapPin"]
         </table>
       </div>
 
-      <div class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
+      <div data-urut class="mt-8 grid grid-cols-2 gap-3 md:grid-cols-4">
         {
           [
-            ["seminar/seminar-2026-sesi-pemateri.jpg", "Sesi pemateri Seminar Ayo Kuliah 2026"],
+            ["seminar/seminar-2026-sambutan-panggung.jpg", "Sambutan di podium Seminar Ayo Kuliah 2026"],
             ["seminar/seminar-2026-registrasi-peserta.jpg", "Registrasi peserta Seminar Ayo Kuliah 2026"],
             ["seminar/seminar-2025-sesi-materi.jpg", "Sesi materi Seminar Ayo Kuliah 2025"],
             ["seminar/seminar-2024-foto-bersama.jpg", "Foto bersama Seminar Ayo Kuliah 2024"],
@@ -97,11 +98,7 @@ const ikon = ["Presentation", "BookOpen", "Timer", "Compass", "Users", "MapPin"]
       </SectionHeading>
       <a href="/bimbel" class="tombol-utama mt-8">Selengkapnya tentang bimbel <Icon name="ArrowRight" class="size-4" /></a>
     </div>
-    <Foto
-      src="bimbel/bimbel-2026-slide-progres-tryout.jpg"
-      alt="Progres pembelajaran Bimbel Ayo Kuliah 2026: rerata tryout naik 6 persen"
-      class="w-full rounded-2xl border border-tinta-100 shadow-md"
-    />
+    <GrafikTryout />
   </section>
 
   <AjakanTerlibat />

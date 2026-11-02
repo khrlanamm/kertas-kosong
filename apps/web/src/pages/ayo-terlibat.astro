@@ -1,12 +1,9 @@
 ---
 import FaqList from "../components/FaqList.astro";
-import Foto from "../components/Foto.astro";
-import Icon from "../components/Icon.astro";
 import PageHero from "../components/PageHero.astro";
+import PilihPeran from "../components/PilihPeran.astro";
 import SectionHeading from "../components/SectionHeading.astro";
-import SocialLinks from "../components/SocialLinks.astro";
-import { site } from "../config/site";
-import { donasi, fasilitator, faqTerlibat, kolaborasi, tentor } from "../data/terlibat";
+import { faqTerlibat } from "../data/terlibat";
 import BaseLayout from "../layouts/BaseLayout.astro";
 ---
 
@@ -14,98 +11,11 @@ import BaseLayout from "../layouts/BaseLayout.astro";
   <PageHero eyebrow="Ayo Terlibat" title="Satu langkah kecil untuk pendidikan" foto="relawan/silaturahmi-lebaran-2025.jpg" fotoAlt="Anggota dan relawan Komunitas Kertas Kosong berkumpul selepas Lebaran 2025">
     <p>Ada banyak cara untuk ikut bergerak bersama K3: mengajar, mendampingi, belajar, berdonasi, atau berkolaborasi.</p>
     <Fragment slot="actions">
-      <a href="#tentor" class="tombol-utama">Jadi tentor relawan</a>
-      <a href="#peserta" class="tombol-kedua">Ikut bimbel</a>
-      <a href="#donasi" class="tombol-kedua">Berdonasi</a>
+      <a href="#peran" class="tombol-utama">Pilih peranmu</a>
     </Fragment>
   </PageHero>
 
-  <!-- Tentor -->
-  <section id="tentor" class="mx-auto max-w-6xl scroll-mt-20 px-4 py-16 sm:px-6 sm:py-20">
-    <SectionHeading eyebrow="Menjadi tentor relawan" title={tentor.kutipan}>
-      {tentor.ajakan}
-    </SectionHeading>
-    <div class="mt-10 grid gap-5 lg:grid-cols-3">
-      <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
-        <h3 class="font-bold text-tinta-950">Posisi</h3>
-        <ul class="mt-3 space-y-2 text-slate-700">
-          {tentor.posisi.map((p) => <li class="flex gap-2"><Icon name="BookOpen" class="mt-0.5 size-4 shrink-0 text-tinta-500" />{p}</li>)}
-        </ul>
-      </div>
-      <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
-        <h3 class="font-bold text-tinta-950">Syarat</h3>
-        <ul class="mt-3 space-y-2 text-slate-700">
-          {tentor.syarat.map((s) => <li class="flex gap-2"><Icon name="ClipboardCheck" class="mt-0.5 size-4 shrink-0 text-tinta-500" />{s}</li>)}
-        </ul>
-      </div>
-      <div class="rounded-2xl border border-tinta-100 bg-white p-6 shadow-sm">
-        <h3 class="font-bold text-tinta-950">Yang didapat</h3>
-        <p class="mt-3 text-slate-700">{tentor.didapat}</p>
-        <h3 class="mt-5 font-bold text-tinta-950">Alur</h3>
-        <ol class="mt-2 flex flex-wrap items-center gap-2 text-sm">
-          {
-            tentor.alur.map((a, i) => (
-              <li class="flex items-center gap-2">
-                <span class="rounded-full bg-tinta-50 px-3 py-1 font-medium text-tinta-800">{a}</span>
-                {i < tentor.alur.length - 1 && <Icon name="ArrowRight" class="size-3.5 text-tinta-300" />}
-              </li>
-            ))
-          }
-        </ol>
-        <p class="mt-3 text-sm text-slate-600">{tentor.jadwal}</p>
-      </div>
-    </div>
-    {
-      site.links.pendaftaranRelawan && (
-        <a href={site.links.pendaftaranRelawan} target="_blank" rel="noopener noreferrer" class="tombol-utama mt-8">
-          Daftar jadi tentor <Icon name="ExternalLink" class="size-4" />
-        </a>
-      )
-    }
-  </section>
-
-  <!-- Fasilitator -->
-  <section id="fasilitator" class="scroll-mt-20 border-y border-tinta-100 bg-white">
-    <div class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 lg:grid-cols-[1.3fr_1fr] lg:items-center">
-      <SectionHeading eyebrow="Menjadi fasilitator" title="Pendamping setiap kelas">
-        {fasilitator}
-      </SectionHeading>
-      <Foto
-        src="relawan/relawan-dan-roll-banner-sman1-dukun.jpg"
-        alt="Relawan Komunitas Kertas Kosong di samping roll banner, SMAN 1 Dukun"
-        widths={[400, 800]}
-        sizes="(min-width: 1024px) 35vw, 100vw"
-        class="aspect-[4/3] w-full rounded-2xl object-cover shadow-md"
-      />
-    </div>
-  </section>
-
-  <!-- Peserta, donasi, kolaborasi -->
-  <section class="mx-auto grid max-w-6xl gap-5 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-3">
-    <div id="peserta" class="scroll-mt-20 flex flex-col rounded-3xl border border-tinta-100 bg-white p-7 shadow-sm">
-      <Icon name="GraduationCap" class="size-7 text-tinta-600" />
-      <h2 class="mt-4 text-xl font-extrabold">Menjadi peserta bimbel</h2>
-      <p class="mt-2 flex-1 text-slate-600">
-        Untuk siswa kelas XII SMA, SMK, dan sederajat, serta alumni yang ingin mengikuti UTBK-SNBT. Pendaftaran biasanya
-        dibuka Februari.
-      </p>
-      <a href="/bimbel#daftar" class="tombol-kedua mt-6 self-start">Syarat dan pendaftaran <Icon name="ArrowRight" class="size-4" /></a>
-    </div>
-    <div id="donasi" class="scroll-mt-20 flex flex-col rounded-3xl border border-tinta-100 bg-white p-7 shadow-sm">
-      <Icon name="Gift" class="size-7 text-tinta-600" />
-      <h2 class="mt-4 text-xl font-extrabold">Berdonasi</h2>
-      <p class="mt-2 text-slate-600">{donasi.isi}</p>
-      <p class="mt-3 flex-1 font-semibold text-tinta-800">"{donasi.kutipan}"</p>
-      <p class="mt-4 text-sm text-slate-600">Untuk informasi donasi, hubungi kami lewat email atau Instagram.</p>
-      <a href="/kontak" class="tombol-kedua mt-4 self-start">Hubungi kami <Icon name="ArrowRight" class="size-4" /></a>
-    </div>
-    <div id="kolaborasi" class="scroll-mt-20 flex flex-col rounded-3xl border border-tinta-100 bg-white p-7 shadow-sm">
-      <Icon name="Handshake" class="size-7 text-tinta-600" />
-      <h2 class="mt-4 text-xl font-extrabold">Berkolaborasi</h2>
-      <p class="mt-2 flex-1 text-slate-600">{kolaborasi} Hubungi kami melalui email atau Instagram.</p>
-      <SocialLinks class="mt-6" />
-    </div>
-  </section>
+  <PilihPeran />
 
   <section id="faq" class="mx-auto max-w-3xl scroll-mt-20 px-4 pb-20 sm:px-6">
     <SectionHeading eyebrow="FAQ" title="Pertanyaan yang sering diajukan" center />

@@ -1,0 +1,44 @@
+---
+import { getImage } from "astro:assets";
+import { foto } from "../lib/foto";
+
+interface Props {
+  /** Nama berkas di src/assets/video/. */
+  src: string;
+  /** Gambar pengganti, path di src/assets/foto/. */
+  poster: string;
+  ket: string;
+  alt: string;
+  class?: string;
+}
+
+const { src, poster, ket, alt, class: className } = Astro.props;
+
+const semua = import.meta.glob<string>("../assets/video/*.mp4", { query: "?url", import: "default", eager: true });
+const url = semua[`../assets/video/${src}`];
+if (!url) throw new Error(`Video tidak ditemukan di src/assets/video: ${src}`);
+const gambar = await getImage({ src: foto(poster), width: 960, format: "webp" });
+---
+
+<figure data-muncul="skala" class:list={["relative overflow-hidden rounded-2xl bg-tinta-100", className]}>
+  <video data-video-loop muted loop playsinline preload="none" poster={gambar.src} aria-label={alt} class="block aspect-video w-full object-cover">
+    <source src={url} type="video/mp4" />
+  </video>
+  <figcaption class="tulisan absolute bottom-0 left-0 rounded-tr-xl bg-kertas px-4 py-1 text-xl text-tinta-900">{ket}</figcaption>
+</figure>
+
+<script>
+  const hemat = (navigator as Navigator & { connection?: { saveData?: boolean } }).connection?.saveData;
+  const kurangiGerak = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  if (!hemat && !kurangiGerak) {
+    document.querySelectorAll<HTMLVideoElement>("[data-video-loop]").forEach((video) => {
+      new IntersectionObserver(
+        ([e]) => {
+          if (e.isIntersecting) video.play().catch(() => {});
+          else video.pause();
+        },
+        { threshold: 0.3 },
+      ).observe(video);
+    });
+  }
+</script>
