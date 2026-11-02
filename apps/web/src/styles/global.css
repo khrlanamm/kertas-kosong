@@ -1,8 +1,17 @@
 @import "tailwindcss";
 @import "@fontsource-variable/plus-jakarta-sans";
+@import "@fontsource-variable/caveat";
+
+/* Perpindahan halaman halus tanpa JavaScript. Browser yang belum mendukung tetap berpindah biasa. */
+@view-transition {
+  navigation: auto;
+}
 
 @theme {
   --font-sans: "Plus Jakarta Sans Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-tulisan: "Caveat Variable", "Segoe Print", cursive;
+
+  --ease-kertas: cubic-bezier(0.22, 1, 0.36, 1);
 
   /* Warna dari logo: tinta biru-petrol dan kertas biru muda. */
   --color-tinta-50: #f1f7fa;
@@ -24,6 +33,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    interpolate-size: allow-keywords;
   }
   body {
     @apply bg-kertas font-sans text-slate-700 antialiased;
@@ -50,15 +60,24 @@
   );
 }
 
-/* Coretan stabilo di belakang kata penting. */
+/* Coretan stabilo di belakang kata penting. Tergores dari kiri saat terlihat (lihat gerak.ts). */
 @utility stabilo {
-  background-image: linear-gradient(to top, var(--color-stabilo) 0, var(--color-stabilo) 40%, transparent 40%);
+  background-image: linear-gradient(var(--color-stabilo), var(--color-stabilo));
+  background-position: left 88%;
+  background-repeat: no-repeat;
+  background-size: 100% 42%;
   box-decoration-break: clone;
+  transition: background-size 0.8s var(--ease-kertas) var(--jeda, 0ms);
   @apply -mx-1 rounded-sm px-1;
 }
 
 @utility tombol {
-  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold transition-colors;
+  transition:
+    background-color 0.15s,
+    border-color 0.15s,
+    box-shadow 0.15s,
+    scale 0.15s var(--ease-kertas);
+  @apply inline-flex items-center justify-center gap-2 rounded-full px-5 py-3 text-sm font-semibold active:scale-[0.97];
 }
 
 @utility tombol-utama {
@@ -69,7 +88,156 @@
   @apply tombol border border-tinta-200 bg-white text-tinta-800 hover:border-tinta-300 hover:bg-tinta-50;
 }
 
+/* Tulisan tangan untuk catatan pinggir dan keterangan foto. */
+@utility tulisan {
+  font-family: var(--font-tulisan);
+  letter-spacing: 0;
+  @apply font-semibold;
+}
+
+/* Foto cetak: bingkai putih seperti foto yang ditempel di buku. */
+@utility bingkai-foto {
+  box-shadow:
+    0 1px 2px rgb(19 38 47 / 0.12),
+    0 12px 28px -12px rgb(19 38 47 / 0.35);
+  @apply rounded-sm bg-white p-2;
+}
+
+/* Sepotong selotip di tepi atas foto. */
+@utility selotip {
+  &::before {
+    content: "";
+    position: absolute;
+    top: -0.65rem;
+    left: 50%;
+    z-index: 1;
+    width: 5.5rem;
+    height: 1.4rem;
+    translate: -50% 0;
+    rotate: -2deg;
+    background: color-mix(in oklab, var(--color-stabilo) 70%, white);
+    box-shadow: 0 1px 2px rgb(19 38 47 / 0.12);
+    opacity: 0.85;
+  }
+}
+
+/* Kartu yang terangkat saat disentuh. */
+@utility kartu-angkat {
+  transition:
+    translate 0.3s var(--ease-kertas),
+    box-shadow 0.3s var(--ease-kertas);
+  &:hover {
+    translate: 0 -0.25rem;
+    box-shadow: 0 16px 32px -16px rgb(19 38 47 / 0.3);
+  }
+}
+
 @layer components {
+  /* Elemen masuk saat terlihat. Hanya di bawah html.js supaya isi tetap tampil tanpa JavaScript. */
+  html.js [data-muncul] {
+    opacity: 0;
+    translate: 0 1.25rem;
+    transition:
+      opacity 0.7s var(--ease-kertas) var(--jeda, 0ms),
+      translate 0.7s var(--ease-kertas) var(--jeda, 0ms),
+      scale 0.7s var(--ease-kertas) var(--jeda, 0ms);
+  }
+  html.js [data-muncul="kiri"] {
+    translate: -1.75rem 0;
+  }
+  html.js [data-muncul="kanan"] {
+    translate: 1.75rem 0;
+  }
+  html.js [data-muncul="skala"] {
+    translate: 0 0;
+    scale: 0.95;
+  }
+  html.js [data-muncul].terlihat {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+
+  html.js .stabilo:not(.tergores) {
+    background-size: 0% 42%;
+  }
+
+  /* Garis tinta di bawah header: progres membaca halaman. */
+  .garis-baca {
+    position: absolute;
+    inset: auto 0 -1px;
+    height: 2px;
+    background: var(--color-tinta-500);
+    transform: scaleX(var(--progres, 0));
+    transform-origin: left;
+  }
+  @supports (animation-timeline: scroll()) {
+    .garis-baca {
+      animation: isi-garis linear both;
+      animation-timeline: scroll(root);
+    }
+  }
+  @keyframes isi-garis {
+    from {
+      transform: scaleX(0);
+    }
+    to {
+      transform: scaleX(1);
+    }
+  }
+
+  /* Pita tagar yang berjalan. */
+  .pita {
+    display: flex;
+    overflow: hidden;
+    mask-image: linear-gradient(to right, transparent, black 8%, black 92%, transparent);
+  }
+  .pita-isi {
+    display: flex;
+    flex: none;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    animation: jalan-pita 36s linear infinite;
+  }
+  .pita:hover .pita-isi,
+  .pita:focus-within .pita-isi {
+    animation-play-state: paused;
+  }
+  @keyframes jalan-pita {
+    to {
+      transform: translateX(-100%);
+    }
+  }
+
+  /* Foto hero sedikit bergeser mengikuti scroll, hanya di browser yang mendukung. */
+  @supports (animation-timeline: view()) {
+    .geser-lembut {
+      animation: geser-lembut linear both;
+      animation-range: entry 0% exit 100%;
+      animation-timeline: view();
+    }
+    @keyframes geser-lembut {
+      from {
+        translate: 0 1.25rem;
+      }
+      to {
+        translate: 0 -1.25rem;
+      }
+    }
+  }
+
+  /* Pertanyaan umum membuka dengan animasi tinggi. */
+  .faq::details-content {
+    block-size: 0;
+    overflow: clip;
+    transition:
+      block-size 0.35s var(--ease-kertas),
+      content-visibility 0.35s allow-discrete;
+  }
+  .faq[open]::details-content {
+    block-size: auto;
+  }
+
   /* Teks hasil Markdown di halaman detail kegiatan. */
   .isi-artikel {
     @apply space-y-4 leading-relaxed;
@@ -91,5 +259,58 @@
   }
   .isi-artikel strong {
     @apply font-semibold text-slate-900;
+  }
+}
+
+/* Pengguna yang meminta gerak dikurangi tetap mendapat seluruh isi dan kontrol manual. */
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    transition-delay: 0ms !important;
+  }
+  html.js [data-muncul] {
+    opacity: 1;
+    translate: 0 0;
+    scale: 1;
+  }
+  html.js .stabilo:not(.tergores) {
+    background-size: 100% 42%;
+  }
+  .pita {
+    flex-wrap: wrap;
+    mask-image: none;
+  }
+  .pita-isi {
+    flex-wrap: wrap;
+    animation: none;
+  }
+  .pita-isi[aria-hidden="true"] {
+    display: none;
+  }
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+
+/* Panel tab: tanpa JavaScript semua panel tampil. */
+html.js [role="tabpanel"]:not(.aktif) {
+  display: none;
+}
+html.js [role="tabpanel"].aktif {
+  animation: buka-halaman 0.5s var(--ease-kertas);
+}
+@keyframes buka-halaman {
+  from {
+    opacity: 0;
+    translate: 0 0.75rem;
   }
 }

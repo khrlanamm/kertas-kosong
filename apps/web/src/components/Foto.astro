@@ -10,6 +10,9 @@ interface Props {
   widths?: number[];
   sizes?: string;
   loading?: "eager" | "lazy";
+  /** true untuk gambar terbesar di layar pertama, supaya dimuat paling awal. */
+  prioritas?: boolean;
+  [atribut: `data-${string}`]: unknown;
 }
 
 const {
@@ -19,7 +22,18 @@ const {
   widths = [480, 800, 1200],
   sizes = "(min-width: 1024px) 50vw, 100vw",
   loading = "lazy",
+  prioritas = false,
+  ...lainnya
 } = Astro.props;
 ---
 
-<Image src={foto(src)} alt={alt} widths={widths} sizes={sizes} loading={loading} class={className} />
+<Image
+  src={foto(src)}
+  alt={alt}
+  widths={widths}
+  sizes={sizes}
+  loading={prioritas ? "eager" : loading}
+  fetchpriority={prioritas ? "high" : undefined}
+  class={className}
+  {...lainnya}
+/>

@@ -1,0 +1,87 @@
+---
+interface Props {
+  nama: "baca" | "tulis" | "kuliah" | "berbagi";
+  class?: string;
+}
+
+const { nama, class: className } = Astro.props;
+---
+
+<svg viewBox="0 0 240 200" class:list={["ilustrasi", className]} aria-hidden="true" fill="none">
+  {
+    nama === "baca" && (
+      <>
+        <path class="isi" d="M40 150c30-14 56-14 80 2V64c-24-16-50-16-80-2z" />
+        <path pathLength="1" d="M40 62v88c30-14 56-14 80 2 24-16 50-16 80-2V62c-30-14-56-14-80 2-24-16-50-16-80-2z" />
+        <path pathLength="1" d="M120 64v88" />
+        <path pathLength="1" d="M58 84c16-5 32-4 46 3M58 104c16-5 32-4 46 3M58 124c16-5 32-4 46 3" />
+        <path pathLength="1" d="M136 87c14-7 30-8 46-3M136 107c14-7 30-8 46-3M136 127c14-7 30-8 46-3" />
+        <path pathLength="1" d="M120 40c-3-9-2-16 3-24M96 46c-6-7-8-14-6-22M144 46c6-7 8-14 6-22" />
+      </>
+    )
+  }
+  {
+    nama === "tulis" && (
+      <>
+        <path class="kertas" d="M46 26h100l32 32v120H46z" />
+        <path class="isi" d="M64 96h78v14H64z" />
+        <path pathLength="1" d="M46 26h100l32 32v120H46z" />
+        <path pathLength="1" d="M146 26v32h32" />
+        <path pathLength="1" d="M66 78h60M66 104h76M66 130h44" />
+        <path class="kertas" d="M214 62 136 140l-8 26 26-8 78-78z" />
+        <path pathLength="1" d="M214 62 136 140l-8 26 26-8 78-78zM203 73l18 18M136 140l18 18" />
+      </>
+    )
+  }
+  {
+    nama === "kuliah" && (
+      <>
+        <path class="isi" d="M120 46 26 90l94 44 94-44z" />
+        <path pathLength="1" d="M120 46 26 90l94 44 94-44z" />
+        <path pathLength="1" d="M66 110v40c16 14 38 20 54 20s38-6 54-20v-40" />
+        <path pathLength="1" d="M214 90v46" />
+        <path pathLength="1" d="M214 136c-6 0-9 4-9 9s4 9 9 9 9-4 9-9-3-9-9-9z" />
+      </>
+    )
+  }
+  {
+    nama === "berbagi" && (
+      <>
+        <path class="kertas" d="M68 76h104l14 100H54z" />
+        <path pathLength="1" d="M68 76h104l14 100H54z" />
+        <path pathLength="1" d="M92 92V60a28 28 0 0 1 56 0v32" />
+        <path class="isi" d="M120 152c-26-16-34-28-26-40 7-9 20-7 26 4 6-11 19-13 26-4 8 12 0 24-26 40z" />
+        <path pathLength="1" d="M120 152c-26-16-34-28-26-40 7-9 20-7 26 4 6-11 19-13 26-4 8 12 0 24-26 40z" />
+      </>
+    )
+  }
+</svg>
+
+<style>
+  .ilustrasi path {
+    stroke: var(--color-tinta-800);
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-width: 3;
+  }
+  .ilustrasi .isi {
+    fill: var(--color-stabilo);
+    stroke: none;
+  }
+  .ilustrasi .kertas {
+    fill: white;
+    stroke: none;
+  }
+  .ilustrasi path[pathLength] {
+    animation: gores 1.1s var(--ease-kertas) both;
+    stroke-dasharray: 1;
+  }
+  @keyframes gores {
+    from {
+      stroke-dashoffset: 1;
+    }
+    to {
+      stroke-dashoffset: 0;
+    }
+  }
+</style>

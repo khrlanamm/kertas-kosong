@@ -8,8 +8,8 @@ interface Props {
 const { eyebrow, title, center = false } = Astro.props;
 ---
 
-<div class:list={["max-w-2xl", center && "mx-auto text-center"]}>
-  {eyebrow && <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-500">{eyebrow}</p>}
+<div data-muncul class:list={["max-w-2xl", center && "mx-auto text-center"]}>
+  {eyebrow && <p class="text-sm font-semibold uppercase tracking-[0.18em] text-tinta-600">{eyebrow}</p>}
   <h2 class="mt-2 text-3xl font-extrabold tracking-tight sm:text-4xl">{title}</h2>
   {
     Astro.slots.has("default") && (

@@ -27,6 +27,7 @@ const imageUrl = new URL(image, Astro.site);
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script is:inline>document.documentElement.classList.add("js");</script>
     <title>{fullTitle}</title>
     <meta name="description" content={description} />
     {noindex ? <meta name="robots" content="noindex" /> : <link rel="canonical" href={canonical} />}
@@ -49,9 +50,12 @@ const imageUrl = new URL(image, Astro.site);
       Langsung ke konten
     </a>
     <Header />
-    <main id="konten" class="flex-1">
+    <main id="konten" class="flex-1 overflow-x-clip">
       <slot />
     </main>
     <Footer />
+    <script>
+      import "../scripts/gerak";
+    </script>
   </body>
 </html>
