@@ -48,7 +48,7 @@ Syaratnya:
 1. `secrets/firebase-adminsdk.json` ada. Unduh dari Firebase Console → Project settings → Service accounts. Folder `secrets/` tidak masuk git.
 2. Dependensi Functions terpasang: `npm --prefix functions install`.
 
-Setelah menambah atau mengganti foto, unggah dengan `npm run media:dorong` di `apps/web`.
+Setelah menambah atau mengganti foto, unggah dengan `npm run media:dorong` di `apps/web`, lalu commit `apps/web/media.txt` yang ikut diperbarui. Berkas itu daftar media yang dipakai website. Build hanya mengunduh berkas di daftar ini, jadi foto yang sudah dikeluarkan tidak ikut tayang walaupun masih ada di Storage. Untuk menghapusnya sekaligus dari Storage, jalankan `npm run media:dorong -- --hapus`.
 
 ### Mengubah isi
 
@@ -57,16 +57,19 @@ Setelah menambah atau mengganti foto, unggah dengan `npm run media:dorong` di `a
 | Nama, slogan, angkatan bimbel, tautan pendaftaran, tautan portal, media sosial, email | `apps/web/src/config/site.ts` |
 | Tentang Kami: visi, misi, nilai, hambatan, sapaan | `apps/web/src/data/tentang.ts` |
 | Garis waktu Perjalanan | `apps/web/src/data/perjalanan.ts` |
-| Program #4AYO, Seminar Ayo Kuliah, Ayo Berbagi | `apps/web/src/data/program.ts` |
-| Bimbel: materi, data per angkatan, hasil, syarat, FAQ | `apps/web/src/data/bimbel.ts` |
+| Program #4AYO, Seminar Ayo Kuliah, Ayo Berbagi, grid 1000 baju, alur lima langkah | `apps/web/src/data/program.ts` |
+| Bimbel: materi, data per angkatan, peta jangkauan, grafik tryout, daftar kampus, hasil, syarat, FAQ | `apps/web/src/data/bimbel.ts` |
 | Angka di Beranda dan halaman Dampak | `apps/web/src/data/dampak.ts` |
-| Album galeri dan liputan media | `apps/web/src/data/galeri.ts` |
+| Foto galeri, album, tahun, dan liputan media | `apps/web/src/data/galeri.ts` |
+| Tumpukan foto di Beranda | `momen` di `apps/web/src/pages/index.astro` |
 | Ayo Terlibat: tentor, fasilitator, donasi, FAQ | `apps/web/src/data/terlibat.ts` |
 | Kegiatan (seminar, bimbel, dan lain-lain) | satu file Markdown per kegiatan di `apps/web/src/content/kegiatan/` |
 
 Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan, misalnya WhatsApp, YouTube, dan formulir pendaftaran.
 
 **Kegiatan baru:** salin `contoh-seminar.md`, ganti isinya, lalu hapus `draft: true`. Nama file menjadi alamat halaman, misalnya `seminar-ayo-kuliah-2027.md` menjadi `/kegiatan/seminar-ayo-kuliah-2027`. Kegiatan dengan `draft: true` hanya muncul saat `npm run dev`.
+
+**Gerak dan interaksi:** efek umum ada di `apps/web/src/scripts/gerak.ts`. Tambahkan `data-muncul` supaya elemen masuk saat terlihat, `data-urut` supaya anak-anaknya masuk bergantian, dan `data-hitung="171"` supaya angka menghitung naik. Tab memakai `apps/web/src/scripts/tab.ts`. Semua efek otomatis mati kalau pengunjung meminta gerak dikurangi, dan seluruh isi tetap tampil tanpa JavaScript.
 
 **Foto:** simpan di `apps/web/src/assets/foto/<album>/`, kecilkan dulu ke sisi terpanjang sekitar 1600 px, lalu sebutkan path-nya di file data, misalnya `"seminar/nama-foto.jpg"`. Unggah dengan `npm run media:dorong`. Website membuat ukuran kecil dan format WebP secara otomatis. Build gagal kalau path-nya salah, jadi gambar rusak tidak akan sampai tayang. Jangan memasang foto wajah anak penerima bantuan atau peserta kelas daring tanpa izin wali atau peserta.
 
@@ -82,9 +85,9 @@ Tautan di `site.ts` yang dibiarkan kosong tidak ditampilkan, misalnya WhatsApp, 
 | `/bimbel` | Bimbel Ayo Kuliah: jangkauan, materi, cara kerja, data per angkatan, hasil, pendaftaran, FAQ |
 | `/dampak` | Capaian per tahun |
 | `/karya-digital` | Portal Bimbel, Mandu, Sabu Saku |
-| `/galeri` | Album foto dengan lightbox, dan liputan media |
+| `/galeri` | Foto pilihan dengan filter album dan tahun, lightbox, dan liputan media |
 | `/kegiatan`, `/kegiatan/<nama>` | Daftar dan detail kegiatan |
-| `/ayo-terlibat` | Tentor relawan, fasilitator, peserta, donasi, kolaborasi |
+| `/ayo-terlibat` | Pilihan peran: siswa, tentor dan fasilitator, donatur, mitra |
 | `/kontak` | Email, Instagram, LinkedIn, lokasi |
 | `/privasi` | Kebijakan privasi dan cara meminta foto diturunkan |
 
