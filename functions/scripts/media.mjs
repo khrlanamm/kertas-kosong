@@ -7,10 +7,14 @@
  *   node functions/scripts/media.mjs dorong   Unggah media lokal ke Storage
  *   node functions/scripts/media.mjs dorong --hapus   Sekaligus hapus objek yang tidak ada lagi di lokal
  *
+ * `dorong` menulis apps/web/media.txt, yaitu daftar berkas yang dipakai website. `tarik` hanya
+ * mengunduh berkas di daftar itu, supaya foto yang sudah dikeluarkan tidak ikut ter-bundle
+ * walaupun objeknya masih ada di Storage.
+ *
  * Kredensial: secrets/firebase-adminsdk.json (tidak masuk git).
  */
 import { createHash } from "node:crypto";
-import { existsSync, mkdirSync, readdirSync, readFileSync, statSync } from "node:fs";
+import { existsSync, mkdirSync, readdirSync, readFileSync, statSync, writeFileSync } from "node:fs";
 import { dirname, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { cert, initializeApp } from "firebase-admin/app";
@@ -20,6 +24,7 @@ const AKAR = resolve(dirname(fileURLToPath(import.meta.url)), "../..");
 const KREDENSIAL = join(AKAR, "secrets/firebase-adminsdk.json");
 const BUCKET = "kertas-kosong.firebasestorage.app";
 const AWALAN = "website/";
+const DAFTAR = join(AKAR, "apps/web/media.txt");
 
 /** Lokasi lokal -> awalan di Storage. Boleh folder atau satu berkas. */
 const PETA = [
@@ -60,7 +65,9 @@ async function tarik() {
     }
     throw new Error(`media: butuh ${relative(AKAR, KREDENSIAL)} untuk mengunduh media dari Storage.`);
   }
-  const [objek] = await bucket().getFiles({ prefix: AWALAN });
+  const dipakai = existsSync(DAFTAR) ? new Set(readFileSync(DAFTAR, "utf8").split("\n").filter(Boolean)) : null;
+  const [semua] = await bucket().getFiles({ prefix: AWALAN });
+  const objek = dipakai ? semua.filter((o) => dipakai.has(o.name.slice(AWALAN.length))) : semua;
   let unduh = 0;
   await Promise.all(
     objek.map(async (o) => {
@@ -71,7 +78,7 @@ async function tarik() {
       unduh++;
     }),
   );
-  console.log(`media: ${objek.length} berkas di Storage, ${unduh} diunduh.`);
+  console.log(`media: ${objek.length} berkas dipakai dari ${semua.length} di Storage, ${unduh} diunduh.`);
 }
 
 async function dorong(hapus) {
@@ -91,6 +98,7 @@ async function dorong(hapus) {
   }
   const lama = hapus ? objek.filter((o) => !lokal.some((l) => l.nama === o.name)) : [];
   await Promise.all(lama.map((o) => o.delete()));
+  writeFileSync(DAFTAR, `${lokal.map((l) => l.nama.slice(AWALAN.length)).sort().join("\n")}\n`);
   console.log(`media: ${lokal.length} berkas lokal, ${unggah} diunggah, ${lama.length} dihapus dari Storage.`);
 }
 
