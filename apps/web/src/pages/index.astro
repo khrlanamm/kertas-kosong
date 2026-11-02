@@ -3,55 +3,66 @@ import AjakanTerlibat from "../components/AjakanTerlibat.astro";
 import Foto from "../components/Foto.astro";
 import Icon from "../components/Icon.astro";
 import KegiatanCard from "../components/KegiatanCard.astro";
+import PetaJangkauan from "../components/PetaJangkauan.astro";
+import Pita from "../components/Pita.astro";
 import SectionHeading from "../components/SectionHeading.astro";
+import SiklusEmpat from "../components/SiklusEmpat.astro";
 import StatGrid from "../components/StatGrid.astro";
+import TumpukanFoto from "../components/TumpukanFoto.astro";
 import { site } from "../config/site";
 import { angkaBeranda } from "../data/dampak";
-import { gerakan } from "../data/program";
 import BaseLayout from "../layouts/BaseLayout.astro";
 import { getKegiatan } from "../lib/kegiatan";
 
 const kegiatanTerbaru = (await getKegiatan()).slice(0, 3);
+
+const momen = [
+  { foto: "seminar/seminar-2026-foto-bersama-aula.jpg", ket: "Seminar Ayo Kuliah 2026, Gresik", alt: "Foto bersama peserta dan panitia Seminar Ayo Kuliah 2026 di aula SMAN 1 Dukun, Gresik" },
+  { foto: "seminar/seminar-2026-peserta-bertanya.jpg", ket: "Berani angkat bicara", alt: "Peserta seminar memegang mikrofon sambil tersenyum" },
+  { foto: "bimbel/bimbel-2024-tentor-menulis.jpg", ket: "Kelas luring Bimbel 2024", alt: "Tentor relawan menulis pembahasan soal di papan tulis" },
+  { foto: "berbagi/penyaluran-tangan-2026.jpg", ket: "Diantar langsung ke rumah", alt: "Tangan relawan menyerahkan tas berisi baju lebaran" },
+  { foto: "relawan/makan-bersama-grill-and-grow-2025.jpg", ket: "Relawan kumpul, 2025", alt: "Relawan makan bersama di atas daun pisang" },
+  { foto: "seminar/seminar-2018-foto-panitia.jpg", ket: "Seminar Ayo Kuliah 2018", alt: "Panitia dan relawan Seminar Ayo Kuliah 2018" },
+];
+const tagar = ["#4AYO", "#AyoMembaca", "#AyoMenulis", "#AyoKuliah", "#AyoBerbagi", "Membangun Asa, Menggapai Cita"];
 ---
 
 <BaseLayout>
   <!-- Hero -->
   <section class="garis-buku relative overflow-hidden border-b border-tinta-100">
-    <div class="mx-auto grid max-w-6xl items-center gap-12 px-4 py-14 sm:px-6 lg:grid-cols-[1.1fr_1fr] lg:py-20">
+    <div class="mx-auto grid max-w-6xl items-center gap-14 px-4 pb-12 pt-14 sm:px-6 lg:grid-cols-[1.05fr_1fr] lg:pb-16 lg:pt-20">
       <div>
-        <p class="inline-flex items-center gap-2 rounded-full border border-tinta-200 bg-white px-3 py-1 text-sm font-medium text-tinta-700">
+        <p data-muncul class="inline-flex items-center gap-2 rounded-full border border-tinta-200 bg-white px-3 py-1 text-sm font-medium text-tinta-700">
           <Icon name="Sparkles" class="size-4" />
           Gerakan sosial pendidikan sejak 2016
         </p>
-        <h1 class="mt-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
-          Membangun <span class="stabilo">Asa</span>, Menggapai <span class="stabilo">Cita</span>
+        <h1 data-muncul style="--jeda:80ms" class="mt-6 text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl lg:text-6xl">
+          Membangun <span class="stabilo" style="--jeda:500ms">Asa</span>, Menggapai <span class="stabilo" style="--jeda:850ms">Cita</span>
         </h1>
-        <p class="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">{site.description}</p>
-        <div class="mt-8 flex flex-wrap gap-3">
+        <p data-muncul style="--jeda:160ms" class="mt-6 max-w-xl text-lg leading-relaxed text-slate-600">{site.description}</p>
+        <div data-muncul style="--jeda:240ms" class="mt-8 flex flex-wrap gap-3">
           <a href="/tentang" class="tombol-utama">Kenali Kami <Icon name="ArrowRight" class="size-4" /></a>
           <a href="/program" class="tombol-kedua">Lihat Program</a>
           <a href="/ayo-terlibat" class="tombol-kedua">Ayo Terlibat</a>
         </div>
         {
           site.links.portal && (
-            <a href={site.links.portal} class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-tinta-700 hover:text-tinta-900">
+            <a href={site.links.portal} data-muncul style="--jeda:300ms" class="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-tinta-700 hover:text-tinta-900">
               Masuk ke Portal Bimbel <Icon name="ArrowRight" class="size-4" />
             </a>
           )
         }
       </div>
-      <div class="relative">
-        <div class="absolute -inset-4 -z-10 rotate-2 rounded-3xl bg-tinta-100"></div>
-        <Foto
-          src="seminar/seminar-2026-foto-bersama-aula.jpg"
-          alt="Foto bersama peserta dan panitia Seminar Ayo Kuliah 2026 di aula SMAN 1 Dukun, Gresik"
-          loading="eager"
-          sizes="(min-width: 1024px) 45vw, 100vw"
-          class="aspect-[4/3] w-full -rotate-1 rounded-2xl border-4 border-white object-cover shadow-xl"
-        />
+      <div data-muncul="skala" style="--jeda:200ms">
+        <TumpukanFoto items={momen} />
       </div>
     </div>
   </section>
+
+  <!-- Tagar -->
+  <div class="border-b border-tinta-100 bg-tinta-700 py-3 text-lg text-white">
+    <Pita items={tagar} class="tulisan text-2xl leading-none" />
+  </div>
 
   <!-- Angka -->
   <section class="mx-auto max-w-6xl px-4 pt-14 sm:px-6">
@@ -63,32 +74,35 @@ const kegiatanTerbaru = (await getKegiatan()).slice(0, 3);
   <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-2 lg:items-center">
     <div>
       <SectionHeading eyebrow="Mengapa kami ada" title="Setiap anak berhak mengubah masa depannya" />
-      <p class="mt-5 text-lg leading-relaxed text-slate-600">
+      <p data-muncul class="mt-5 text-lg leading-relaxed text-slate-600">
         Banyak siswa SMA dan SMK punya kemampuan akademik dan semangat belajar yang tinggi. Mimpi mereka sering terhenti
         karena biaya, minimnya informasi, dan tidak adanya pendampingan. Kami hadir supaya setiap anak punya kesempatan
         yang sama untuk mengubah masa depannya.
       </p>
-      <a href="/tentang" class="tombol-kedua mt-8">Tentang Kami <Icon name="ArrowRight" class="size-4" /></a>
+      <a data-muncul href="/tentang" class="tombol-kedua mt-8">Tentang Kami <Icon name="ArrowRight" class="size-4" /></a>
     </div>
     <div class="grid grid-cols-2 gap-3">
       <Foto
-        src="seminar/seminar-2026-peserta-menyimak.jpg"
-        alt="Peserta Seminar Ayo Kuliah 2026 menyimak materi"
+        data-muncul="kiri"
+        src="seminar/seminar-2026-peserta-lesehan.jpg"
+        alt="Peserta Seminar Ayo Kuliah 2026 menyimak sambil lesehan"
         sizes="(min-width: 1024px) 25vw, 50vw"
         widths={[400, 800]}
         class="aspect-[3/4] w-full rounded-2xl object-cover"
       />
       <div class="grid gap-3">
         <Foto
-          src="bimbel/bimbel-2025-kelas-online-papan-tulis.jpg"
-          alt="Tentor menjelaskan soal di kelas daring Bimbel 2025"
+          data-muncul="kanan"
+          src="bimbel/bimbel-2024-tentor-mengajar.jpg"
+          alt="Tentor menjelaskan materi di kelas luring Bimbel 2024"
           sizes="(min-width: 1024px) 25vw, 50vw"
           widths={[400, 800]}
           class="aspect-[4/3] w-full rounded-2xl object-cover"
         />
         <Foto
-          src="berbagi/paket-baju-2026.jpg"
-          alt="Paket baju lebaran Ayo Berbagi 2026"
+          data-muncul="kanan"
+          src="berbagi/belanja-baju-2020.jpg"
+          alt="Relawan memilih baju lebaran untuk Ayo Berbagi"
           sizes="(min-width: 1024px) 25vw, 50vw"
           widths={[400, 800]}
           class="aspect-[4/3] w-full rounded-2xl object-cover"
@@ -104,54 +118,25 @@ const kegiatanTerbaru = (await getKegiatan()).slice(0, 3);
         Dimulai dari menumbuhkan minat baca, melatih kepenulisan kritis, mendampingi pendaftaran kuliah, hingga
         menciptakan siklus alumni yang saling memberdayakan.
       </SectionHeading>
-      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        {
-          gerakan.map(({ slug, nama, ringkas, kartu }) => (
-            <a
-              href={`/program/${slug}`}
-              class="group flex flex-col overflow-hidden rounded-2xl border border-tinta-100 bg-kertas shadow-sm transition hover:-translate-y-0.5 hover:shadow-md"
-            >
-              <Foto
-                src={kartu}
-                alt={`Gerakan ${nama}`}
-                widths={[360, 720]}
-                sizes="(min-width: 1024px) 25vw, (min-width: 640px) 50vw, 100vw"
-                class="aspect-square w-full object-cover"
-              />
-              <div class="flex flex-1 flex-col p-5">
-                <h3 class="text-lg font-bold">{nama}</h3>
-                <p class="mt-1.5 flex-1 text-sm text-slate-600">{ringkas}</p>
-                <span class="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-tinta-700">
-                  Selengkapnya <Icon name="ArrowRight" class="size-4 transition-transform group-hover:translate-x-0.5" />
-                </span>
-              </div>
-            </a>
-          ))
-        }
-      </div>
+      <SiklusEmpat />
     </div>
   </section>
 
   <!-- Bimbel -->
-  <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_1.2fr] lg:items-center">
+  <section class="mx-auto grid max-w-6xl gap-10 px-4 py-16 sm:px-6 sm:py-20 lg:grid-cols-[1fr_1.35fr] lg:items-center">
     <div>
       <SectionHeading eyebrow={site.bimbel.name} title="Bimbel gratis persiapan UTBK-SNBT" />
-      <p class="mt-5 text-lg leading-relaxed text-slate-600">
+      <p data-muncul class="mt-5 text-lg leading-relaxed text-slate-600">
         Sekitar lima minggu menjelang UTBK, tentor relawan dari berbagai kampus mengajar tujuh materi SNBT secara daring.
-        Pada 2026, bimbel ini menjangkau <strong class="font-semibold text-slate-900">171 siswa dari 50 sekolah dan 15 kota</strong>,
+        Pada 2026, bimbel ini menjangkau <strong class="stabilo font-semibold text-slate-900">171 siswa dari 50 sekolah dan 15 kota</strong>,
         dan rerata skor tryout peserta naik 6 persen.
       </p>
-      <div class="mt-8 flex flex-wrap gap-3">
+      <div data-muncul class="mt-8 flex flex-wrap gap-3">
         <a href="/bimbel" class="tombol-utama">Tentang bimbel <Icon name="ArrowRight" class="size-4" /></a>
         <a href="/bimbel#daftar" class="tombol-kedua">Cara mendaftar</a>
       </div>
     </div>
-    <Foto
-      src="bimbel/bimbel-2026-slide-jangkauan.jpg"
-      alt="Slide jangkauan Bimbel Ayo Kuliah 2026: 171 siswa, 50 sekolah, 15 kota"
-      sizes="(min-width: 1024px) 55vw, 100vw"
-      class="w-full rounded-2xl border border-tinta-100 shadow-md"
-    />
+    <PetaJangkauan />
   </section>
 
   <!-- Kegiatan -->
@@ -161,7 +146,7 @@ const kegiatanTerbaru = (await getKegiatan()).slice(0, 3);
         <SectionHeading eyebrow="Kegiatan" title="Kabar terbaru dari komunitas" />
         <a href="/kegiatan" class="tombol-kedua">Semua kegiatan <Icon name="ArrowRight" class="size-4" /></a>
       </div>
-      <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
+      <div data-urut class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
         {kegiatanTerbaru.map((kegiatan) => <KegiatanCard kegiatan={kegiatan} />)}
       </div>
     </div>

@@ -1,0 +1,96 @@
+---
+import { tryout2026 } from "../data/bimbel";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const [awal, akhir] = tryout2026;
+const fmt = new Intl.NumberFormat("id-ID", { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+// Sumbu dimulai dari 470 supaya perubahan terlihat, jadi sumbunya ditulis jelas di bawah grafik.
+const lebar = 480;
+const tinggi = 260;
+const kiri = 70;
+const kanan = lebar - 70;
+const dasar = 228;
+const bawah = 470;
+const atas = 530;
+const yDari = (skor: number) => dasar - ((skor - bawah) / (atas - bawah)) * (dasar - 24);
+const y1 = yDari(awal.skor);
+const y2 = yDari(akhir.skor);
+---
+
+<figure class:list={["grafik rounded-2xl border border-tinta-100 bg-white p-5", className]} data-muncul="skala">
+  <figcaption class="flex items-baseline justify-between gap-4">
+    <span class="font-bold text-tinta-950">Rerata skor tryout 2026</span>
+    <span class="rounded-full bg-stabilo px-3 py-0.5 text-sm font-bold text-tinta-950">naik 6 persen</span>
+  </figcaption>
+
+  <svg
+    viewBox={`0 0 ${lebar} ${tinggi}`}
+    class="mt-3 block h-auto w-full"
+    role="img"
+    aria-label={`Rerata skor naik dari ${fmt.format(awal.skor)} pada ${awal.label} menjadi ${fmt.format(akhir.skor)} pada ${akhir.label}.`}
+  >
+    <line x1="24" x2={lebar - 24} y1={dasar} y2={dasar} class="grafik-sumbu" />
+    <path d={`M${kiri},${y1}L${kanan},${y2}L${kanan},${dasar}L${kiri},${dasar}Z`} class="grafik-luas" />
+    <line x1={kiri} y1={y1} x2={kanan} y2={y2} pathLength="1" class="grafik-garis" />
+    <circle cx={kiri} cy={y1} r="5.5" class="grafik-titik" />
+    <circle cx={kanan} cy={y2} r="5.5" class="grafik-titik grafik-titik-akhir" />
+    <text x={kiri} y={y1 - 14} text-anchor="middle" class="grafik-nilai">{fmt.format(awal.skor)}</text>
+    <text x={kanan} y={y2 - 14} text-anchor="middle" class="grafik-nilai">{fmt.format(akhir.skor)}</text>
+    <text x={kiri} y={dasar + 22} text-anchor="middle" class="grafik-label">{awal.label}</text>
+    <text x={kanan} y={dasar + 22} text-anchor="middle" class="grafik-label">{akhir.label}</text>
+  </svg>
+  <p class="mt-1 text-xs text-slate-500">Sumbu skor dimulai dari {bawah}, bukan dari nol.</p>
+</figure>
+
+<style>
+  .grafik-sumbu {
+    stroke: var(--color-tinta-200);
+    stroke-width: 1;
+  }
+  .grafik-luas {
+    fill: var(--color-tinta-100);
+    transition: opacity 0.9s 0.5s;
+  }
+  .grafik-garis {
+    stroke: var(--color-tinta-700);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke-width: 3;
+    transition: stroke-dashoffset 1.3s var(--ease-kertas) 0.2s;
+  }
+  .grafik-titik {
+    fill: var(--color-tinta-700);
+    stroke: white;
+    stroke-width: 2;
+  }
+  .grafik-titik-akhir {
+    fill: var(--color-stabilo);
+    stroke: var(--color-tinta-950);
+    transition: opacity 0.4s 1.2s;
+  }
+  .grafik-nilai {
+    fill: var(--color-tinta-950);
+    font-size: 19px;
+    font-weight: 800;
+    transition: opacity 0.4s 1.2s;
+  }
+  .grafik-label {
+    fill: var(--color-slate-600);
+    font-size: 14px;
+  }
+  :global(html.js) .grafik:not(.terlihat) .grafik-garis {
+    stroke-dashoffset: 1;
+  }
+  :global(html.js) .grafik:not(.terlihat) .grafik-luas,
+  :global(html.js) .grafik:not(.terlihat) .grafik-titik-akhir,
+  :global(html.js) .grafik:not(.terlihat) text.grafik-nilai:last-of-type {
+    opacity: 0;
+  }
+</style>

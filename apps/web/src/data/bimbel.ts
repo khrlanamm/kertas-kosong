@@ -54,6 +54,13 @@ export const caraKerja = [
   "Peserta menyepakati kontrak belajar, termasuk ketentuan kehadiran.",
 ];
 
+/** Alur program untuk stepper. Isinya sama dengan `caraKerja`. */
+export const alurLimaMinggu = [
+  { judul: "Minggu 1-4", isi: "Penjelasan dan pembahasan soal seluruh submateri. Setiap tentor mengampu satu materi sesuai keahliannya, satu kali seminggu.", lebar: 4 },
+  { judul: "Minggu 5", isi: "Fokus pada pembahasan dan latihan soal UTBK.", lebar: 1 },
+  { judul: "Penutupan", isi: "Graduation & Gear Up, berisi apresiasi dan penguatan mental sebelum tes.", lebar: 1 },
+];
+
 export const hasil = [
   {
     tahun: "2026",
@@ -78,6 +85,57 @@ export const jangkauan2026 = {
   sebaran:
     "Sebanyak 74,3 persen peserta dari Gresik, 13,5 persen dari Lamongan, dan 12,3 persen dari kota lain, antara lain Surabaya, Jombang, Tuban, Bojonegoro, Probolinggo, Ponorogo, Banyumas, Bekasi, Depok, Jakarta Selatan, Bandar Lampung, Medan, dan Binjai.",
 };
+
+/** Sebaran peserta 2026. Persentase hanya tersedia untuk tiga kelompok ini. */
+export const sebaran2026 = [
+  { nama: "Gresik", persen: 74.3 },
+  { nama: "Lamongan", persen: 13.5 },
+  { nama: "Kota lain", persen: 12.3 },
+];
+
+/** 15 kota asal peserta 2026, untuk peta jangkauan. */
+export const kotaJangkauan = [
+  { nama: "Lamongan", lintang: -7.12, bujur: 112.42, jatim: true },
+  { nama: "Gresik", lintang: -7.16, bujur: 112.65, jatim: true },
+  { nama: "Surabaya", lintang: -7.26, bujur: 112.75, jatim: true },
+  { nama: "Jombang", lintang: -7.55, bujur: 112.23, jatim: true },
+  { nama: "Tuban", lintang: -6.9, bujur: 112.05, jatim: true },
+  { nama: "Bojonegoro", lintang: -7.15, bujur: 111.88, jatim: true },
+  { nama: "Probolinggo", lintang: -7.75, bujur: 113.22, jatim: true },
+  { nama: "Ponorogo", lintang: -7.87, bujur: 111.46, jatim: true },
+  { nama: "Banyumas", lintang: -7.51, bujur: 109.29, jatim: false },
+  { nama: "Bekasi", lintang: -6.24, bujur: 106.99, jatim: false },
+  { nama: "Depok", lintang: -6.4, bujur: 106.82, jatim: false },
+  { nama: "Jakarta Selatan", lintang: -6.26, bujur: 106.81, jatim: false },
+  { nama: "Bandar Lampung", lintang: -5.43, bujur: 105.26, jatim: false },
+  { nama: "Medan", lintang: 3.59, bujur: 98.67, jatim: false },
+  { nama: "Binjai", lintang: 3.6, bujur: 98.49, jatim: false },
+];
+
+/** Rerata skor tryout 2026. */
+export const tryout2026 = [
+  { label: "Tryout 1", skor: 486.46 },
+  { label: "Tryout 2", skor: 514.81 },
+];
+
+/** Kampus peserta yang tercatat lolos. Sama dengan isi `hasil`. */
+export const kampusLolos = [
+  { tahun: "2026", kampus: "UNESA", jumlah: 7 },
+  { tahun: "2026", kampus: "Universitas Negeri Malang", jumlah: 2 },
+  { tahun: "2026", kampus: "UTM", jumlah: 2 },
+  { tahun: "2026", kampus: "ITERA", jumlah: 1 },
+  { tahun: "2026", kampus: "Universitas Jember", jumlah: 1 },
+  { tahun: "2026", kampus: "UPN Veteran Jawa Timur", jumlah: 1 },
+  { tahun: "2026", kampus: "Universitas Brawijaya", jumlah: 1 },
+  { tahun: "2025", kampus: "UNESA", jumlah: 5 },
+  { tahun: "2025", kampus: "UTM", jumlah: 3 },
+  { tahun: "2025", kampus: "UNAIR", jumlah: 2 },
+  { tahun: "2025", kampus: "ITS", jumlah: 1 },
+  { tahun: "2025", kampus: "Polije", jumlah: 1 },
+  { tahun: "2025", kampus: "PPNS", jumlah: 1 },
+  { tahun: "2025", kampus: "UNNES", jumlah: 1 },
+  { tahun: "2025", kampus: "Polinema", jumlah: 1 },
+];
 
 export const pesertaBimbel = {
   sasaran: "Siswa kelas XII SMA, SMK, dan sederajat, serta alumni yang ingin mengikuti UTBK-SNBT.",

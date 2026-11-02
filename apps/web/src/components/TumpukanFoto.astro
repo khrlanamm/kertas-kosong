@@ -1,0 +1,283 @@
+---
+import { Image } from "astro:assets";
+import { foto } from "../lib/foto";
+import Icon from "./Icon.astro";
+
+interface Props {
+  items: readonly { foto: string; ket: string; alt: string }[];
+}
+
+const { items } = Astro.props;
+---
+
+<div class="tumpukan" data-tumpukan role="group" aria-roledescription="tumpukan foto" aria-label="Momen kegiatan Komunitas Kertas Kosong">
+  <div class="tumpukan-dek" data-dek>
+    {
+      items.map(({ foto: src, ket, alt }, i) => (
+        <figure class="lembar" data-lembar data-pos={Math.min(i, 3)} style={`--urut:${i}`} aria-hidden={i === 0 ? undefined : "true"}>
+          <Image
+            src={foto(src)}
+            alt={alt}
+            widths={[420, 640, 900]}
+            sizes="(min-width: 1024px) 40vw, 92vw"
+            loading={i === 0 ? "eager" : "lazy"}
+            fetchpriority={i === 0 ? "high" : undefined}
+            draggable="false"
+            class="lembar-foto"
+          />
+          <figcaption class="tulisan lembar-ket">{ket}</figcaption>
+        </figure>
+      ))
+    }
+  </div>
+
+  <p class="tulisan tumpukan-petunjuk" data-petunjuk aria-hidden="true">
+    <svg viewBox="0 0 70 40" class="h-8 w-14" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M66 8C50 2 22 6 8 30M6 16l2 15 14-5" />
+    </svg>
+    geser fotonya
+  </p>
+
+  <div class="mt-4 flex items-center justify-center gap-3">
+    <button type="button" data-mundur class="tumpukan-tombol" aria-label="Foto sebelumnya">
+      <Icon name="ChevronLeft" class="size-5" />
+    </button>
+    <span class="min-w-10 text-center text-sm tabular-nums text-slate-500" data-posisi>1 / {items.length}</span>
+    <button type="button" data-maju class="tumpukan-tombol" aria-label="Foto berikutnya">
+      <Icon name="ChevronRight" class="size-5" />
+    </button>
+  </div>
+</div>
+
+<style>
+  .tumpukan {
+    position: relative;
+  }
+  .tumpukan-dek {
+    position: relative;
+    aspect-ratio: 5 / 4.4;
+    touch-action: pan-y;
+  }
+  .lembar {
+    position: absolute;
+    inset: 0;
+    z-index: calc(20 - var(--urut));
+    display: flex;
+    flex-direction: column;
+    margin: 0;
+    cursor: grab;
+    border-radius: 4px;
+    background: white;
+    box-shadow:
+      0 1px 2px rgb(19 38 47 / 0.14),
+      0 18px 36px -18px rgb(19 38 47 / 0.45);
+    opacity: 1;
+    padding: 0.6rem 0.6rem 0;
+    transform: translate(var(--dx, 0px), var(--dy, 0px)) rotate(var(--putar, 0deg));
+    transition:
+      transform 0.55s var(--ease-kertas),
+      opacity 0.3s;
+    user-select: none;
+  }
+  .lembar[data-pos="0"] {
+    --putar: -1.5deg;
+  }
+  .lembar[data-pos="1"] {
+    --putar: 2.5deg;
+    --dx: 12px;
+    --dy: 5px;
+  }
+  .lembar[data-pos="2"] {
+    --putar: -4.5deg;
+    --dx: -10px;
+    --dy: 9px;
+  }
+  .lembar[data-pos="3"] {
+    --putar: 1deg;
+    opacity: 0;
+  }
+  .lembar.diseret {
+    cursor: grabbing;
+    transition: none;
+  }
+  .lembar.terlempar {
+    opacity: 0;
+    transition:
+      transform 0.45s ease-in,
+      opacity 0.4s ease-in;
+  }
+  .lembar-foto {
+    min-height: 0;
+    width: 100%;
+    flex: 1;
+    object-fit: cover;
+    pointer-events: none;
+  }
+  .lembar-ket {
+    color: var(--color-tinta-900);
+    font-size: 1.5rem;
+    line-height: 1.15;
+    padding: 0.4rem 0.25rem 0.5rem;
+    text-align: center;
+  }
+  .tumpukan-petunjuk {
+    position: absolute;
+    top: -2.25rem;
+    right: 0;
+    display: none;
+    align-items: center;
+    gap: 0.25rem;
+    color: var(--color-tinta-600);
+    font-size: 1.4rem;
+    transition: opacity 0.4s;
+  }
+  :global(html.js) .tumpukan-petunjuk {
+    display: flex;
+  }
+  .tumpukan[data-sudah] .tumpukan-petunjuk {
+    opacity: 0;
+  }
+  .tumpukan-tombol {
+    display: grid;
+    width: 2.75rem;
+    height: 2.75rem;
+    cursor: pointer;
+    place-items: center;
+    border: 1px solid var(--color-tinta-200);
+    border-radius: 9999px;
+    background: white;
+    color: var(--color-tinta-800);
+    transition:
+      background-color 0.15s,
+      scale 0.15s var(--ease-kertas);
+  }
+  .tumpukan-tombol:hover {
+    background: var(--color-tinta-50);
+  }
+  .tumpukan-tombol:active {
+    scale: 0.92;
+  }
+  :global(html:not(.js)) .tumpukan-tombol,
+  :global(html:not(.js)) [data-posisi] {
+    display: none;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-tumpukan]").forEach((akar) => {
+    const dek = akar.querySelector<HTMLElement>("[data-dek]");
+    const lembar = [...akar.querySelectorAll<HTMLElement>("[data-lembar]")];
+    const posisiEl = akar.querySelector<HTMLElement>("[data-posisi]");
+    const kurangiGerak = matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (!dek || lembar.length === 0) return;
+
+    let urutan = lembar.map((_, i) => i);
+    let sibuk = false;
+    let jeda = false;
+    let terlihat = true;
+
+    const atur = () => {
+      urutan.forEach((n, pos) => {
+        const el = lembar[n];
+        el.dataset.pos = String(Math.min(pos, 3));
+        el.style.setProperty("--urut", String(pos));
+        if (pos === 0) el.removeAttribute("aria-hidden");
+        else el.setAttribute("aria-hidden", "true");
+      });
+      if (posisiEl) posisiEl.textContent = `${urutan[0] + 1} / ${lembar.length}`;
+    };
+
+    const bersihkan = (el: HTMLElement) => {
+      el.classList.remove("terlempar", "diseret");
+      ["--dx", "--dy", "--putar"].forEach((v) => el.style.removeProperty(v));
+    };
+
+    const maju = (arah = 1) => {
+      if (sibuk) return;
+      const atas = lembar[urutan[0]];
+      sibuk = true;
+      bersihkan(atas);
+      atas.classList.add("terlempar");
+      atas.style.setProperty("--dx", `${arah * 125}%`);
+      atas.style.setProperty("--dy", "-6%");
+      atas.style.setProperty("--putar", `${arah * 16}deg`);
+      setTimeout(
+        () => {
+          urutan = [...urutan.slice(1), urutan[0]];
+          bersihkan(atas);
+          atur();
+          sibuk = false;
+        },
+        kurangiGerak ? 0 : 340,
+      );
+    };
+
+    const mundur = () => {
+      if (sibuk) return;
+      urutan = [urutan[urutan.length - 1], ...urutan.slice(0, -1)];
+      atur();
+    };
+
+    const sudah = () => akar.setAttribute("data-sudah", "");
+
+    akar.querySelector("[data-maju]")?.addEventListener("click", () => {
+      sudah();
+      maju();
+    });
+    akar.querySelector("[data-mundur]")?.addEventListener("click", () => {
+      sudah();
+      mundur();
+    });
+    akar.addEventListener("keydown", (e) => {
+      if (e.key === "ArrowRight") maju();
+      if (e.key === "ArrowLeft") mundur();
+    });
+
+    // Lembar teratas bisa diseret lalu dilempar.
+    let mulaiX = 0;
+    let mulaiY = 0;
+    let seret: HTMLElement | null = null;
+    dek.addEventListener("pointerdown", (e) => {
+      if (sibuk) return;
+      seret = lembar[urutan[0]];
+      mulaiX = e.clientX;
+      mulaiY = e.clientY;
+      seret.classList.add("diseret");
+      dek.setPointerCapture(e.pointerId);
+    });
+    dek.addEventListener("pointermove", (e) => {
+      if (!seret) return;
+      const dx = e.clientX - mulaiX;
+      seret.style.setProperty("--dx", `${dx}px`);
+      seret.style.setProperty("--dy", `${(e.clientY - mulaiY) * 0.3}px`);
+      seret.style.setProperty("--putar", `${dx / 18}deg`);
+    });
+    const lepas = (e: PointerEvent) => {
+      if (!seret) return;
+      const el = seret;
+      seret = null;
+      const dx = e.clientX - mulaiX;
+      el.classList.remove("diseret");
+      if (Math.abs(dx) > dek.clientWidth * 0.22) {
+        sudah();
+        maju(dx > 0 ? 1 : -1);
+      } else {
+        bersihkan(el);
+      }
+    };
+    dek.addEventListener("pointerup", lepas);
+    dek.addEventListener("pointercancel", lepas);
+
+    // Berganti sendiri pelan-pelan, berhenti saat disentuh atau tidak terlihat.
+    if (!kurangiGerak) {
+      akar.addEventListener("pointerenter", () => (jeda = true));
+      akar.addEventListener("pointerleave", () => (jeda = false));
+      akar.addEventListener("focusin", () => (jeda = true));
+      akar.addEventListener("focusout", () => (jeda = false));
+      new IntersectionObserver(([e]) => (terlihat = e.isIntersecting)).observe(akar);
+      setInterval(() => {
+        if (!jeda && terlihat && !document.hidden) maju();
+      }, 5000);
+    }
+  });
+</script>

@@ -1,0 +1,290 @@
+---
+import { jangkauan2026, kotaJangkauan, sebaran2026 } from "../data/bimbel";
+import { petaIndonesia, titikPeta } from "../data/peta-indonesia";
+
+interface Props {
+  class?: string;
+}
+
+const { class: className } = Astro.props;
+
+const lebarBingkai = 600;
+const tinggiBingkai = 366;
+const warnaBatang = ["bg-tinta-800", "bg-tinta-400", "bg-tinta-200"];
+const fmt = new Intl.NumberFormat("id-ID", { maximumFractionDigits: 1 });
+
+/** Posisi label [x, y, jangkar] supaya nama kota yang berdekatan tidak bertumpuk. */
+const posisiLabel: Record<string, [number, number, "start" | "middle" | "end"]> = {
+  Lamongan: [0, -11, "middle"],
+  Gresik: [7, -7, "start"],
+  Surabaya: [8, 5, "start"],
+  Bojonegoro: [-7, 4, "end"],
+  Tuban: [0, -8, "middle"],
+  Jombang: [7, 5, "start"],
+  Probolinggo: [7, 5, "start"],
+  Ponorogo: [7, 5, "start"],
+  Bekasi: [7, -6, "start"],
+  Depok: [-5, 13, "end"],
+  "Jakarta Selatan": [-6, -6, "end"],
+  Medan: [7, 5, "start"],
+  Binjai: [-6, -5, "end"],
+};
+
+const lamongan = kotaJangkauan[0];
+const [ax, ay] = titikPeta(lamongan.lintang, lamongan.bujur);
+
+const kota = kotaJangkauan.map((k, i) => {
+  const [x, y] = titikPeta(k.lintang, k.bujur);
+  const jarak = Math.hypot(x - ax, y - ay);
+  const tx = (ax + x) / 2;
+  const ty = (ay + y) / 2 - jarak * 0.28;
+  return { ...k, x, y, urut: i, kurva: `M${ax},${ay}Q${tx.toFixed(1)},${ty.toFixed(1)} ${x},${y}` };
+});
+
+const sebaranTeks = sebaran2026.map(({ nama, persen }) => `${nama} ${fmt.format(persen)} persen`).join(", ");
+const daftarKota = kotaJangkauan.map((k) => k.nama).join(", ");
+---
+
+<figure class:list={["peta", className]} data-peta data-muncul="skala">
+  <div class="relative overflow-hidden rounded-2xl border border-tinta-100 bg-tinta-50">
+    <svg
+      viewBox={`0 0 ${lebarBingkai} ${tinggiBingkai}`}
+      class="block h-auto w-full"
+      role="img"
+      aria-label={`Peta asal peserta Bimbel Ayo Kuliah 2026, berakar di Lamongan. Kota: ${daftarKota}.`}
+    >
+      <g class="peta-kamera" data-peta-kamera>
+        <path d={petaIndonesia} class="peta-darat" />
+        {kota.slice(1).map(({ kurva, urut, nama }) => <path d={kurva} pathLength="1" class="peta-kurva" style={`--jeda:${urut * 90}ms`} data-kurva={nama} />)}
+        {
+          kota.map(({ x, y, nama, urut }) => (
+            <g transform={`translate(${x} ${y})`} data-titik={nama} data-jatim={kota[urut].jatim ? "" : undefined} class:list={["peta-titik", urut === 0 && "peta-akar"]} style={`--jeda:${urut * 90 + 500}ms`}>
+              <g class="peta-tangan">
+                {urut === 0 && <circle r="9" class="peta-denyut" />}
+                <circle r={urut < 2 ? 5 : 3.5} class="peta-bulat" />
+                <text x={(posisiLabel[nama] ?? [8])[0]} y={(posisiLabel[nama] ?? [0, -7])[1]} text-anchor={(posisiLabel[nama] ?? [0, 0, "start"])[2]}>{nama}</text>
+              </g>
+            </g>
+          ))
+        }
+      </g>
+    </svg>
+    <div class="absolute left-3 top-3 flex gap-1 rounded-full bg-white/90 p-1 text-xs font-semibold shadow-sm backdrop-blur">
+      <button type="button" data-peta-tampil="semua" aria-pressed="true" class="peta-pilih">Semua kota</button>
+      <button type="button" data-peta-tampil="jatim" aria-pressed="false" class="peta-pilih">Jawa Timur</button>
+    </div>
+  </div>
+
+  <figcaption class="mt-4">
+    <p class="sr-only">{jangkauan2026.sebaran}</p>
+    <ul class="flex flex-wrap gap-1.5" aria-label="Kota asal peserta">
+      {
+        kota.map(({ nama }) => (
+          <li>
+            <button type="button" data-peta-kota={nama} class="peta-kota">
+              {nama}
+            </button>
+          </li>
+        ))
+      }
+    </ul>
+
+    <div class="mt-5" role="img" aria-label={`Sebaran peserta 2026: ${sebaranTeks}.`}>
+      <div class="flex h-3 gap-0.5 overflow-hidden rounded-full">
+        {sebaran2026.map(({ persen }, i) => <span class:list={["peta-batang", warnaBatang[i]]} style={`--lebar:${persen}%`} />)}
+      </div>
+      <ul class="mt-2 flex flex-wrap gap-x-5 gap-y-1 text-sm text-slate-600">
+        {
+          sebaran2026.map(({ nama, persen }, i) => (
+            <li class="flex items-center gap-1.5">
+              <span class:list={["size-2.5 rounded-full", warnaBatang[i]]} />
+              {nama} <strong class="font-semibold text-slate-900">{fmt.format(persen)}%</strong>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </figcaption>
+</figure>
+
+<style>
+  @property --z {
+    syntax: "<number>";
+    inherits: true;
+    initial-value: 1;
+  }
+  .peta-kamera {
+    --z: 1;
+    transform: translate(var(--tx, 0), var(--ty, 0)) scale(var(--z));
+    transform-origin: 0 0;
+    transition:
+      transform 1s var(--ease-kertas),
+      --z 1s var(--ease-kertas);
+  }
+  .peta-darat {
+    fill: var(--color-tinta-200);
+    stroke: white;
+    stroke-width: 0.6;
+    vector-effect: non-scaling-stroke;
+  }
+  .peta-kurva {
+    fill: none;
+    stroke: var(--color-tinta-600);
+    stroke-dasharray: 1;
+    stroke-dashoffset: 0;
+    stroke-linecap: round;
+    stroke-width: calc(1.1px / var(--z));
+    opacity: 0.55;
+    transition:
+      stroke-dashoffset 1.1s var(--ease-kertas) var(--jeda, 0ms),
+      opacity 0.2s;
+  }
+  .peta-kurva[data-aktif] {
+    stroke: var(--color-tinta-950);
+    opacity: 1;
+  }
+  .peta-tangan {
+    transform: scale(calc(1 / var(--z)));
+  }
+  .peta-titik {
+    transition: opacity 0.4s var(--jeda, 0ms);
+  }
+  .peta-bulat {
+    fill: var(--color-tinta-800);
+    stroke: white;
+    stroke-width: 1.5;
+  }
+  .peta-akar .peta-bulat {
+    fill: var(--color-stabilo);
+    stroke: var(--color-tinta-950);
+  }
+  .peta-denyut {
+    fill: none;
+    stroke: var(--color-tinta-700);
+    animation: denyut 2.4s var(--ease-kertas) infinite;
+  }
+  @keyframes denyut {
+    from {
+      opacity: 0.8;
+      scale: 0.5;
+    }
+    to {
+      opacity: 0;
+      scale: 1.8;
+    }
+  }
+  .peta-titik text {
+    fill: var(--color-tinta-950);
+    font-size: 13px;
+    font-weight: 700;
+    opacity: 0;
+    paint-order: stroke;
+    pointer-events: none;
+    stroke: white;
+    stroke-linejoin: round;
+    stroke-width: 3px;
+    transition: opacity 0.2s;
+  }
+  .peta-akar text,
+  .peta-titik[data-aktif] text,
+  [data-tampilan="jatim"] .peta-titik[data-jatim] text {
+    opacity: 1;
+  }
+  .peta-titik[data-aktif] .peta-bulat {
+    fill: var(--color-stabilo);
+    stroke: var(--color-tinta-950);
+  }
+  .peta-pilih {
+    cursor: pointer;
+    border-radius: 9999px;
+    color: var(--color-tinta-800);
+    padding: 0.3rem 0.7rem;
+    transition: background-color 0.2s;
+  }
+  .peta-pilih[aria-pressed="true"] {
+    background: var(--color-tinta-700);
+    color: white;
+  }
+  .peta-kota {
+    cursor: pointer;
+    border: 1px solid var(--color-tinta-200);
+    border-radius: 9999px;
+    background: white;
+    color: var(--color-tinta-800);
+    font-size: 0.8rem;
+    padding: 0.2rem 0.65rem;
+    transition:
+      background-color 0.15s,
+      border-color 0.15s;
+  }
+  .peta-kota:hover,
+  .peta-kota[data-aktif] {
+    border-color: var(--color-tinta-700);
+    background: var(--color-stabilo);
+  }
+  .peta-batang {
+    width: var(--lebar);
+    transition: width 1.2s var(--ease-kertas) 0.3s;
+  }
+
+  :global(html.js) .peta:not(.terlihat) .peta-kurva {
+    stroke-dashoffset: 1;
+  }
+  :global(html.js) .peta:not(.terlihat) .peta-titik:not(.peta-akar) {
+    opacity: 0;
+  }
+  :global(html.js) .peta:not(.terlihat) .peta-batang {
+    width: 0;
+  }
+</style>
+
+<script>
+  /** Sudut kiri atas dan lebar tampilan Jawa Timur, dalam satuan peta. */
+  const JATIM = { x: 322, y: 258, lebar: 86 };
+  const LEBAR_PETA = 600;
+
+  document.querySelectorAll<HTMLElement>("[data-peta]").forEach((peta) => {
+    const kamera = peta.querySelector<SVGGElement>("[data-peta-kamera]");
+    const tombol = peta.querySelectorAll<HTMLButtonElement>("[data-peta-tampil]");
+    const chip = peta.querySelectorAll<HTMLButtonElement>("[data-peta-kota]");
+    if (!kamera) return;
+
+    const tampil = (mode: string) => {
+      peta.dataset.tampilan = mode;
+      tombol.forEach((b) => b.setAttribute("aria-pressed", String(b.dataset.petaTampil === mode)));
+      if (mode === "jatim") {
+        const z = LEBAR_PETA / JATIM.lebar;
+        kamera.style.setProperty("--z", String(z));
+        kamera.style.setProperty("--tx", `${-JATIM.x * z}px`);
+        kamera.style.setProperty("--ty", `${-JATIM.y * z}px`);
+      } else {
+        kamera.style.setProperty("--z", "1");
+        kamera.style.setProperty("--tx", "0px");
+        kamera.style.setProperty("--ty", "0px");
+      }
+    };
+
+    const sorot = (nama: string | null) => {
+      peta.querySelectorAll("[data-aktif]").forEach((el) => el.removeAttribute("data-aktif"));
+      if (!nama) return;
+      peta.querySelectorAll(`[data-titik="${nama}"],[data-kurva="${nama}"],[data-peta-kota="${nama}"]`).forEach((el) => el.setAttribute("data-aktif", ""));
+    };
+
+    tombol.forEach((b) => b.addEventListener("click", () => tampil(b.dataset.petaTampil ?? "semua")));
+    chip.forEach((b) => {
+      const nama = b.dataset.petaKota ?? null;
+      b.addEventListener("pointerenter", () => sorot(nama));
+      b.addEventListener("focus", () => sorot(nama));
+      b.addEventListener("click", () => {
+        sorot(nama);
+        tampil(peta.querySelector(`[data-titik="${nama}"]`)?.hasAttribute("data-jatim") ? "jatim" : "semua");
+      });
+      b.addEventListener("pointerleave", () => sorot(null));
+      b.addEventListener("blur", () => sorot(null));
+    });
+    peta.querySelectorAll<SVGGElement>("[data-titik]").forEach((t) => {
+      t.addEventListener("pointerenter", () => sorot(t.dataset.titik ?? null));
+      t.addEventListener("pointerleave", () => sorot(null));
+    });
+  });
+</script>
