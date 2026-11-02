@@ -67,11 +67,11 @@ export const perjalanan: Peristiwa[] = [
   {
     tahun: "2025",
     isi: "Seminar Ayo Kuliah 25 Januari. Bimbel UTBK-SNBT 10 Maret - 20 April untuk 74 peserta. Graduation & Gear Up 21 April. 137 baju lebaran tersalurkan. Aplikasi Mandu dirilis.",
-    foto: "bimbel/bimbel-2025-poster-graduation.jpg",
+    foto: "bimbel/bimbel-2025-kelas-online-papan-tulis.jpg",
   },
   {
     tahun: "2026",
     isi: "Seminar Ayo Kuliah 24 Januari di SMAN 1 Dukun, Gresik. Bimbel Ayo Kuliah 2 Maret - 12 April menjangkau 171 siswa dari 50 sekolah dan 15 kota. Portal Bimbel dan tryout daring digunakan.",
-    foto: "bimbel/bimbel-2026-slide-jangkauan.jpg",
+    foto: "seminar/seminar-2026-foto-bersama-aula.jpg",
   },
 ];

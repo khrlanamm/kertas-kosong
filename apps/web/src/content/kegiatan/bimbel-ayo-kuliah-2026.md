@@ -5,7 +5,7 @@ tanggal: 2026-03-02
 tanggalSelesai: 2026-04-12
 lokasi: Daring (Zoom)
 ringkasan: Bimbel gratis persiapan UTBK-SNBT yang menjangkau 171 siswa dari 50 sekolah dan 15 kota.
-poster: ../../assets/foto/bimbel/bimbel-2026-slide-jangkauan.jpg
+poster: ../../assets/foto/bimbel/bimbel-2026-banner-graduation.jpg
 ---
 
 Bimbel Ayo Kuliah 2026 berjalan secara daring lewat Zoom, dalam **2 kelas** dengan **14 tentor** dan **14 fasilitator** relawan. Setiap sesi berlangsung 90 menit.

@@ -2,32 +2,78 @@
 import Icon from "./Icon.astro";
 ---
 
-<dialog
-  id="lightbox"
-  class="m-auto max-h-none max-w-none bg-transparent p-0 backdrop:bg-tinta-950/90"
-  aria-label="Foto diperbesar"
->
-  <div class="flex h-dvh w-screen flex-col items-center justify-center gap-3 p-4">
-    <img data-lightbox-img alt="" class="max-h-[80dvh] max-w-full rounded-lg object-contain shadow-2xl" />
-    <p data-lightbox-ket class="max-w-2xl text-center text-sm text-white"></p>
+<dialog id="lightbox" class="m-auto max-h-none max-w-none bg-transparent p-0 backdrop:bg-tinta-950/95" aria-label="Foto diperbesar">
+  <div class="flex h-dvh w-screen flex-col" data-lightbox-latar>
+    <div class="flex items-center justify-between gap-4 p-3 text-sm text-white/80">
+      <span data-lightbox-posisi class="tabular-nums"></span>
+      <div class="flex gap-2">
+        <button type="button" data-lightbox-salin class="grid size-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Salin tautan foto ini">
+          <Icon name="Link" class="size-5" />
+        </button>
+        <button type="button" data-lightbox-tutup class="grid size-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Tutup">
+          <Icon name="X" class="size-6" />
+        </button>
+      </div>
+    </div>
+
+    <div class="relative flex min-h-0 flex-1 touch-pan-y items-center justify-center px-2 sm:px-16" data-lightbox-panggung>
+      <img data-lightbox-img alt="" draggable="false" class="max-h-full max-w-full select-none rounded-md object-contain shadow-2xl transition-[translate,opacity] duration-200" />
+      <button type="button" data-lightbox-geser="-1" class="absolute left-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 sm:grid" aria-label="Foto sebelumnya">
+        <Icon name="ChevronLeft" class="size-6" />
+      </button>
+      <button type="button" data-lightbox-geser="1" class="absolute right-3 top-1/2 hidden size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25 sm:grid" aria-label="Foto berikutnya">
+        <Icon name="ChevronRight" class="size-6" />
+      </button>
+    </div>
+
+    <div class="px-4 pt-3 text-center">
+      <p data-lightbox-ket class="tulisan mx-auto max-w-2xl text-2xl leading-tight text-white"></p>
+      <p data-lightbox-sub class="mt-1 text-xs text-white/60"></p>
+    </div>
+    <div data-lightbox-strip class="mx-auto mt-2 flex max-w-full gap-1.5 overflow-x-auto p-3"></div>
   </div>
-  <button type="button" data-lightbox-tutup class="absolute right-4 top-4 grid size-11 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Tutup">
-    <Icon name="X" class="size-6" />
-  </button>
-  <button type="button" data-lightbox-geser="-1" class="absolute left-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Foto sebelumnya">
-    <Icon name="ChevronLeft" class="size-6" />
-  </button>
-  <button type="button" data-lightbox-geser="1" class="absolute right-3 top-1/2 grid size-11 -translate-y-1/2 place-items-center rounded-full bg-white/15 text-white hover:bg-white/25" aria-label="Foto berikutnya">
-    <Icon name="ChevronRight" class="size-6" />
-  </button>
 </dialog>
 
 <script>
   const dialog = document.getElementById("lightbox") as HTMLDialogElement | null;
   const gambar = dialog?.querySelector<HTMLImageElement>("[data-lightbox-img]");
   const keterangan = dialog?.querySelector<HTMLElement>("[data-lightbox-ket]");
+  const sub = dialog?.querySelector<HTMLElement>("[data-lightbox-sub]");
+  const posisiEl = dialog?.querySelector<HTMLElement>("[data-lightbox-posisi]");
+  const strip = dialog?.querySelector<HTMLElement>("[data-lightbox-strip]");
+  const panggung = dialog?.querySelector<HTMLElement>("[data-lightbox-panggung]");
+  const salin = dialog?.querySelector<HTMLButtonElement>("[data-lightbox-salin]");
+
   let daftar: HTMLElement[] = [];
   let posisi = 0;
+  let asal: HTMLElement | null = null;
+
+  /** Hanya foto yang lolos filter yang ikut digeser. */
+  const terlihat = () => [...document.querySelectorAll<HTMLElement>("[data-lightbox]")].filter((el) => !el.closest("li")?.hidden);
+
+  function pramuat(i: number) {
+    const el = daftar[(i + daftar.length) % daftar.length];
+    if (el?.dataset.src) new Image().src = el.dataset.src;
+  }
+
+  function isiStrip() {
+    if (!strip) return;
+    strip.replaceChildren(
+      ...daftar.map((el, i) => {
+        const b = document.createElement("button");
+        b.type = "button";
+        b.className = "lightbox-thumb";
+        b.setAttribute("aria-label", `Foto ${i + 1}: ${el.dataset.ket ?? ""}`);
+        const img = document.createElement("img");
+        img.src = el.dataset.kecil ?? "";
+        img.alt = "";
+        img.loading = "lazy";
+        b.append(img);
+        b.addEventListener("click", () => tampilkan(i));
+        return b;
+      }),
+    );
+  }
 
   function tampilkan(i: number) {
     if (!gambar || !keterangan || daftar.length === 0) return;
@@ -35,15 +81,29 @@ import Icon from "./Icon.astro";
     const el = daftar[posisi];
     gambar.src = el.dataset.src ?? "";
     gambar.alt = el.dataset.ket ?? "";
+    gambar.style.translate = "";
     keterangan.textContent = el.dataset.ket ?? "";
+    if (sub) sub.textContent = el.dataset.sub ?? "";
+    if (posisiEl) posisiEl.textContent = `${posisi + 1} / ${daftar.length}`;
+    strip?.querySelectorAll<HTMLElement>("button").forEach((b, n) => {
+      b.toggleAttribute("data-aktif", n === posisi);
+      if (n === posisi) b.scrollIntoView({ block: "nearest", inline: "center", behavior: "smooth" });
+    });
+    history.replaceState(null, "", `#foto-${el.dataset.id}`);
+    pramuat(posisi + 1);
+    pramuat(posisi - 1);
+  }
+
+  function buka(el: HTMLElement) {
+    daftar = terlihat();
+    asal = el;
+    isiStrip();
+    dialog?.showModal();
+    tampilkan(daftar.indexOf(el));
   }
 
   document.querySelectorAll<HTMLElement>("[data-lightbox]").forEach((tombol) => {
-    tombol.addEventListener("click", () => {
-      daftar = [...document.querySelectorAll<HTMLElement>(`[data-lightbox="${tombol.dataset.lightbox}"]`)];
-      tampilkan(daftar.indexOf(tombol));
-      dialog?.showModal();
-    });
+    tombol.addEventListener("click", () => buka(tombol));
   });
 
   dialog?.querySelectorAll<HTMLElement>("[data-lightbox-geser]").forEach((tombol) => {
@@ -51,10 +111,79 @@ import Icon from "./Icon.astro";
   });
   dialog?.querySelector("[data-lightbox-tutup]")?.addEventListener("click", () => dialog.close());
   dialog?.addEventListener("click", (e) => {
-    if (e.target === dialog || (e.target as HTMLElement).classList.contains("h-dvh")) dialog.close();
+    const t = e.target as HTMLElement;
+    if (t === dialog || t === panggung || t.hasAttribute("data-lightbox-latar")) dialog.close();
+  });
+  dialog?.addEventListener("close", () => {
+    history.replaceState(null, "", location.pathname + location.search);
+    asal?.focus();
   });
   dialog?.addEventListener("keydown", (e) => {
     if (e.key === "ArrowLeft") tampilkan(posisi - 1);
     if (e.key === "ArrowRight") tampilkan(posisi + 1);
   });
+
+  salin?.addEventListener("click", async () => {
+    await navigator.clipboard?.writeText(location.href).catch(() => {});
+    salin.setAttribute("aria-label", "Tautan tersalin");
+    salin.classList.add("bg-stabilo!", "text-tinta-950!");
+    setTimeout(() => {
+      salin.setAttribute("aria-label", "Salin tautan foto ini");
+      salin.classList.remove("bg-stabilo!", "text-tinta-950!");
+    }, 1400);
+  });
+
+  // Geser dengan jari atau mouse.
+  let mulaiX: number | null = null;
+  panggung?.addEventListener("pointerdown", (e) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    mulaiX = e.clientX;
+    panggung.setPointerCapture(e.pointerId);
+  });
+  panggung?.addEventListener("pointermove", (e) => {
+    if (mulaiX === null || !gambar) return;
+    gambar.style.translate = `${e.clientX - mulaiX}px 0`;
+  });
+  const lepas = (e: PointerEvent) => {
+    if (mulaiX === null || !gambar) return;
+    const jarak = e.clientX - mulaiX;
+    mulaiX = null;
+    if (Math.abs(jarak) > 60) tampilkan(posisi + (jarak < 0 ? 1 : -1));
+    else gambar.style.translate = "";
+  };
+  panggung?.addEventListener("pointerup", lepas);
+  panggung?.addEventListener("pointercancel", lepas);
+
+  // Tautan langsung: /galeri#foto-nama-berkas membuka foto itu.
+  const cocok = location.hash.match(/^#foto-(.+)$/);
+  if (cocok) {
+    const el = document.querySelector<HTMLElement>(`[data-lightbox][data-id="${CSS.escape(cocok[1])}"]`);
+    if (el) buka(el);
+  }
 </script>
+
+<style is:global>
+  .lightbox-thumb {
+    flex: none;
+    width: 3.5rem;
+    height: 3.5rem;
+    overflow: hidden;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    opacity: 0.5;
+    outline-offset: 1px;
+    transition: opacity 0.2s;
+  }
+  .lightbox-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+  .lightbox-thumb:hover,
+  .lightbox-thumb[data-aktif] {
+    opacity: 1;
+  }
+  .lightbox-thumb[data-aktif] {
+    outline: 2px solid var(--color-stabilo);
+  }
+</style>

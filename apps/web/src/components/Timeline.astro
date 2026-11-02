@@ -7,27 +7,203 @@ interface Props {
 }
 
 const { items } = Astro.props;
+
+const kelompok = [...new Set(items.map((p) => p.tahun))].map((tahun) => ({
+  tahun,
+  id: `tahun-${tahun.toLowerCase().replace(/\s+/g, "-")}`,
+  peristiwa: items.filter((p) => p.tahun === tahun),
+}));
 ---
 
-<ol class="relative space-y-10 border-l-2 border-dashed border-tinta-200 pl-6 sm:pl-10">
-  {
-    items.map(({ tahun, isi, foto }) => (
-      <li class="relative">
-        <span class="absolute -left-[2.05rem] top-1 grid size-5 place-items-center rounded-full border-4 border-kertas bg-tinta-600 sm:-left-[3.05rem]" />
-        <p class="inline-block rounded-full bg-stabilo/70 px-3 py-0.5 text-sm font-bold text-tinta-950">{tahun}</p>
-        <div class:list={["mt-3 grid gap-5", foto && "md:grid-cols-[1.4fr_1fr] md:items-start"]}>
-          <p class="text-lg leading-relaxed text-slate-700">{isi}</p>
-          {foto && (
-            <Foto
-              src={foto}
-              alt=""
-              widths={[400, 700]}
-              sizes="(min-width: 768px) 35vw, 100vw"
-              class="w-full rounded-xl border border-tinta-100 shadow-sm"
-            />
-          )}
-        </div>
-      </li>
-    ))
+<div class="perjalanan" data-perjalanan>
+  <nav aria-label="Lompat ke tahun" class="rel-tahun">
+    <ol>
+      {
+        kelompok.map(({ tahun, id }) => (
+          <li>
+            <a href={`#${id}`} data-rel={id}>
+              {tahun}
+            </a>
+          </li>
+        ))
+      }
+    </ol>
+  </nav>
+
+  <ol class="relative min-w-0 space-y-14 pl-7 sm:pl-12" data-garis>
+    <span class="garis-dasar" aria-hidden="true"></span>
+    <span class="garis-tinta" aria-hidden="true" data-tinta></span>
+    {
+      kelompok.map(({ tahun, id, peristiwa }) => (
+        <li id={id} class="relative scroll-mt-32" data-butir>
+          <span class="bulatan" aria-hidden="true" />
+          <h2 data-muncul class="tulisan text-4xl leading-none text-tinta-700">
+            {tahun}
+          </h2>
+          <div class="mt-4 space-y-8">
+            {peristiwa.map(({ isi, foto }, i) => (
+              <div class:list={["grid gap-5", foto && "md:grid-cols-[1.25fr_1fr] md:items-start"]}>
+                <p data-muncul class="text-lg leading-relaxed text-slate-700">
+                  {isi}
+                </p>
+                {foto && (
+                  <div data-muncul={i % 2 ? "kiri" : "kanan"} class:list={["bingkai-foto selotip relative", i % 2 ? "rotate-[1.2deg]" : "-rotate-[1.2deg]"]}>
+                    <Foto src={foto} alt="" widths={[400, 700]} sizes="(min-width: 768px) 32vw, 90vw" class="w-full" />
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </li>
+      ))
+    }
+  </ol>
+</div>
+
+<style>
+  .perjalanan {
+    display: grid;
+    gap: 2rem;
   }
-</ol>
+  .rel-tahun {
+    position: sticky;
+    top: 4rem;
+    z-index: 20;
+    margin-inline: -1rem;
+    overflow-x: auto;
+    background: color-mix(in oklab, var(--color-kertas) 92%, transparent);
+    backdrop-filter: blur(8px);
+    padding: 0.6rem 1rem;
+  }
+  .rel-tahun ol {
+    display: flex;
+    gap: 0.35rem;
+  }
+  .rel-tahun a {
+    display: block;
+    border-radius: 9999px;
+    color: var(--color-slate-500);
+    font-size: 0.9rem;
+    font-weight: 600;
+    padding: 0.2rem 0.7rem;
+    white-space: nowrap;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      translate 0.3s var(--ease-kertas);
+  }
+  .rel-tahun a:hover {
+    color: var(--color-tinta-800);
+  }
+  .rel-tahun a[aria-current] {
+    background: var(--color-stabilo);
+    color: var(--color-tinta-950);
+  }
+  @media (min-width: 64rem) {
+    .perjalanan {
+      grid-template-columns: 8rem 1fr;
+      gap: 3rem;
+    }
+    .rel-tahun {
+      top: 6rem;
+      align-self: start;
+      margin-inline: 0;
+      overflow: visible;
+      background: none;
+      backdrop-filter: none;
+      padding: 0;
+    }
+    .rel-tahun ol {
+      flex-direction: column;
+      align-items: flex-start;
+    }
+    .rel-tahun a[aria-current] {
+      translate: 0.4rem 0;
+    }
+  }
+  .garis-dasar,
+  .garis-tinta {
+    position: absolute;
+    top: 0.4rem;
+    bottom: 0;
+    left: 0.45rem;
+    width: 2px;
+  }
+  .garis-dasar {
+    background: repeating-linear-gradient(to bottom, var(--color-tinta-200) 0 6px, transparent 6px 12px);
+  }
+  .garis-tinta {
+    background: var(--color-tinta-600);
+    border-radius: 2px;
+    transform: scaleY(var(--isi, 1));
+    transform-origin: top;
+  }
+  :global(html.js) .garis-tinta {
+    transform: scaleY(var(--isi, 0));
+  }
+  .bulatan {
+    position: absolute;
+    top: 0.45rem;
+    left: -1.75rem;
+    width: 1.1rem;
+    height: 1.1rem;
+    border: 3px solid var(--color-kertas);
+    border-radius: 9999px;
+    background: var(--color-tinta-300);
+    transition:
+      background-color 0.3s,
+      scale 0.3s var(--ease-kertas);
+  }
+  @media (min-width: 40rem) {
+    .bulatan {
+      left: -3rem;
+    }
+  }
+  [data-butir].tercapai .bulatan {
+    background: var(--color-tinta-700);
+    scale: 1.2;
+  }
+</style>
+
+<script>
+  document.querySelectorAll<HTMLElement>("[data-perjalanan]").forEach((akar) => {
+    const garis = akar.querySelector<HTMLElement>("[data-garis]");
+    const tinta = akar.querySelector<HTMLElement>("[data-tinta]");
+    const butir = [...akar.querySelectorAll<HTMLElement>("[data-butir]")];
+    const rel = [...akar.querySelectorAll<HTMLElement>("[data-rel]")];
+    if (!garis || !tinta) return;
+
+    let aktif = "";
+    let menunggu = false;
+    const perbarui = () => {
+      menunggu = false;
+      const kotak = garis.getBoundingClientRect();
+      const titik = innerHeight * 0.55;
+      const isi = Math.min(1, Math.max(0, (titik - kotak.top) / kotak.height));
+      tinta.style.setProperty("--isi", String(isi));
+
+      let sekarang = butir[0]?.id ?? "";
+      for (const b of butir) {
+        const tercapai = b.getBoundingClientRect().top < titik;
+        b.classList.toggle("tercapai", tercapai);
+        if (tercapai) sekarang = b.id;
+      }
+      if (sekarang !== aktif) {
+        aktif = sekarang;
+        rel.forEach((a) => {
+          const cocok = a.dataset.rel === aktif;
+          a.toggleAttribute("aria-current", cocok);
+          if (cocok) a.parentElement?.parentElement?.scrollTo?.({ left: a.offsetLeft - 16, behavior: "smooth" });
+        });
+      }
+    };
+    const minta = () => {
+      if (menunggu) return;
+      menunggu = true;
+      requestAnimationFrame(perbarui);
+    };
+    addEventListener("scroll", minta, { passive: true });
+    addEventListener("resize", minta);
+    perbarui();
+  });
+</script>

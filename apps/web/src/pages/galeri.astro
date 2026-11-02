@@ -1,56 +1,116 @@
 ---
 import Galeri from "../components/Galeri.astro";
+import Icon from "../components/Icon.astro";
 import Lightbox from "../components/Lightbox.astro";
 import PageHero from "../components/PageHero.astro";
-import { album, liputan } from "../data/galeri";
+import { album } from "../data/galeri";
 import BaseLayout from "../layouts/BaseLayout.astro";
+
+const semuaFoto = album.flatMap((a) => a.foto);
+const daftarTahun = [...new Set(semuaFoto.flatMap((f) => (f.tahun ? [f.tahun] : [])))].sort().reverse();
 ---
 
 <BaseLayout title="Galeri" description="Dokumentasi kegiatan Komunitas Kertas Kosong: Seminar Ayo Kuliah, Bimbel Ayo Kuliah, Ayo Berbagi, relawan, masa awal, dan liputan media.">
   <PageHero eyebrow="Galeri" title="Dokumentasi kegiatan">
-    <p>Kumpulan foto dari kegiatan K3 sejak 2017. Klik foto untuk memperbesar.</p>
+    <p>Momen pilihan dari kegiatan K3 sejak 2017. Saring menurut kegiatan atau tahun, lalu buka fotonya.</p>
   </PageHero>
 
-  <nav aria-label="Album" class="sticky top-16 z-30 border-b border-tinta-100 bg-kertas/90 backdrop-blur">
-    <ul class="mx-auto flex max-w-6xl gap-2 overflow-x-auto px-4 py-3 sm:px-6">
-      {
-        [...album.map(({ id, judul }) => ({ id, judul })), { id: "liputan", judul: "Liputan Media" }].map(({ id, judul }) => (
-          <li>
-            <a href={`#${id}`} class="block whitespace-nowrap rounded-full border border-tinta-200 bg-white px-4 py-1.5 text-sm font-medium text-tinta-800 hover:bg-tinta-50">
-              {judul}
-            </a>
-          </li>
-        ))
-      }
-    </ul>
-  </nav>
-
-  <div class="mx-auto max-w-6xl space-y-16 px-4 py-14 sm:px-6">
-    {
-      album.map(({ id, judul, foto }) => (
-        <section id={id} class="scroll-mt-32">
-          <h2 class="mb-6 text-2xl font-extrabold">{judul}</h2>
-          <Galeri grup={id} items={foto} />
-        </section>
-      ))
-    }
-
-    <section id="liputan" class="scroll-mt-32">
-      <h2 class="mb-6 text-2xl font-extrabold">Liputan Media</h2>
-      <div class="space-y-10">
-        {
-          liputan.map(({ media, judul, foto }) => (
-            <div>
-              <p class="text-sm font-semibold uppercase tracking-wider text-tinta-500">{media}</p>
-              <h3 class="mb-4 mt-1 text-lg font-bold">{judul}</h3>
-              <Galeri grup="liputan" items={foto} />
-            </div>
-          ))
-        }
+  <div class="sticky top-16 z-30 border-b border-tinta-100 bg-kertas/90 backdrop-blur" data-saring>
+    <div class="mx-auto max-w-6xl space-y-2 px-4 py-3 sm:px-6">
+      <div class="flex gap-2 overflow-x-auto" role="group" aria-label="Saring menurut kegiatan">
+        <button type="button" class="chip" data-album-pilih="" aria-pressed="true">Semua</button>
+        {album.map(({ id, judul }) => <button type="button" class="chip" data-album-pilih={id} aria-pressed="false">{judul}</button>)}
       </div>
-      <p class="mt-6 text-sm text-slate-500">Cuplikan liputan adalah milik media terkait dan ditampilkan dengan menyebutkan sumbernya.</p>
-    </section>
+      <div class="flex items-center gap-2 overflow-x-auto" role="group" aria-label="Saring menurut tahun">
+        <Icon name="CalendarDays" class="size-4 shrink-0 text-tinta-500" />
+        <button type="button" class="chip chip-kecil" data-tahun-pilih="" aria-pressed="true">Semua tahun</button>
+        {daftarTahun.map((t) => <button type="button" class="chip chip-kecil" data-tahun-pilih={t} aria-pressed="false">{t}</button>)}
+        <span class="ml-auto whitespace-nowrap pl-3 text-sm text-slate-500" aria-live="polite" data-saring-jumlah>{semuaFoto.length} foto</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="mx-auto max-w-6xl px-4 py-10 sm:px-6">
+    <Galeri album={album} />
+    <p data-saring-kosong hidden class="tulisan py-16 text-center text-3xl text-tinta-600">Belum ada foto untuk pilihan ini.</p>
+    <p class="mt-8 text-sm text-slate-500">Cuplikan liputan adalah milik media terkait dan ditampilkan dengan menyebutkan sumbernya.</p>
   </div>
 
   <Lightbox />
 </BaseLayout>
+
+<style is:global>
+  .chip {
+    flex: none;
+    cursor: pointer;
+    border: 1px solid var(--color-tinta-200);
+    border-radius: 9999px;
+    background: white;
+    color: var(--color-tinta-800);
+    font-size: 0.875rem;
+    font-weight: 500;
+    padding: 0.35rem 0.95rem;
+    transition:
+      background-color 0.2s,
+      color 0.2s,
+      scale 0.15s var(--ease-kertas);
+  }
+  .chip:hover {
+    background: var(--color-tinta-50);
+  }
+  .chip:active {
+    scale: 0.96;
+  }
+  .chip[aria-pressed="true"] {
+    border-color: var(--color-tinta-700);
+    background: var(--color-tinta-700);
+    color: white;
+  }
+  .chip-kecil {
+    font-size: 0.8rem;
+    padding: 0.15rem 0.7rem;
+  }
+</style>
+
+<script>
+  const kotak = document.querySelector("[data-saring]");
+  const butir = [...document.querySelectorAll<HTMLElement>("[data-galeri] > li")];
+  const jumlah = document.querySelector("[data-saring-jumlah]");
+  const kosong = document.querySelector<HTMLElement>("[data-saring-kosong]");
+  let album = "";
+  let tahun = "";
+
+  function terapkan() {
+    let tampil = 0;
+    for (const li of butir) {
+      const cocok = (!album || li.dataset.album === album) && (!tahun || li.dataset.tahun === tahun);
+      li.hidden = !cocok;
+      if (cocok) {
+        tampil++;
+        li.classList.add("terlihat");
+      }
+    }
+    if (jumlah) jumlah.textContent = `${tampil} foto`;
+    if (kosong) kosong.hidden = tampil > 0;
+  }
+
+  function ganti() {
+    const lembut = !matchMedia("(prefers-reduced-motion: reduce)").matches && "startViewTransition" in document;
+    if (lembut) document.startViewTransition(terapkan);
+    else terapkan();
+  }
+
+  kotak?.addEventListener("click", (e) => {
+    const b = (e.target as HTMLElement).closest<HTMLButtonElement>("button");
+    if (!b) return;
+    const adalahAlbum = b.dataset.albumPilih !== undefined;
+    if (adalahAlbum) album = b.dataset.albumPilih ?? "";
+    else tahun = b.dataset.tahunPilih ?? "";
+    b.parentElement?.querySelectorAll("button").forEach((x) => x.setAttribute("aria-pressed", String(x === b)));
+    ganti();
+  });
+
+  // Tautan seperti /galeri#seminar langsung menyaring album itu.
+  const dariTautan = location.hash.slice(1);
+  if (dariTautan) kotak?.querySelector<HTMLButtonElement>(`[data-album-pilih="${CSS.escape(dariTautan)}"]`)?.click();
+</script>

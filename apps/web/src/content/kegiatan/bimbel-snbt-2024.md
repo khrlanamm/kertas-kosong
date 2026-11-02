@@ -5,7 +5,7 @@ tanggal: 2024-03-18
 tanggalSelesai: 2024-04-27
 lokasi: Daring dan luring (SMAN 1 Sukodadi)
 ringkasan: Bimbel gratis persiapan SNBT dalam 6 kelas, daring dan luring setiap Sabtu di SMAN 1 Sukodadi.
-poster: ../../assets/foto/bimbel/poster-bimbel-snbt-2024.jpg
+poster: ../../assets/foto/bimbel/bimbel-2024-kelas-luring.jpg
 ---
 
 Bimbel SNBT 2024 berjalan dalam **6 kelas**, secara daring dan luring setiap Sabtu di SMAN 1 Sukodadi. Setiap sesi berlangsung 60 menit.
